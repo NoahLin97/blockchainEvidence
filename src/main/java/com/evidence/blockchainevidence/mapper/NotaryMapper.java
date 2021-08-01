@@ -1,7 +1,6 @@
 package com.evidence.blockchainevidence.mapper;
 
-import com.evidence.blockchainevidence.entity.User;
-import com.evidence.blockchainevidence.entity.UserEntity;
+import com.evidence.blockchainevidence.entity.NotaryEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Component;
@@ -10,9 +9,9 @@ import java.util.List;
 
 @Mapper
 @Component
-public interface UserMapper {
+public interface NotaryMapper {
 
-    @Select("select * from user")
-    List<UserEntity> findAll();
+    @Select("select * from notary")
+    List<NotaryEntity> findAll();
 
 }

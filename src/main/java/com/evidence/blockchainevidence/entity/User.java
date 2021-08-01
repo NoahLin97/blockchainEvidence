@@ -3,7 +3,7 @@ package com.evidence.blockchainevidence.entity;
 public class User {
 
     private String id;
-    private String userName;
+    private String username;
     private String passWord;
     private String phoneNumber;
     private String idCard;
@@ -13,12 +13,14 @@ public class User {
     private String storageSpace;
     private String hasUsedStorage;
 
+
+
     public void setId(String id) {
         this.id = id;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUserName(String username) {
+        this.username = username;
     }
 
     public void setPassWord(String passWord) {
@@ -58,7 +60,7 @@ public class User {
     }
 
     public String getUserName() {
-        return userName;
+        return username;
     }
 
     public String getPassWord() {

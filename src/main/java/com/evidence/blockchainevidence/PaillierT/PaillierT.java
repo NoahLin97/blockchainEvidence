@@ -6,6 +6,7 @@ import java.util.*;
 public class PaillierT {
 
     public static final int alpha = 2;
+    //beta是用户数，默认为3
     public static final int beta = 3;
     public BigInteger p, q, lambda, x, x1, x2, h, a, g1, KKK, KK1, S, Xsigma, Hsigma;
     public BigInteger[] lambda1 = new BigInteger[alpha];
@@ -19,7 +20,7 @@ public class PaillierT {
     public BigInteger nsquare;
 
     // a random integer in Z*_{n^2} where gcd (L(g^lambda mod n^2), n) = 1.
-    private BigInteger g;
+    public BigInteger g;
 
     // number of bits of modulus
     private int bitLength;
@@ -95,6 +96,7 @@ public class PaillierT {
         // }
     }
 
+    //h是公钥
     public CipherPub Encryption(BigInteger m, BigInteger h) {
 
         BigInteger r = new BigInteger(bitLength, new Random());
