@@ -6,13 +6,13 @@ import java.util.Objects;
 @Entity
 @Table(name = "user", schema = "blockchain_evidence", catalog = "")
 public class UserEntity {
-    private int userId;
+    private String userId;
     private String username;
     private String password;
     private String phoneNumber;
     private String idCard;
     private String email;
-    private Object sex;
+    private Sex sex;
     private String remains;
     private String storageSpace;
     private String publicKey;
@@ -20,11 +20,11 @@ public class UserEntity {
 
     @Id
     @Column(name = "user_id")
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -80,11 +80,11 @@ public class UserEntity {
 
     @Basic
     @Column(name = "sex")
-    public Object getSex() {
+    public Sex getSex() {
         return sex;
     }
 
-    public void setSex(Object sex) {
+    public void setSex(Sex sex) {
         this.sex = sex;
     }
 

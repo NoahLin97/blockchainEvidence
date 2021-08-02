@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.evidence.blockchainevidence.PaillierT.CipherPub;
 import com.evidence.blockchainevidence.PaillierT.PaillierT;
 import com.evidence.blockchainevidence.entity.NotaryEntity;
-import com.evidence.blockchainevidence.entity.User;
+import com.evidence.blockchainevidence.entity.Sex;
 import com.evidence.blockchainevidence.helib.SEA;
 import com.evidence.blockchainevidence.helib.SLT;
 import com.evidence.blockchainevidence.mapper.NotaryMapper;
@@ -23,10 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 
 @RestController
@@ -211,79 +208,131 @@ public class UserController {
     }
 
     /**
-     * 用户登录
-     * @param username 用户名
-     * @param password 密码
-     * @return
-     */
-    @PostMapping("/login")
-    public Object loginUser(String username,String password){
-
-        User user1 = null;
-        Map<String,String> result = new HashMap<>();
-
-        // 将密码用sha-256加密
-        password = Sha256.SHA(password);
-//        System.out.println("SHA-256后密码为：" + password);
-
-        // 判断用户名和密码对是否存在数据库中
-        user1=userService.selectByNameAndPwd(username,password);
-        if(user1 != null){
-            result.put("message","登陆成功");
-            result.put("username",user1.getUsername());
-            return result;
-        }
-
-        result.put("message","登录失败");
-        return result;
-    }
-
-    /**
      * 用户注册
-     * @param userId 用户Id
-     * @param username 用户名
-     * @param password 密码
-     * @param phoneNumber 电话号码
-     * @param idCard 身份证号码
-     * @param email 邮箱
-     * @param sex 性别
-     * @param remains 余额
-     * @param storageSpace 存储空间
-     * @param hasUsedStorage 已使用存储空间
+     * @param req
      * @return
      */
-    @PostMapping("/user/register")
-    public Object registerUser(int userId, String username, String password, String phoneNumber, String idCard,
-                               String email, User.Sex sex, int remains, int storageSpace, int hasUsedStorage){
+    @CrossOrigin(origins = "*")
+    @PostMapping("/user/regist")
+    public Object registerUser(HttpServletRequest req){
 
-        Map<String,String> result = new HashMap<>();
+        Map<String,Object> result = new HashMap<>();
 
-        // 将密码用sha-256加密
-        password = Sha256.SHA(password);
-//        System.out.println("SHA-256后密码为：" + password);
+        try{
+            JSONObject params = ParseRequest.parse(req);
 
-        // 生成注册用户的公私钥
-        PaillierT paillier = new PaillierT();
-        BigInteger sk = new BigInteger(1024, 64, new Random());
-        BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+            // 获取参数
+            String username = params.get("username").toString();
+            String password = params.get("password").toString();
+            String phoneNumber = params.get("phoneNumber").toString();
+            String idCard = params.get("idCard").toString();
+            String email = params.get("email").toString();
 
-        // 数据库public_key字段长度要设置大一点,不然存不下
-        String publicKey = pk.toString();
-//        System.out.println("公钥为：" + pk);
-//        System.out.println("公钥为：" + publicKey);
+            // 处理sex枚举类型数据
+            Integer s = Integer.parseInt(params.get("sex").toString());
+            Sex sex =Sex.getByValue(s);
+            System.out.println("性别为：" + sex.getKey());
 
-        int flag = userService.insertUser(userId,username,password,phoneNumber,idCard,
-                email,sex,remains,storageSpace,hasUsedStorage,publicKey);
+            // 将密码用sha-256加密
+            password = Sha256.SHA(password);
+            System.out.println("SHA-256后密码为：" + password);
 
-        if(flag == 1){
-            result.put("message","注册成功");
-            return result;
+            // 生成userId
+            String id = UUID.randomUUID().toString();
+            // 将UUID中的“-”去掉
+            String userId = id.replace("-" , "");
+            System.out.println("userId为：" + userId);
+
+            // 假定初始存储空间为100
+            int storageSpace = 100;
+            int hasUsedStorage = 0;
+            int remains = storageSpace - hasUsedStorage;
+
+            // 生成注册用户的公私钥
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+
+            // 数据库public_key字段长度要设置大一点,不然存不下
+            String publicKey = pk.toString();
+            // System.out.println("公钥为：" + pk);
+            System.out.println("公钥为：" + publicKey);
+
+            // 身份证加密
+            K2C8 SK0 = new K2C8(idCard,pk,paillier);
+            System.out.println("K2C8转换后的大整数为：" + SK0.getB());
+            SK0.StepOne();
+            String sidCard = SK0.FIN.toString();
+            System.out.println("K2C8加密后的大整数为：" + sidCard);
+            // 将密文赋值给idCard,数据库id_card字段长度也要设置大一点，不然放不下
+            idCard = sidCard;
+
+            // 身份证解密测试
+            BigInteger midCard = paillier.SDecryption(SK0.FIN);
+            System.out.println("解密后的值为：" + midCard);
+
+            // 存入数据库
+            int flag = userService.insertUser(userId,username,password,phoneNumber,idCard,email,sex,remains,storageSpace,hasUsedStorage,publicKey);
+
+            if(flag == 1){
+                result.put("status",true);
+                result.put("message","注册成功!");
+                // 注册成功返回公钥
+                result.put("publicKey",publicKey);
+            }
+            else{
+                result.put("status",false);
+                result.put("message","注册失败!");
+            }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
         }
-        else {
-            result.put("message","注册失败");
-            return result;
-        }
+        return result;
+
     }
+
+
+
+
+
+//    /**
+//     * 用户登录
+//     * @param username 用户名
+//     * @param password 密码
+//     * @return
+//     */
+//    @PostMapping("/login")
+//    public Object loginUser(String username,String password){
+//
+//        User user1 = null;
+//        Map<String,String> result = new HashMap<>();
+//
+//        // 将密码用sha-256加密
+//        password = Sha256.SHA(password);
+////        System.out.println("SHA-256后密码为：" + password);
+//
+//        // 判断用户名和密码对是否存在数据库中
+//        user1=userService.selectByNameAndPwd(username,password);
+//        if(user1 != null){
+//            result.put("message","登陆成功");
+//            result.put("username",user1.getUsername());
+//            return result;
+//        }
+//
+//        result.put("message","登录失败");
+//        return result;
+//    }
+//
+
+
 
 
 

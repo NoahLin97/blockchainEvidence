@@ -1,7 +1,9 @@
 package com.evidence.blockchainevidence.subprotocols;
 
+import com.evidence.blockchainevidence.PaillierT.CipherPub;
+import com.evidence.blockchainevidence.PaillierT.PaillierT;
+
 import java.math.BigInteger;
-import com.evidence.blockchainevidence.PaillierT.*;
 
 public class K2C8 {
 
@@ -55,6 +57,31 @@ public class K2C8 {
 
         timeCP = timeCP + (t2 - t1);
         timeTotal = timeCP + timeCSP;
+    }
+
+    // 返回加密前的大整数
+    public BigInteger getB(){
+
+        BigInteger B = BigInteger.ZERO;
+
+        BigInteger temp1;
+        BigInteger temp2;
+
+        t1 = System.currentTimeMillis();
+        for (int i = 0; i < S.length(); i++) {
+            temp1 = BigInteger.valueOf(2).modPow(BigInteger.valueOf(8*i), paillier.n);
+            temp2 = BigInteger.valueOf((int) (byte)S.charAt(i)).multiply(temp1);
+            B = B.add(temp2);
+
+//    		System.out.print(S.charAt(i)+"\n");
+//    		System.out.print("0x"+Integer.toHexString((byte) S.charAt(i))+"\n");
+//    		System.out.print((int) (byte)S.charAt(i)+"\n");
+//    		System.out.print("temp1="+temp1+"\n");
+//    		System.out.print("temp2="+temp2+"\n");
+        }
+
+        return B;
+
     }
 
 
