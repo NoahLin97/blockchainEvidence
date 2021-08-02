@@ -15,6 +15,7 @@ public class OrganizationStatisticsEntity {
     private Double notarizationSuccessRate;
     private Integer notstyCount;
     private Timestamp timeFlag;
+    private Integer notarizationSuccessCount;
 
     @Id
     @Column(name = "organization_statistics_id")
@@ -107,5 +108,15 @@ public class OrganizationStatisticsEntity {
     @Override
     public int hashCode() {
         return Objects.hash(organizationStatisticsId, organizationId, organizationName, notarizationCount, notarizationTotalMoney, notarizationSuccessRate, notstyCount, timeFlag);
+    }
+
+    @Basic
+    @Column(name = "notarization_success_count")
+    public Integer getNotarizationSuccessCount() {
+        return notarizationSuccessCount;
+    }
+
+    public void setNotarizationSuccessCount(Integer notarizationSuccessCount) {
+        this.notarizationSuccessCount = notarizationSuccessCount;
     }
 }

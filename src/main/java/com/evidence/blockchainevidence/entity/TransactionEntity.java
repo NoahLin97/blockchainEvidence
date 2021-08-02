@@ -55,6 +55,10 @@ public class TransactionEntity {
         return transactionMoney;
     }
 
+    public void setTransactionMoney(String transactionMoney) {
+        this.transactionMoney = transactionMoney;
+    }
+
     public void setTransactionMoney(Integer transactionMoney) {
         this.transactionMoney = transactionMoney;
     }
@@ -63,6 +67,10 @@ public class TransactionEntity {
     @Column(name = "transaction_people")
     public Integer getTransactionPeople() {
         return transactionPeople;
+    }
+
+    public void setTransactionPeople(String transactionPeople) {
+        this.transactionPeople = transactionPeople;
     }
 
     public void setTransactionPeople(Integer transactionPeople) {
@@ -93,6 +101,10 @@ public class TransactionEntity {
     @Column(name = "storage_size")
     public Integer getStorageSize() {
         return storageSize;
+    }
+
+    public void setStorageSize(String storageSize) {
+        this.storageSize = storageSize;
     }
 
     public void setStorageSize(Integer storageSize) {

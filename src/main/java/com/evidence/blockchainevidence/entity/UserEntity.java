@@ -94,6 +94,10 @@ public class UserEntity {
         return remains;
     }
 
+    public void setRemains(String remains) {
+        this.remains = remains;
+    }
+
     public void setRemains(Integer remains) {
         this.remains = remains;
     }
@@ -102,6 +106,10 @@ public class UserEntity {
     @Column(name = "storage_space")
     public Integer getStorageSpace() {
         return storageSpace;
+    }
+
+    public void setStorageSpace(String storageSpace) {
+        this.storageSpace = storageSpace;
     }
 
     public void setStorageSpace(Integer storageSpace) {
