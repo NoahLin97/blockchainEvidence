@@ -4,47 +4,35 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "notary", schema = "blockchain_evidence", catalog = "")
-public class NotaryEntity {
-    private int notaryId;
-    private String notaryName;
-    private String jobNumber;
+@Table(name = "aut_manager", schema = "blockchain_evidence", catalog = "")
+public class AutManagerEntity {
+    private int autManId;
+    private String username;
     private String password;
     private String phoneNumber;
     private String idCard;
     private String email;
     private Object sex;
     private Integer organizationId;
-    private Object notarizationType;
 
     @Id
-    @Column(name = "notary_id")
-    public int getNotaryId() {
-        return notaryId;
+    @Column(name = "aut_man_id")
+    public int getAutManId() {
+        return autManId;
     }
 
-    public void setNotaryId(int notaryId) {
-        this.notaryId = notaryId;
-    }
-
-    @Basic
-    @Column(name = "notary_name")
-    public String getNotaryName() {
-        return notaryName;
-    }
-
-    public void setNotaryName(String notaryName) {
-        this.notaryName = notaryName;
+    public void setAutManId(int autManId) {
+        this.autManId = autManId;
     }
 
     @Basic
-    @Column(name = "job_number")
-    public String getJobNumber() {
-        return jobNumber;
+    @Column(name = "username")
+    public String getUsername() {
+        return username;
     }
 
-    public void setJobNumber(String jobNumber) {
-        this.jobNumber = jobNumber;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     @Basic
@@ -107,26 +95,16 @@ public class NotaryEntity {
         this.organizationId = organizationId;
     }
 
-    @Basic
-    @Column(name = "notarization_type")
-    public Object getNotarizationType() {
-        return notarizationType;
-    }
-
-    public void setNotarizationType(Object notarizationType) {
-        this.notarizationType = notarizationType;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        NotaryEntity that = (NotaryEntity) o;
-        return notaryId == that.notaryId && Objects.equals(notaryName, that.notaryName) && Objects.equals(jobNumber, that.jobNumber) && Objects.equals(password, that.password) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(idCard, that.idCard) && Objects.equals(email, that.email) && Objects.equals(sex, that.sex) && Objects.equals(organizationId, that.organizationId) && Objects.equals(notarizationType, that.notarizationType);
+        AutManagerEntity that = (AutManagerEntity) o;
+        return autManId == that.autManId && Objects.equals(username, that.username) && Objects.equals(password, that.password) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(idCard, that.idCard) && Objects.equals(email, that.email) && Objects.equals(sex, that.sex) && Objects.equals(organizationId, that.organizationId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(notaryId, notaryName, jobNumber, password, phoneNumber, idCard, email, sex, organizationId, notarizationType);
+        return Objects.hash(autManId, username, password, phoneNumber, idCard, email, sex, organizationId);
     }
 }

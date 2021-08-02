@@ -6,20 +6,25 @@ import java.util.Objects;
 @Entity
 @Table(name = "user", schema = "blockchain_evidence", catalog = "")
 public class UserEntity {
-    private Object userId;
+    private int userId;
     private String username;
+    private String password;
+    private String phoneNumber;
+    private String idCard;
+    private String email;
+    private Object sex;
     private Integer remains;
     private Integer storageSpace;
-    private Object userid;
-    private Integer storagespace;
+    private String publicKey;
+    private Integer hasUsedStorage;
 
     @Id
-    @Column(name = "userid")
-    public Object getUserId() {
+    @Column(name = "user_id")
+    public int getUserId() {
         return userId;
     }
 
-    public void setUserId(Object userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 
@@ -34,6 +39,56 @@ public class UserEntity {
     }
 
     @Basic
+    @Column(name = "password")
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Basic
+    @Column(name = "phone_number")
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    @Basic
+    @Column(name = "id_card")
+    public String getIdCard() {
+        return idCard;
+    }
+
+    public void setIdCard(String idCard) {
+        this.idCard = idCard;
+    }
+
+    @Basic
+    @Column(name = "email")
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Basic
+    @Column(name = "sex")
+    public Object getSex() {
+        return sex;
+    }
+
+    public void setSex(Object sex) {
+        this.sex = sex;
+    }
+
+    @Basic
     @Column(name = "remains")
     public Integer getRemains() {
         return remains;
@@ -44,7 +99,7 @@ public class UserEntity {
     }
 
     @Basic
-    @Column(name = "storagespace")
+    @Column(name = "storage_space")
     public Integer getStorageSpace() {
         return storageSpace;
     }
@@ -53,39 +108,36 @@ public class UserEntity {
         this.storageSpace = storageSpace;
     }
 
+    @Basic
+    @Column(name = "public_key")
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    @Basic
+    @Column(name = "has_used_storage")
+    public Integer getHasUsedStorage() {
+        return hasUsedStorage;
+    }
+
+    public void setHasUsedStorage(Integer hasUsedStorage) {
+        this.hasUsedStorage = hasUsedStorage;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserEntity that = (UserEntity) o;
-        return Objects.equals(userId, that.userId) &&
-                Objects.equals(username, that.username) &&
-                Objects.equals(remains, that.remains) &&
-                Objects.equals(storageSpace, that.storageSpace);
+        return userId == that.userId && Objects.equals(username, that.username) && Objects.equals(password, that.password) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(idCard, that.idCard) && Objects.equals(email, that.email) && Objects.equals(sex, that.sex) && Objects.equals(remains, that.remains) && Objects.equals(storageSpace, that.storageSpace) && Objects.equals(publicKey, that.publicKey) && Objects.equals(hasUsedStorage, that.hasUsedStorage);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, username, remains, storageSpace);
-    }
-
-    @Id
-    @Column(name = "userid")
-    public Object getUserid() {
-        return userid;
-    }
-
-    public void setUserid(Object userid) {
-        this.userid = userid;
-    }
-
-    @Basic
-    @Column(name = "storagespace")
-    public Integer getStoragespace() {
-        return storagespace;
-    }
-
-    public void setStoragespace(Integer storagespace) {
-        this.storagespace = storagespace;
+        return Objects.hash(userId, username, password, phoneNumber, idCard, email, sex, remains, storageSpace, publicKey, hasUsedStorage);
     }
 }

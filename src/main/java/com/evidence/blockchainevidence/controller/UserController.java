@@ -1,31 +1,32 @@
 package com.evidence.blockchainevidence.controller;
 
-
 import com.alibaba.fastjson.JSONObject;
 import com.evidence.blockchainevidence.PaillierT.CipherPub;
 import com.evidence.blockchainevidence.PaillierT.PaillierT;
 import com.evidence.blockchainevidence.entity.NotaryEntity;
-import com.evidence.blockchainevidence.entity.UserEntity;
+import com.evidence.blockchainevidence.entity.User;
 import com.evidence.blockchainevidence.helib.SEA;
 import com.evidence.blockchainevidence.helib.SLT;
 import com.evidence.blockchainevidence.mapper.NotaryMapper;
 import com.evidence.blockchainevidence.mapper.UserMapper;
+import com.evidence.blockchainevidence.service.UserService;
 import com.evidence.blockchainevidence.subprotocols.K2C8;
 import com.evidence.blockchainevidence.subprotocols.KMP;
 import com.evidence.blockchainevidence.utils.ParseRequest;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
+import com.evidence.blockchainevidence.utils.Sha256;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 
 @RestController
@@ -35,13 +36,10 @@ public class UserController {
     UserMapper userMapper;
     @Autowired(required = false)
     NotaryMapper notaryMapper;
+    @Autowired
+    UserService userService;
 
-    @RequestMapping("/user")
-    public Object userMapper(Model m){
-        List<UserEntity> users = userMapper.findAll();
-        m.addAttribute("user",users);
-        return users;
-    }
+
     /**
      * 数据库查询测试
      */
@@ -211,6 +209,84 @@ public class UserController {
         return result;
 
     }
+
+    /**
+     * 用户登录
+     * @param username 用户名
+     * @param password 密码
+     * @return
+     */
+    @PostMapping("/login")
+    public Object loginUser(String username,String password){
+
+        User user1 = null;
+        Map<String,String> result = new HashMap<>();
+
+        // 将密码用sha-256加密
+        password = Sha256.SHA(password);
+//        System.out.println("SHA-256后密码为：" + password);
+
+        // 判断用户名和密码对是否存在数据库中
+        user1=userService.selectByNameAndPwd(username,password);
+        if(user1 != null){
+            result.put("message","登陆成功");
+            result.put("username",user1.getUsername());
+            return result;
+        }
+
+        result.put("message","登录失败");
+        return result;
+    }
+
+    /**
+     * 用户注册
+     * @param userId 用户Id
+     * @param username 用户名
+     * @param password 密码
+     * @param phoneNumber 电话号码
+     * @param idCard 身份证号码
+     * @param email 邮箱
+     * @param sex 性别
+     * @param remains 余额
+     * @param storageSpace 存储空间
+     * @param hasUsedStorage 已使用存储空间
+     * @return
+     */
+    @PostMapping("/user/register")
+    public Object registerUser(int userId, String username, String password, String phoneNumber, String idCard,
+                               String email, User.Sex sex, int remains, int storageSpace, int hasUsedStorage){
+
+        Map<String,String> result = new HashMap<>();
+
+        // 将密码用sha-256加密
+        password = Sha256.SHA(password);
+//        System.out.println("SHA-256后密码为：" + password);
+
+        // 生成注册用户的公私钥
+        PaillierT paillier = new PaillierT();
+        BigInteger sk = new BigInteger(1024, 64, new Random());
+        BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+
+        // 数据库public_key字段长度要设置大一点,不然存不下
+        String publicKey = pk.toString();
+//        System.out.println("公钥为：" + pk);
+//        System.out.println("公钥为：" + publicKey);
+
+        int flag = userService.insertUser(userId,username,password,phoneNumber,idCard,
+                email,sex,remains,storageSpace,hasUsedStorage,publicKey);
+
+        if(flag == 1){
+            result.put("message","注册成功");
+            return result;
+        }
+        else {
+            result.put("message","注册失败");
+            return result;
+        }
+    }
+
+
+
 
 }
 

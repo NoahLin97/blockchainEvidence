@@ -2,29 +2,38 @@ package com.evidence.blockchainevidence.entity;
 
 public class User {
 
-    private String id;
+    private int userId;
     private String username;
-    private String passWord;
+    private String password;
     private String phoneNumber;
     private String idCard;
-    private String eMail;
-    private String sex;
-    private String remains;
-    private String storageSpace;
-    private String hasUsedStorage;
+    private String email;
+    public enum Sex{
+        MALE,
+        FEMALE
+    };
+    private Sex sex;
+    private int remains;
+    private int storageSpace;
+    private int hasUsedStorage;
+    private String public_key;
 
+    public User(){}
 
-
-    public void setId(String id) {
-        this.id = id;
+    public void setSex(Sex sex) {
+        this.sex = sex;
     }
 
-    public void setUserName(String username) {
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public void setUsername(String username) {
         this.username = username;
     }
 
-    public void setPassWord(String passWord) {
-        this.passWord = passWord;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public void setPhoneNumber(String phoneNumber) {
@@ -35,36 +44,40 @@ public class User {
         this.idCard = idCard;
     }
 
-    public void seteMail(String eMail) {
-        this.eMail = eMail;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public void setSex(String sex) {
-        this.sex = sex;
-    }
-
-    public void setRemains(String remains) {
+    public void setRemains(int remains) {
         this.remains = remains;
     }
 
-    public void setStorageSpace(String storageSpace) {
+    public void setStorageSpace(int storageSpace) {
         this.storageSpace = storageSpace;
     }
 
-    public void setHasUsedStorage(String hasUsedStorage) {
+    public void setHasUsedStorage(int hasUsedStorage) {
         this.hasUsedStorage = hasUsedStorage;
     }
 
-    public String getId() {
-        return id;
+    public void setPublic_key(String public_key) {
+        this.public_key = public_key;
     }
 
-    public String getUserName() {
+    public int getUserId() {
+        return userId;
+    }
+
+    public Sex getSex() {
+        return sex;
+    }
+
+    public String getUsername() {
         return username;
     }
 
-    public String getPassWord() {
-        return passWord;
+    public String getPassword() {
+        return password;
     }
 
     public String getPhoneNumber() {
@@ -75,25 +88,23 @@ public class User {
         return idCard;
     }
 
-    public String geteMail() {
-        return eMail;
+    public String getEmail() {
+        return email;
     }
 
-    public String getSex() {
-        return sex;
-    }
-
-    public String getRemains() {
+    public int getRemains() {
         return remains;
     }
 
-    public String getStorageSpace() {
+    public int getStorageSpace() {
         return storageSpace;
     }
 
-    public String getHasUsedStorage() {
+    public int getHasUsedStorage() {
         return hasUsedStorage;
     }
 
-
+    public String getPublic_key() {
+        return public_key;
+    }
 }
