@@ -28,6 +28,8 @@ public class EvidenceEntity {
     private String notarizationInformation;
     private Timestamp notarizationEndTime;
     private String notarizationMatters;
+    private String notarizationBlockchainIdStart;
+    private String notarizationBlockchainIdEnd;
 
     @Id
     @Column(name = "evidence_id")
@@ -239,16 +241,36 @@ public class EvidenceEntity {
         this.notarizationMatters = notarizationMatters;
     }
 
+    @Basic
+    @Column(name = "notarization_blockchain_id_start")
+    public String getNotarizationBlockchainIdStart() {
+        return notarizationBlockchainIdStart;
+    }
+
+    public void setNotarizationBlockchainIdStart(String notarizationBlockchainIdStart) {
+        this.notarizationBlockchainIdStart = notarizationBlockchainIdStart;
+    }
+
+    @Basic
+    @Column(name = "notarization_blockchain_id_end")
+    public String getNotarizationBlockchainIdEnd() {
+        return notarizationBlockchainIdEnd;
+    }
+
+    public void setNotarizationBlockchainIdEnd(String notarizationBlockchainIdEnd) {
+        this.notarizationBlockchainIdEnd = notarizationBlockchainIdEnd;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EvidenceEntity that = (EvidenceEntity) o;
-        return evidenceId == that.evidenceId && Objects.equals(userId, that.userId) && Objects.equals(evidenceType, that.evidenceType) && Objects.equals(evidenceName, that.evidenceName) && Objects.equals(filePath, that.filePath) && Objects.equals(fileSize, that.fileSize) && Objects.equals(fileHash, that.fileHash) && Objects.equals(evidenceBlockchainId, that.evidenceBlockchainId) && Objects.equals(blockchainTime, that.blockchainTime) && Objects.equals(evidenceTime, that.evidenceTime) && Objects.equals(organizationId, that.organizationId) && Objects.equals(notaryId, that.notaryId) && Objects.equals(notarizationStatus, that.notarizationStatus) && Objects.equals(transactionId, that.transactionId) && Objects.equals(notarizationStartTime, that.notarizationStartTime) && Objects.equals(notarizationBlockchainId, that.notarizationBlockchainId) && Objects.equals(notarizationMoney, that.notarizationMoney) && Objects.equals(notarizationType, that.notarizationType) && Objects.equals(notarizationInformation, that.notarizationInformation) && Objects.equals(notarizationEndTime, that.notarizationEndTime) && Objects.equals(notarizationMatters, that.notarizationMatters);
+        return evidenceId == that.evidenceId && Objects.equals(userId, that.userId) && Objects.equals(evidenceType, that.evidenceType) && Objects.equals(evidenceName, that.evidenceName) && Objects.equals(filePath, that.filePath) && Objects.equals(fileSize, that.fileSize) && Objects.equals(fileHash, that.fileHash) && Objects.equals(evidenceBlockchainId, that.evidenceBlockchainId) && Objects.equals(blockchainTime, that.blockchainTime) && Objects.equals(evidenceTime, that.evidenceTime) && Objects.equals(organizationId, that.organizationId) && Objects.equals(notaryId, that.notaryId) && Objects.equals(notarizationStatus, that.notarizationStatus) && Objects.equals(transactionId, that.transactionId) && Objects.equals(notarizationStartTime, that.notarizationStartTime) && Objects.equals(notarizationBlockchainId, that.notarizationBlockchainId) && Objects.equals(notarizationMoney, that.notarizationMoney) && Objects.equals(notarizationType, that.notarizationType) && Objects.equals(notarizationInformation, that.notarizationInformation) && Objects.equals(notarizationEndTime, that.notarizationEndTime) && Objects.equals(notarizationMatters, that.notarizationMatters) && Objects.equals(notarizationBlockchainIdStart, that.notarizationBlockchainIdStart) && Objects.equals(notarizationBlockchainIdEnd, that.notarizationBlockchainIdEnd);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(evidenceId, userId, evidenceType, evidenceName, filePath, fileSize, fileHash, evidenceBlockchainId, blockchainTime, evidenceTime, organizationId, notaryId, notarizationStatus, transactionId, notarizationStartTime, notarizationBlockchainId, notarizationMoney, notarizationType, notarizationInformation, notarizationEndTime, notarizationMatters);
+        return Objects.hash(evidenceId, userId, evidenceType, evidenceName, filePath, fileSize, fileHash, evidenceBlockchainId, blockchainTime, evidenceTime, organizationId, notaryId, notarizationStatus, transactionId, notarizationStartTime, notarizationBlockchainId, notarizationMoney, notarizationType, notarizationInformation, notarizationEndTime, notarizationMatters, notarizationBlockchainIdStart, notarizationBlockchainIdEnd);
     }
 }
