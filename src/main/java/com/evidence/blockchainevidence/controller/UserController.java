@@ -6,9 +6,12 @@ import com.evidence.blockchainevidence.PaillierT.CipherPub;
 import com.evidence.blockchainevidence.PaillierT.PaillierT;
 import com.evidence.blockchainevidence.entity.NotaryEntity;
 import com.evidence.blockchainevidence.entity.UserEntity;
+import com.evidence.blockchainevidence.helib.SEA;
 import com.evidence.blockchainevidence.helib.SLT;
 import com.evidence.blockchainevidence.mapper.NotaryMapper;
 import com.evidence.blockchainevidence.mapper.UserMapper;
+import com.evidence.blockchainevidence.subprotocols.K2C8;
+import com.evidence.blockchainevidence.subprotocols.KMP;
 import com.evidence.blockchainevidence.utils.ParseRequest;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
@@ -78,7 +81,7 @@ public class UserController {
 
     }
     /**
-     * 数值加密测试,测试qw1<kw
+     * 数值加密测试,测试qw<kw
      */
     @CrossOrigin(origins ="*")
     @PostMapping("/numPallierQue")
@@ -94,8 +97,8 @@ public class UserController {
             System.out.println(qw);
             System.out.println(kw);
 
-            //Paillier初始化，这里应该改成从文件读取
-            PaillierT paillier = new PaillierT(1024, 64);
+            //Paillier初始化,我这里为了确保参数一致，把它放到类里面了，其实应该保存在加密文件里的
+            PaillierT paillier = new PaillierT(PaillierT.param);
 
 
             //为新用户生成公私钥
@@ -104,12 +107,15 @@ public class UserController {
 
 
 
-            //加密数字
-            CipherPub cqw=paillier.Encryption(BigInteger.valueOf(qw),paillier.H[0]);
-            CipherPub ckw=paillier.Encryption(BigInteger.valueOf(kw),pk);
+            //加密数字,得到string形式的密文，这个是用来存数据库的
+            String sqw=paillier.Encryption(BigInteger.valueOf(qw),pk).toString();
+            String skw=paillier.Encryption(BigInteger.valueOf(kw),pk).toString();
+
+            //从数据库读取密文后，转成CipherPub进行同态计算
+            CipherPub cqw= new CipherPub(sqw);
+            CipherPub ckw= new CipherPub(skw);
 
             //判断qw1<kw<qw2是否成立
-
             SLT SK1 = new SLT(cqw,ckw,paillier);
 
             SK1.StepOne();
@@ -118,6 +124,74 @@ public class UserController {
             CipherPub cans=SK1.FIN;
 
             //解密数字
+            BigInteger ans=paillier.SDecryption(cans);
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",ans);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+
+    /**
+     * 字符加密测试,测试qw是否与kw匹配
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/strPallierQue")
+    public Object strPallierQue (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+
+            //获取参数
+            String qw=params.get("qw").toString();
+            String kw=params.get("kw").toString();
+            System.out.println(qw);
+            System.out.println(kw);
+
+            //Paillier初始化,我这里为了确保参数一致，把它放到类里面了，其实应该保存在加密文件里的
+            PaillierT paillier = new PaillierT(PaillierT.param);
+
+
+            //为新用户生成公私钥
+            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+
+
+
+            //加密字符串,得到string形式的密文，这个是用来存数据库的
+            K2C8 SK0 = new K2C8(qw, pk, paillier);
+            SK0 = new K2C8(kw, pk, paillier);
+            SK0.StepOne();
+            String skw=SK0.FIN.toString();
+
+            //从数据库读取密文后，转成CipherPub进行同态计算
+            CipherPub ckw= new CipherPub(skw);
+
+            //判断qw与kw是否匹配
+            SEA SK1 = new SEA(qw, paillier);
+            SK1.StepOne();
+            KMP SK2 = new KMP(ckw, SK1.Y1, SK1.Y2, SK1.Y3, SK1.num1, SK1.num2,
+                    SK1.numchar1, SK1.numchar2, SK1.flag, paillier);
+            SK2.StepOne();
+            CipherPub cans=SK2.FIN;
+
+
+            //解密匹配结果
             BigInteger ans=paillier.SDecryption(cans);
 
             //填充返回值

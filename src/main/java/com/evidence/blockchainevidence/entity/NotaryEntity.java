@@ -10,6 +10,10 @@ public class NotaryEntity {
     private String notaryName;
     private int organizationId;
     private Object notarizationType;
+    private Object notaryid;
+    private String notaryname;
+    private int organizationid;
+    private Object notarizationtype;
 
     @Id
     @Column(name = "notary_id")
@@ -65,5 +69,45 @@ public class NotaryEntity {
     @Override
     public int hashCode() {
         return Objects.hash(notaryId, notaryName, organizationId, notarizationType);
+    }
+
+    @Id
+    @Column(name = "notaryid")
+    public Object getNotaryid() {
+        return notaryid;
+    }
+
+    public void setNotaryid(Object notaryid) {
+        this.notaryid = notaryid;
+    }
+
+    @Basic
+    @Column(name = "notaryname")
+    public String getNotaryname() {
+        return notaryname;
+    }
+
+    public void setNotaryname(String notaryname) {
+        this.notaryname = notaryname;
+    }
+
+    @Basic
+    @Column(name = "organizationid")
+    public int getOrganizationid() {
+        return organizationid;
+    }
+
+    public void setOrganizationid(int organizationid) {
+        this.organizationid = organizationid;
+    }
+
+    @Basic
+    @Column(name = "notarizationtype")
+    public Object getNotarizationtype() {
+        return notarizationtype;
+    }
+
+    public void setNotarizationtype(Object notarizationtype) {
+        this.notarizationtype = notarizationtype;
     }
 }

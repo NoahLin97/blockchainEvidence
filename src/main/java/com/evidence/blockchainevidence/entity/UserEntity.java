@@ -10,6 +10,8 @@ public class UserEntity {
     private String username;
     private Integer remains;
     private Integer storageSpace;
+    private Object userid;
+    private Integer storagespace;
 
     @Id
     @Column(name = "userid")
@@ -65,5 +67,25 @@ public class UserEntity {
     @Override
     public int hashCode() {
         return Objects.hash(userId, username, remains, storageSpace);
+    }
+
+    @Id
+    @Column(name = "userid")
+    public Object getUserid() {
+        return userid;
+    }
+
+    public void setUserid(Object userid) {
+        this.userid = userid;
+    }
+
+    @Basic
+    @Column(name = "storagespace")
+    public Integer getStoragespace() {
+        return storagespace;
+    }
+
+    public void setStoragespace(Integer storagespace) {
+        this.storagespace = storagespace;
     }
 }
