@@ -13,8 +13,8 @@ public class UserEntity {
     private String idCard;
     private String email;
     private Object sex;
-    private Integer remains;
-    private Integer storageSpace;
+    private String remains;
+    private String storageSpace;
     private String publicKey;
     private Integer hasUsedStorage;
 
@@ -90,7 +90,7 @@ public class UserEntity {
 
     @Basic
     @Column(name = "remains")
-    public Integer getRemains() {
+    public String getRemains() {
         return remains;
     }
 
@@ -98,13 +98,10 @@ public class UserEntity {
         this.remains = remains;
     }
 
-    public void setRemains(Integer remains) {
-        this.remains = remains;
-    }
 
     @Basic
     @Column(name = "storage_space")
-    public Integer getStorageSpace() {
+    public String getStorageSpace() {
         return storageSpace;
     }
 
@@ -112,9 +109,6 @@ public class UserEntity {
         this.storageSpace = storageSpace;
     }
 
-    public void setStorageSpace(Integer storageSpace) {
-        this.storageSpace = storageSpace;
-    }
 
     @Basic
     @Column(name = "public_key")

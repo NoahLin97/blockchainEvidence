@@ -10,11 +10,11 @@ public class TransactionEntity {
     private int transactionId;
     private String username;
     private Integer userRemains;
-    private Integer transactionMoney;
-    private Integer transactionPeople;
+    private String transactionMoney;
+    private String transactionPeople;
     private Object transactionStatus;
     private Object transactionType;
-    private Integer storageSize;
+    private String storageSize;
     private Timestamp transactionTime;
     private String transactionBlockchainId;
     private Timestamp blockchainTime;
@@ -51,7 +51,7 @@ public class TransactionEntity {
 
     @Basic
     @Column(name = "transaction_money")
-    public Integer getTransactionMoney() {
+    public String getTransactionMoney() {
         return transactionMoney;
     }
 
@@ -59,13 +59,9 @@ public class TransactionEntity {
         this.transactionMoney = transactionMoney;
     }
 
-    public void setTransactionMoney(Integer transactionMoney) {
-        this.transactionMoney = transactionMoney;
-    }
-
     @Basic
     @Column(name = "transaction_people")
-    public Integer getTransactionPeople() {
+    public String getTransactionPeople() {
         return transactionPeople;
     }
 
@@ -73,9 +69,6 @@ public class TransactionEntity {
         this.transactionPeople = transactionPeople;
     }
 
-    public void setTransactionPeople(Integer transactionPeople) {
-        this.transactionPeople = transactionPeople;
-    }
 
     @Basic
     @Column(name = "transaction_status")
@@ -99,15 +92,11 @@ public class TransactionEntity {
 
     @Basic
     @Column(name = "storage_size")
-    public Integer getStorageSize() {
+    public String getStorageSize() {
         return storageSize;
     }
 
     public void setStorageSize(String storageSize) {
-        this.storageSize = storageSize;
-    }
-
-    public void setStorageSize(Integer storageSize) {
         this.storageSize = storageSize;
     }
 
