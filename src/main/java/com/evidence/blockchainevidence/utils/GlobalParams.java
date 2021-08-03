@@ -3,8 +3,10 @@ package com.evidence.blockchainevidence.utils;
 public class GlobalParams {
 
     //加密的字段
-    public static String[] userenc={"remains","storageSpace"};
-    public static String[] tranenc={"transactionMoney","transactionPeople","storageSize"};
+    public static String[] userenc={"remains","storageSpace","hasUsedStorage"};
+    public static String[] tranenc={"transactionMoney","storageSize"};
+    public static String[] evienc={"fileSize","notarizationMoney"};
+    public static String[] statenc={"notarizationTotalMoney"};
 
 
     //枚举类型对应的名称，每类最多7种
