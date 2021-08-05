@@ -73,15 +73,34 @@ public class K2C8 {
             temp2 = BigInteger.valueOf((int) (byte)S.charAt(i)).multiply(temp1);
             B = B.add(temp2);
 
-//    		System.out.print(S.charAt(i)+"\n");
-//    		System.out.print("0x"+Integer.toHexString((byte) S.charAt(i))+"\n");
-//    		System.out.print((int) (byte)S.charAt(i)+"\n");
-//    		System.out.print("temp1="+temp1+"\n");
-//    		System.out.print("temp2="+temp2+"\n");
+    		System.out.print(S.charAt(i)+"\n");
+    		System.out.print("0x"+Integer.toHexString((byte) S.charAt(i))+"\n");
+    		System.out.print((int) (byte)S.charAt(i)+"\n");
+    		System.out.print("temp1="+temp1+"\n");
+    		System.out.print("temp2="+temp2+"\n");
         }
 
         return B;
 
+    }
+
+    public static String parseString(BigInteger ints,PaillierT paillier){
+        BigInteger temp1=BigInteger.valueOf(2).modPow(BigInteger.valueOf(8), paillier.n);
+
+        String plain="";
+        while(ints.compareTo(temp1)>=0){
+            BigInteger temp2=ints.mod(temp1);
+            int in=temp2.intValueExact();
+            plain=plain+(char)in;
+            ints=ints.divide(temp1);
+//            System.out.println(in);
+//            System.out.println(plain);
+        }
+        BigInteger temp2=ints.mod(temp1);
+        int in=temp2.intValueExact();
+        plain=plain+(char)in;
+        System.out.println(plain);
+        return plain;
     }
 
 

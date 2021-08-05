@@ -7,35 +7,36 @@ import java.util.Objects;
 @Entity
 @Table(name = "rank", schema = "blockchain_evidence", catalog = "")
 public class RankEntity {
-    private int rankId;
-    private Integer notstyId;
+    private String rankId;
+    private String notstyId;
     private String notaryName;
     private Integer notarizationCount;
     private Integer notaryRank;
     private Timestamp timeFlag;
+    private NotaryEntity notaryByNotstyId;
 
     @Id
-    @Column(name = "rank_id")
-    public int getRankId() {
+    @Column(name = "rankId")
+    public String getRankId() {
         return rankId;
     }
 
-    public void setRankId(int rankId) {
+    public void setRankId(String rankId) {
         this.rankId = rankId;
     }
 
     @Basic
-    @Column(name = "notsty_id")
-    public Integer getNotstyId() {
+    @Column(name = "notstyId")
+    public String getNotstyId() {
         return notstyId;
     }
 
-    public void setNotstyId(Integer notstyId) {
+    public void setNotstyId(String notstyId) {
         this.notstyId = notstyId;
     }
 
     @Basic
-    @Column(name = "notary_name")
+    @Column(name = "notaryName")
     public String getNotaryName() {
         return notaryName;
     }
@@ -45,7 +46,7 @@ public class RankEntity {
     }
 
     @Basic
-    @Column(name = "notarization_count")
+    @Column(name = "notarizationCount")
     public Integer getNotarizationCount() {
         return notarizationCount;
     }
@@ -55,7 +56,7 @@ public class RankEntity {
     }
 
     @Basic
-    @Column(name = "notary_rank")
+    @Column(name = "notaryRank")
     public Integer getNotaryRank() {
         return notaryRank;
     }
@@ -65,7 +66,7 @@ public class RankEntity {
     }
 
     @Basic
-    @Column(name = "time_flag")
+    @Column(name = "timeFlag")
     public Timestamp getTimeFlag() {
         return timeFlag;
     }
@@ -79,11 +80,26 @@ public class RankEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RankEntity that = (RankEntity) o;
-        return rankId == that.rankId && Objects.equals(notstyId, that.notstyId) && Objects.equals(notaryName, that.notaryName) && Objects.equals(notarizationCount, that.notarizationCount) && Objects.equals(notaryRank, that.notaryRank) && Objects.equals(timeFlag, that.timeFlag);
+        return Objects.equals(rankId, that.rankId) &&
+                Objects.equals(notstyId, that.notstyId) &&
+                Objects.equals(notaryName, that.notaryName) &&
+                Objects.equals(notarizationCount, that.notarizationCount) &&
+                Objects.equals(notaryRank, that.notaryRank) &&
+                Objects.equals(timeFlag, that.timeFlag);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(rankId, notstyId, notaryName, notarizationCount, notaryRank, timeFlag);
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "notstyId", referencedColumnName = "notaryId")
+    public NotaryEntity getNotaryByNotstyId() {
+        return notaryByNotstyId;
+    }
+
+    public void setNotaryByNotstyId(NotaryEntity notaryByNotstyId) {
+        this.notaryByNotstyId = notaryByNotstyId;
     }
 }

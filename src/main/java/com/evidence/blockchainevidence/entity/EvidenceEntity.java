@@ -7,52 +7,92 @@ import java.util.Objects;
 @Entity
 @Table(name = "evidence", schema = "blockchain_evidence", catalog = "")
 public class EvidenceEntity {
-    private int evidenceId;
-    private Integer userId;
+    private String evidenceId;
+    private String userId;
     private Object evidenceType;
     private String evidenceName;
     private String filePath;
-    private Integer fileSize;
+    private String fileSize;
     private String fileHash;
     private String evidenceBlockchainId;
     private Timestamp blockchainTime;
     private Timestamp evidenceTime;
-    private Integer organizationId;
-    private Integer notaryId;
+    private String organizationId;
+    private String notaryId;
     private Object notarizationStatus;
-    private Integer transactionId;
+    private String transactionId;
     private Timestamp notarizationStartTime;
-    private String notarizationBlockchainId;
-    private Integer notarizationMoney;
+    private String notarizationMoney;
     private Object notarizationType;
     private String notarizationInformation;
     private Timestamp notarizationEndTime;
     private String notarizationMatters;
     private String notarizationBlockchainIdStart;
     private String notarizationBlockchainIdEnd;
+    private Object transactionStatus;
+    private UserEntity userByUserId;
+    private OrganizationEntity organizationByOrganizationId;
+    private NotaryEntity notaryByNotaryId;
+    private TransactionEntity transactionByTransactionId;
+
+
+    //我手动加的
+    private String username;
+    private String notaryName;
+    private String organizationName;
+    @Basic
+    @Column(name = "username")
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    @Basic
+    @Column(name = "notaryName")
+    public String getNotaryName() {
+        return notaryName;
+    }
+    public void setNotaryName(String notaryName) {
+        this.notaryName = notaryName;
+    }
+    @Basic
+    @Column(name = "organizationName")
+    public String getOrganizationName() {
+        return organizationName;
+    }
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
+
+
+
+
+
 
     @Id
-    @Column(name = "evidence_id")
-    public int getEvidenceId() {
+    @Column(name = "evidenceId")
+    public String getEvidenceId() {
         return evidenceId;
     }
 
-    public void setEvidenceId(int evidenceId) {
+    public void setEvidenceId(String evidenceId) {
         this.evidenceId = evidenceId;
     }
 
     @Basic
-    @Column(name = "user_id")
-    public Integer getUserId() {
+    @Column(name = "userId")
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
     @Basic
-    @Column(name = "evidence_type")
+    @Column(name = "evidenceType")
     public Object getEvidenceType() {
         return evidenceType;
     }
@@ -62,7 +102,7 @@ public class EvidenceEntity {
     }
 
     @Basic
-    @Column(name = "evidence_name")
+    @Column(name = "evidenceName")
     public String getEvidenceName() {
         return evidenceName;
     }
@@ -72,7 +112,7 @@ public class EvidenceEntity {
     }
 
     @Basic
-    @Column(name = "file_path")
+    @Column(name = "filePath")
     public String getFilePath() {
         return filePath;
     }
@@ -82,17 +122,17 @@ public class EvidenceEntity {
     }
 
     @Basic
-    @Column(name = "file_size")
-    public Integer getFileSize() {
+    @Column(name = "fileSize")
+    public String getFileSize() {
         return fileSize;
     }
 
-    public void setFileSize(Integer fileSize) {
+    public void setFileSize(String fileSize) {
         this.fileSize = fileSize;
     }
 
     @Basic
-    @Column(name = "file_hash")
+    @Column(name = "fileHash")
     public String getFileHash() {
         return fileHash;
     }
@@ -102,7 +142,7 @@ public class EvidenceEntity {
     }
 
     @Basic
-    @Column(name = "evidence_blockchain_id")
+    @Column(name = "evidenceBlockchainId")
     public String getEvidenceBlockchainId() {
         return evidenceBlockchainId;
     }
@@ -112,7 +152,7 @@ public class EvidenceEntity {
     }
 
     @Basic
-    @Column(name = "blockchain_time")
+    @Column(name = "blockchainTime")
     public Timestamp getBlockchainTime() {
         return blockchainTime;
     }
@@ -122,7 +162,7 @@ public class EvidenceEntity {
     }
 
     @Basic
-    @Column(name = "evidence_time")
+    @Column(name = "evidenceTime")
     public Timestamp getEvidenceTime() {
         return evidenceTime;
     }
@@ -132,27 +172,27 @@ public class EvidenceEntity {
     }
 
     @Basic
-    @Column(name = "organization_id")
-    public Integer getOrganizationId() {
+    @Column(name = "organizationId")
+    public String getOrganizationId() {
         return organizationId;
     }
 
-    public void setOrganizationId(Integer organizationId) {
+    public void setOrganizationId(String organizationId) {
         this.organizationId = organizationId;
     }
 
     @Basic
-    @Column(name = "notary_id")
-    public Integer getNotaryId() {
+    @Column(name = "notaryId")
+    public String getNotaryId() {
         return notaryId;
     }
 
-    public void setNotaryId(Integer notaryId) {
+    public void setNotaryId(String notaryId) {
         this.notaryId = notaryId;
     }
 
     @Basic
-    @Column(name = "notarization_status")
+    @Column(name = "notarizationStatus")
     public Object getNotarizationStatus() {
         return notarizationStatus;
     }
@@ -162,17 +202,17 @@ public class EvidenceEntity {
     }
 
     @Basic
-    @Column(name = "transaction_id")
-    public Integer getTransactionId() {
+    @Column(name = "transactionID")
+    public String getTransactionId() {
         return transactionId;
     }
 
-    public void setTransactionId(Integer transactionId) {
+    public void setTransactionId(String transactionId) {
         this.transactionId = transactionId;
     }
 
     @Basic
-    @Column(name = "notarization_start_time")
+    @Column(name = "notarizationStartTime")
     public Timestamp getNotarizationStartTime() {
         return notarizationStartTime;
     }
@@ -182,27 +222,17 @@ public class EvidenceEntity {
     }
 
     @Basic
-    @Column(name = "notarization_blockchain_id")
-    public String getNotarizationBlockchainId() {
-        return notarizationBlockchainId;
-    }
-
-    public void setNotarizationBlockchainId(String notarizationBlockchainId) {
-        this.notarizationBlockchainId = notarizationBlockchainId;
-    }
-
-    @Basic
-    @Column(name = "notarization_money")
-    public Integer getNotarizationMoney() {
+    @Column(name = "notarizationMoney")
+    public String getNotarizationMoney() {
         return notarizationMoney;
     }
 
-    public void setNotarizationMoney(Integer notarizationMoney) {
+    public void setNotarizationMoney(String notarizationMoney) {
         this.notarizationMoney = notarizationMoney;
     }
 
     @Basic
-    @Column(name = "notarization_type")
+    @Column(name = "notarizationType")
     public Object getNotarizationType() {
         return notarizationType;
     }
@@ -212,7 +242,7 @@ public class EvidenceEntity {
     }
 
     @Basic
-    @Column(name = "notarization_information")
+    @Column(name = "notarizationInformation")
     public String getNotarizationInformation() {
         return notarizationInformation;
     }
@@ -222,7 +252,7 @@ public class EvidenceEntity {
     }
 
     @Basic
-    @Column(name = "notarization_end_time")
+    @Column(name = "notarizationEndTime")
     public Timestamp getNotarizationEndTime() {
         return notarizationEndTime;
     }
@@ -232,7 +262,7 @@ public class EvidenceEntity {
     }
 
     @Basic
-    @Column(name = "notarization_matters")
+    @Column(name = "notarizationMatters")
     public String getNotarizationMatters() {
         return notarizationMatters;
     }
@@ -242,7 +272,7 @@ public class EvidenceEntity {
     }
 
     @Basic
-    @Column(name = "notarization_blockchain_id_start")
+    @Column(name = "notarizationBlockchainIdStart")
     public String getNotarizationBlockchainIdStart() {
         return notarizationBlockchainIdStart;
     }
@@ -252,7 +282,7 @@ public class EvidenceEntity {
     }
 
     @Basic
-    @Column(name = "notarization_blockchain_id_end")
+    @Column(name = "notarizationBlockchainIdEnd")
     public String getNotarizationBlockchainIdEnd() {
         return notarizationBlockchainIdEnd;
     }
@@ -261,16 +291,88 @@ public class EvidenceEntity {
         this.notarizationBlockchainIdEnd = notarizationBlockchainIdEnd;
     }
 
+    @Basic
+    @Column(name = "transactionStatus")
+    public Object getTransactionStatus() {
+        return transactionStatus;
+    }
+
+    public void setTransactionStatus(Object transactionStatus) {
+        this.transactionStatus = transactionStatus;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EvidenceEntity that = (EvidenceEntity) o;
-        return evidenceId == that.evidenceId && Objects.equals(userId, that.userId) && Objects.equals(evidenceType, that.evidenceType) && Objects.equals(evidenceName, that.evidenceName) && Objects.equals(filePath, that.filePath) && Objects.equals(fileSize, that.fileSize) && Objects.equals(fileHash, that.fileHash) && Objects.equals(evidenceBlockchainId, that.evidenceBlockchainId) && Objects.equals(blockchainTime, that.blockchainTime) && Objects.equals(evidenceTime, that.evidenceTime) && Objects.equals(organizationId, that.organizationId) && Objects.equals(notaryId, that.notaryId) && Objects.equals(notarizationStatus, that.notarizationStatus) && Objects.equals(transactionId, that.transactionId) && Objects.equals(notarizationStartTime, that.notarizationStartTime) && Objects.equals(notarizationBlockchainId, that.notarizationBlockchainId) && Objects.equals(notarizationMoney, that.notarizationMoney) && Objects.equals(notarizationType, that.notarizationType) && Objects.equals(notarizationInformation, that.notarizationInformation) && Objects.equals(notarizationEndTime, that.notarizationEndTime) && Objects.equals(notarizationMatters, that.notarizationMatters) && Objects.equals(notarizationBlockchainIdStart, that.notarizationBlockchainIdStart) && Objects.equals(notarizationBlockchainIdEnd, that.notarizationBlockchainIdEnd);
+        return Objects.equals(evidenceId, that.evidenceId) &&
+                Objects.equals(userId, that.userId) &&
+                Objects.equals(evidenceType, that.evidenceType) &&
+                Objects.equals(evidenceName, that.evidenceName) &&
+                Objects.equals(filePath, that.filePath) &&
+                Objects.equals(fileSize, that.fileSize) &&
+                Objects.equals(fileHash, that.fileHash) &&
+                Objects.equals(evidenceBlockchainId, that.evidenceBlockchainId) &&
+                Objects.equals(blockchainTime, that.blockchainTime) &&
+                Objects.equals(evidenceTime, that.evidenceTime) &&
+                Objects.equals(organizationId, that.organizationId) &&
+                Objects.equals(notaryId, that.notaryId) &&
+                Objects.equals(notarizationStatus, that.notarizationStatus) &&
+                Objects.equals(transactionId, that.transactionId) &&
+                Objects.equals(notarizationStartTime, that.notarizationStartTime) &&
+                Objects.equals(notarizationMoney, that.notarizationMoney) &&
+                Objects.equals(notarizationType, that.notarizationType) &&
+                Objects.equals(notarizationInformation, that.notarizationInformation) &&
+                Objects.equals(notarizationEndTime, that.notarizationEndTime) &&
+                Objects.equals(notarizationMatters, that.notarizationMatters) &&
+                Objects.equals(notarizationBlockchainIdStart, that.notarizationBlockchainIdStart) &&
+                Objects.equals(notarizationBlockchainIdEnd, that.notarizationBlockchainIdEnd) &&
+                Objects.equals(transactionStatus, that.transactionStatus);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(evidenceId, userId, evidenceType, evidenceName, filePath, fileSize, fileHash, evidenceBlockchainId, blockchainTime, evidenceTime, organizationId, notaryId, notarizationStatus, transactionId, notarizationStartTime, notarizationBlockchainId, notarizationMoney, notarizationType, notarizationInformation, notarizationEndTime, notarizationMatters, notarizationBlockchainIdStart, notarizationBlockchainIdEnd);
+        return Objects.hash(evidenceId, userId, evidenceType, evidenceName, filePath, fileSize, fileHash, evidenceBlockchainId, blockchainTime, evidenceTime, organizationId, notaryId, notarizationStatus, transactionId, notarizationStartTime, notarizationMoney, notarizationType, notarizationInformation, notarizationEndTime, notarizationMatters, notarizationBlockchainIdStart, notarizationBlockchainIdEnd, transactionStatus);
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "userId", referencedColumnName = "userId")
+    public UserEntity getUserByUserId() {
+        return userByUserId;
+    }
+
+    public void setUserByUserId(UserEntity userByUserId) {
+        this.userByUserId = userByUserId;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "organizationId", referencedColumnName = "organizationId")
+    public OrganizationEntity getOrganizationByOrganizationId() {
+        return organizationByOrganizationId;
+    }
+
+    public void setOrganizationByOrganizationId(OrganizationEntity organizationByOrganizationId) {
+        this.organizationByOrganizationId = organizationByOrganizationId;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "notaryId", referencedColumnName = "notaryId")
+    public NotaryEntity getNotaryByNotaryId() {
+        return notaryByNotaryId;
+    }
+
+    public void setNotaryByNotaryId(NotaryEntity notaryByNotaryId) {
+        this.notaryByNotaryId = notaryByNotaryId;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "transactionID", referencedColumnName = "transactionId")
+    public TransactionEntity getTransactionByTransactionId() {
+        return transactionByTransactionId;
+    }
+
+    public void setTransactionByTransactionId(TransactionEntity transactionByTransactionId) {
+        this.transactionByTransactionId = transactionByTransactionId;
     }
 }

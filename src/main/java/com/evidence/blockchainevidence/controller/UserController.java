@@ -10,6 +10,7 @@ import com.evidence.blockchainevidence.helib.SLT;
 import com.evidence.blockchainevidence.mapper.NotaryMapper;
 import com.evidence.blockchainevidence.mapper.UserMapper;
 import com.evidence.blockchainevidence.service.UserService;
+import com.evidence.blockchainevidence.subprotocols.K2C16;
 import com.evidence.blockchainevidence.subprotocols.K2C8;
 import com.evidence.blockchainevidence.subprotocols.KMP;
 import com.evidence.blockchainevidence.utils.ParseRequest;
@@ -169,8 +170,7 @@ public class UserController {
 
 
             //加密字符串,得到string形式的密文，这个是用来存数据库的
-            K2C8 SK0 = new K2C8(qw, pk, paillier);
-            SK0 = new K2C8(kw, pk, paillier);
+            K2C8 SK0 = new K2C8(kw, pk, paillier);
             SK0.StepOne();
             String skw=SK0.FIN.toString();
 
@@ -188,6 +188,11 @@ public class UserController {
 
             //解密匹配结果
             BigInteger ans=paillier.SDecryption(cans);
+
+            //解密kw的密文ckw
+            String kw2=K2C16.parseString(paillier.SDecryption(ckw),paillier);
+            System.out.println("解密结果为："+kw2);
+
 
             //填充返回值
             result.put("status",true);

@@ -21,7 +21,7 @@ public interface UserMapper {
                    @Param("sex") Sex sex, @Param("remains") int remains, @Param("storageSpace") int storageSpace,
                    @Param("hasUsedStorage") int hasUsedStorage, @Param("publicKey") String publicKey);
 
-    @Select("select * from user where username= #{username} and password = #{password} ")
+    @Select("select * from user where username= #{username} and password = #{password}#{password}#{password} ")
     UserEntity selectByNameAndPwd(@Param("username") String username,@Param("password") String password);
 
     @Select("select * from user")

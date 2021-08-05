@@ -7,38 +7,38 @@ import java.util.Objects;
 @Entity
 @Table(name = "organization_statistics", schema = "blockchain_evidence", catalog = "")
 public class OrganizationStatisticsEntity {
-    private int organizationStatisticsId;
-    private Integer organizationId;
+    private String organizationStatisticsId;
+    private String organizationId;
     private String organizationName;
     private Integer notarizationCount;
-    private Integer notarizationTotalMoney;
-    private Double notarizationSuccessRate;
+    private String notarizationTotalMoney;
+    private Integer notarizationSuccessCount;
     private Integer notstyCount;
     private Timestamp timeFlag;
-    private Integer notarizationSuccessCount;
+    private OrganizationEntity organizationByOrganizationId;
 
     @Id
-    @Column(name = "organization_statistics_id")
-    public int getOrganizationStatisticsId() {
+    @Column(name = "organizationStatisticsId")
+    public String getOrganizationStatisticsId() {
         return organizationStatisticsId;
     }
 
-    public void setOrganizationStatisticsId(int organizationStatisticsId) {
+    public void setOrganizationStatisticsId(String organizationStatisticsId) {
         this.organizationStatisticsId = organizationStatisticsId;
     }
 
     @Basic
-    @Column(name = "organization_id")
-    public Integer getOrganizationId() {
+    @Column(name = "organizationId")
+    public String getOrganizationId() {
         return organizationId;
     }
 
-    public void setOrganizationId(Integer organizationId) {
+    public void setOrganizationId(String organizationId) {
         this.organizationId = organizationId;
     }
 
     @Basic
-    @Column(name = "organization_name")
+    @Column(name = "organizationName")
     public String getOrganizationName() {
         return organizationName;
     }
@@ -48,7 +48,7 @@ public class OrganizationStatisticsEntity {
     }
 
     @Basic
-    @Column(name = "notarization_count")
+    @Column(name = "notarizationCount")
     public Integer getNotarizationCount() {
         return notarizationCount;
     }
@@ -58,27 +58,27 @@ public class OrganizationStatisticsEntity {
     }
 
     @Basic
-    @Column(name = "notarization_total_money")
-    public Integer getNotarizationTotalMoney() {
+    @Column(name = "notarizationTotalMoney")
+    public String getNotarizationTotalMoney() {
         return notarizationTotalMoney;
     }
 
-    public void setNotarizationTotalMoney(Integer notarizationTotalMoney) {
+    public void setNotarizationTotalMoney(String notarizationTotalMoney) {
         this.notarizationTotalMoney = notarizationTotalMoney;
     }
 
     @Basic
-    @Column(name = "notarization_success_rate")
-    public Double getNotarizationSuccessRate() {
-        return notarizationSuccessRate;
+    @Column(name = "notarizationSuccessCount")
+    public Integer getNotarizationSuccessCount() {
+        return notarizationSuccessCount;
     }
 
-    public void setNotarizationSuccessRate(Double notarizationSuccessRate) {
-        this.notarizationSuccessRate = notarizationSuccessRate;
+    public void setNotarizationSuccessCount(Integer notarizationSuccessCount) {
+        this.notarizationSuccessCount = notarizationSuccessCount;
     }
 
     @Basic
-    @Column(name = "notsty_count")
+    @Column(name = "notstyCount")
     public Integer getNotstyCount() {
         return notstyCount;
     }
@@ -88,7 +88,7 @@ public class OrganizationStatisticsEntity {
     }
 
     @Basic
-    @Column(name = "time_flag")
+    @Column(name = "timeFlag")
     public Timestamp getTimeFlag() {
         return timeFlag;
     }
@@ -102,21 +102,28 @@ public class OrganizationStatisticsEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OrganizationStatisticsEntity that = (OrganizationStatisticsEntity) o;
-        return organizationStatisticsId == that.organizationStatisticsId && Objects.equals(organizationId, that.organizationId) && Objects.equals(organizationName, that.organizationName) && Objects.equals(notarizationCount, that.notarizationCount) && Objects.equals(notarizationTotalMoney, that.notarizationTotalMoney) && Objects.equals(notarizationSuccessRate, that.notarizationSuccessRate) && Objects.equals(notstyCount, that.notstyCount) && Objects.equals(timeFlag, that.timeFlag);
+        return Objects.equals(organizationStatisticsId, that.organizationStatisticsId) &&
+                Objects.equals(organizationId, that.organizationId) &&
+                Objects.equals(organizationName, that.organizationName) &&
+                Objects.equals(notarizationCount, that.notarizationCount) &&
+                Objects.equals(notarizationTotalMoney, that.notarizationTotalMoney) &&
+                Objects.equals(notarizationSuccessCount, that.notarizationSuccessCount) &&
+                Objects.equals(notstyCount, that.notstyCount) &&
+                Objects.equals(timeFlag, that.timeFlag);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(organizationStatisticsId, organizationId, organizationName, notarizationCount, notarizationTotalMoney, notarizationSuccessRate, notstyCount, timeFlag);
+        return Objects.hash(organizationStatisticsId, organizationId, organizationName, notarizationCount, notarizationTotalMoney, notarizationSuccessCount, notstyCount, timeFlag);
     }
 
-    @Basic
-    @Column(name = "notarization_success_count")
-    public Integer getNotarizationSuccessCount() {
-        return notarizationSuccessCount;
+    @ManyToOne
+    @JoinColumn(name = "organizationId", referencedColumnName = "organizationId")
+    public OrganizationEntity getOrganizationByOrganizationId() {
+        return organizationByOrganizationId;
     }
 
-    public void setNotarizationSuccessCount(Integer notarizationSuccessCount) {
-        this.notarizationSuccessCount = notarizationSuccessCount;
+    public void setOrganizationByOrganizationId(OrganizationEntity organizationByOrganizationId) {
+        this.organizationByOrganizationId = organizationByOrganizationId;
     }
 }

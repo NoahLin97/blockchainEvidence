@@ -7,39 +7,49 @@ import java.util.Objects;
 @Entity
 @Table(name = "notary_statistics", schema = "blockchain_evidence", catalog = "")
 public class NotaryStatisticsEntity {
-    private int notaryStatisticsId;
-    private Integer notstyId;
+    private String notaryStatisticsId;
+    private String notstyId;
     private String notaryName;
     private String organizationName;
     private Integer notarizationCount;
-    private Integer notarizationTotalMoney;
-    private Double notarizationSuccessRate;
+    private String notarizationTotalMoney;
+    private Integer notarizationSuccessCount;
     private Object notarizationType;
     private Timestamp timeFlag;
-    private Integer notarizationSuccessCount;
+    private NotaryEntity notaryByNotstyId;
+
+
+
+
+
+
+
+
+
+
 
     @Id
-    @Column(name = "notary_statistics_id")
-    public int getNotaryStatisticsId() {
+    @Column(name = "notaryStatisticsId")
+    public String getNotaryStatisticsId() {
         return notaryStatisticsId;
     }
 
-    public void setNotaryStatisticsId(int notaryStatisticsId) {
+    public void setNotaryStatisticsId(String notaryStatisticsId) {
         this.notaryStatisticsId = notaryStatisticsId;
     }
 
     @Basic
-    @Column(name = "notsty_id")
-    public Integer getNotstyId() {
+    @Column(name = "notstyId")
+    public String getNotstyId() {
         return notstyId;
     }
 
-    public void setNotstyId(Integer notstyId) {
+    public void setNotstyId(String notstyId) {
         this.notstyId = notstyId;
     }
 
     @Basic
-    @Column(name = "notary_name")
+    @Column(name = "notaryName")
     public String getNotaryName() {
         return notaryName;
     }
@@ -49,7 +59,7 @@ public class NotaryStatisticsEntity {
     }
 
     @Basic
-    @Column(name = "organization_name")
+    @Column(name = "organizationName")
     public String getOrganizationName() {
         return organizationName;
     }
@@ -59,7 +69,7 @@ public class NotaryStatisticsEntity {
     }
 
     @Basic
-    @Column(name = "notarization_count")
+    @Column(name = "notarizationCount")
     public Integer getNotarizationCount() {
         return notarizationCount;
     }
@@ -69,27 +79,27 @@ public class NotaryStatisticsEntity {
     }
 
     @Basic
-    @Column(name = "notarization_total_money")
-    public Integer getNotarizationTotalMoney() {
+    @Column(name = "notarizationTotalMoney")
+    public String getNotarizationTotalMoney() {
         return notarizationTotalMoney;
     }
 
-    public void setNotarizationTotalMoney(Integer notarizationTotalMoney) {
+    public void setNotarizationTotalMoney(String notarizationTotalMoney) {
         this.notarizationTotalMoney = notarizationTotalMoney;
     }
 
     @Basic
-    @Column(name = "notarization_success_rate")
-    public Double getNotarizationSuccessRate() {
-        return notarizationSuccessRate;
+    @Column(name = "notarizationSuccessCount")
+    public Integer getNotarizationSuccessCount() {
+        return notarizationSuccessCount;
     }
 
-    public void setNotarizationSuccessRate(Double notarizationSuccessRate) {
-        this.notarizationSuccessRate = notarizationSuccessRate;
+    public void setNotarizationSuccessCount(Integer notarizationSuccessCount) {
+        this.notarizationSuccessCount = notarizationSuccessCount;
     }
 
     @Basic
-    @Column(name = "notarization_type")
+    @Column(name = "notarizationType")
     public Object getNotarizationType() {
         return notarizationType;
     }
@@ -99,7 +109,7 @@ public class NotaryStatisticsEntity {
     }
 
     @Basic
-    @Column(name = "time_flag")
+    @Column(name = "timeFlag")
     public Timestamp getTimeFlag() {
         return timeFlag;
     }
@@ -113,21 +123,29 @@ public class NotaryStatisticsEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         NotaryStatisticsEntity that = (NotaryStatisticsEntity) o;
-        return notaryStatisticsId == that.notaryStatisticsId && Objects.equals(notstyId, that.notstyId) && Objects.equals(notaryName, that.notaryName) && Objects.equals(organizationName, that.organizationName) && Objects.equals(notarizationCount, that.notarizationCount) && Objects.equals(notarizationTotalMoney, that.notarizationTotalMoney) && Objects.equals(notarizationSuccessRate, that.notarizationSuccessRate) && Objects.equals(notarizationType, that.notarizationType) && Objects.equals(timeFlag, that.timeFlag);
+        return Objects.equals(notaryStatisticsId, that.notaryStatisticsId) &&
+                Objects.equals(notstyId, that.notstyId) &&
+                Objects.equals(notaryName, that.notaryName) &&
+                Objects.equals(organizationName, that.organizationName) &&
+                Objects.equals(notarizationCount, that.notarizationCount) &&
+                Objects.equals(notarizationTotalMoney, that.notarizationTotalMoney) &&
+                Objects.equals(notarizationSuccessCount, that.notarizationSuccessCount) &&
+                Objects.equals(notarizationType, that.notarizationType) &&
+                Objects.equals(timeFlag, that.timeFlag);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(notaryStatisticsId, notstyId, notaryName, organizationName, notarizationCount, notarizationTotalMoney, notarizationSuccessRate, notarizationType, timeFlag);
+        return Objects.hash(notaryStatisticsId, notstyId, notaryName, organizationName, notarizationCount, notarizationTotalMoney, notarizationSuccessCount, notarizationType, timeFlag);
     }
 
-    @Basic
-    @Column(name = "notarization_success_count")
-    public Integer getNotarizationSuccessCount() {
-        return notarizationSuccessCount;
+    @ManyToOne
+    @JoinColumn(name = "notstyId", referencedColumnName = "notaryId")
+    public NotaryEntity getNotaryByNotstyId() {
+        return notaryByNotstyId;
     }
 
-    public void setNotarizationSuccessCount(Integer notarizationSuccessCount) {
-        this.notarizationSuccessCount = notarizationSuccessCount;
+    public void setNotaryByNotstyId(NotaryEntity notaryByNotstyId) {
+        this.notaryByNotstyId = notaryByNotstyId;
     }
 }

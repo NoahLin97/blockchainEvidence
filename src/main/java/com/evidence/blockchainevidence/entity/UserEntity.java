@@ -1,6 +1,7 @@
 package com.evidence.blockchainevidence.entity;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.Objects;
 
 @Entity
@@ -12,14 +13,16 @@ public class UserEntity {
     private String phoneNumber;
     private String idCard;
     private String email;
-    private Sex sex;
+    private Object sex;
     private String remains;
     private String storageSpace;
     private String publicKey;
-    private Integer hasUsedStorage;
+    private String hasUsedStorage;
+    private Collection<EvidenceEntity> evidencesByUserId;
+    private Collection<TransactionEntity> transactionsByUserId;
 
     @Id
-    @Column(name = "user_id")
+    @Column(name = "userId")
     public String getUserId() {
         return userId;
     }
@@ -49,7 +52,7 @@ public class UserEntity {
     }
 
     @Basic
-    @Column(name = "phone_number")
+    @Column(name = "phoneNumber")
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -59,7 +62,7 @@ public class UserEntity {
     }
 
     @Basic
-    @Column(name = "id_card")
+    @Column(name = "idCard")
     public String getIdCard() {
         return idCard;
     }
@@ -80,11 +83,11 @@ public class UserEntity {
 
     @Basic
     @Column(name = "sex")
-    public Sex getSex() {
+    public Object getSex() {
         return sex;
     }
 
-    public void setSex(Sex sex) {
+    public void setSex(Object sex) {
         this.sex = sex;
     }
 
@@ -98,9 +101,8 @@ public class UserEntity {
         this.remains = remains;
     }
 
-
     @Basic
-    @Column(name = "storage_space")
+    @Column(name = "storageSpace")
     public String getStorageSpace() {
         return storageSpace;
     }
@@ -109,9 +111,8 @@ public class UserEntity {
         this.storageSpace = storageSpace;
     }
 
-
     @Basic
-    @Column(name = "public_key")
+    @Column(name = "publicKey")
     public String getPublicKey() {
         return publicKey;
     }
@@ -121,12 +122,12 @@ public class UserEntity {
     }
 
     @Basic
-    @Column(name = "has_used_storage")
-    public Integer getHasUsedStorage() {
+    @Column(name = "hasUsedStorage")
+    public String getHasUsedStorage() {
         return hasUsedStorage;
     }
 
-    public void setHasUsedStorage(Integer hasUsedStorage) {
+    public void setHasUsedStorage(String hasUsedStorage) {
         this.hasUsedStorage = hasUsedStorage;
     }
 
@@ -135,11 +136,39 @@ public class UserEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserEntity that = (UserEntity) o;
-        return userId == that.userId && Objects.equals(username, that.username) && Objects.equals(password, that.password) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(idCard, that.idCard) && Objects.equals(email, that.email) && Objects.equals(sex, that.sex) && Objects.equals(remains, that.remains) && Objects.equals(storageSpace, that.storageSpace) && Objects.equals(publicKey, that.publicKey) && Objects.equals(hasUsedStorage, that.hasUsedStorage);
+        return Objects.equals(userId, that.userId) &&
+                Objects.equals(username, that.username) &&
+                Objects.equals(password, that.password) &&
+                Objects.equals(phoneNumber, that.phoneNumber) &&
+                Objects.equals(idCard, that.idCard) &&
+                Objects.equals(email, that.email) &&
+                Objects.equals(sex, that.sex) &&
+                Objects.equals(remains, that.remains) &&
+                Objects.equals(storageSpace, that.storageSpace) &&
+                Objects.equals(publicKey, that.publicKey) &&
+                Objects.equals(hasUsedStorage, that.hasUsedStorage);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(userId, username, password, phoneNumber, idCard, email, sex, remains, storageSpace, publicKey, hasUsedStorage);
+    }
+
+    @OneToMany(mappedBy = "userByUserId")
+    public Collection<EvidenceEntity> getEvidencesByUserId() {
+        return evidencesByUserId;
+    }
+
+    public void setEvidencesByUserId(Collection<EvidenceEntity> evidencesByUserId) {
+        this.evidencesByUserId = evidencesByUserId;
+    }
+
+    @OneToMany(mappedBy = "userByUserId")
+    public Collection<TransactionEntity> getTransactionsByUserId() {
+        return transactionsByUserId;
+    }
+
+    public void setTransactionsByUserId(Collection<TransactionEntity> transactionsByUserId) {
+        this.transactionsByUserId = transactionsByUserId;
     }
 }

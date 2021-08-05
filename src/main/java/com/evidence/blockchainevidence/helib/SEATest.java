@@ -78,10 +78,10 @@ public class SEATest {
 			CCC = CCC + SK2.CCC;
 		}
 
-		timeCP = timeCP/N; 			//ÇóÊ±¼äÆ½¾ù
-		timeCSP = timeCSP/N; 		//ÇóÊ±¼äÆ½¾ù
-		timeTotal = timeTotal/N; 	//ÇóÊ±¼äÆ½¾ù
-		CCC = CCC/N; 			//ÇóÍ¨ĞÅÁ¿Æ½¾ù
+		timeCP = timeCP/N; 			//æ±‚æ—¶é—´å¹³å‡
+		timeCSP = timeCSP/N; 		//æ±‚æ—¶é—´å¹³å‡
+		timeTotal = timeTotal/N; 	//æ±‚æ—¶é—´å¹³å‡
+		CCC = CCC/N; 			//æ±‚é€šä¿¡é‡å¹³å‡
 		
 		System.out.println(timeCP);
 		System.out.println(timeCSP);

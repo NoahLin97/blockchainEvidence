@@ -6,7 +6,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "manager", schema = "blockchain_evidence", catalog = "")
 public class ManagerEntity {
-    private int manId;
+    private String manId;
     private String username;
     private String password;
     private String phoneNumber;
@@ -15,12 +15,12 @@ public class ManagerEntity {
     private Object sex;
 
     @Id
-    @Column(name = "man_id")
-    public int getManId() {
+    @Column(name = "manId")
+    public String getManId() {
         return manId;
     }
 
-    public void setManId(int manId) {
+    public void setManId(String manId) {
         this.manId = manId;
     }
 
@@ -45,7 +45,7 @@ public class ManagerEntity {
     }
 
     @Basic
-    @Column(name = "phone_number")
+    @Column(name = "phoneNumber")
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -55,7 +55,7 @@ public class ManagerEntity {
     }
 
     @Basic
-    @Column(name = "id_card")
+    @Column(name = "idCard")
     public String getIdCard() {
         return idCard;
     }
@@ -89,7 +89,13 @@ public class ManagerEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ManagerEntity that = (ManagerEntity) o;
-        return manId == that.manId && Objects.equals(username, that.username) && Objects.equals(password, that.password) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(idCard, that.idCard) && Objects.equals(email, that.email) && Objects.equals(sex, that.sex);
+        return Objects.equals(manId, that.manId) &&
+                Objects.equals(username, that.username) &&
+                Objects.equals(password, that.password) &&
+                Objects.equals(phoneNumber, that.phoneNumber) &&
+                Objects.equals(idCard, that.idCard) &&
+                Objects.equals(email, that.email) &&
+                Objects.equals(sex, that.sex);
     }
 
     @Override

@@ -6,33 +6,56 @@ import java.util.Objects;
 @Entity
 @Table(name = "aut_manager", schema = "blockchain_evidence", catalog = "")
 public class AutManagerEntity {
-    private int autManId;
-    private String username;
+    private String autManId;
+    private String autName;
     private String password;
     private String phoneNumber;
     private String idCard;
     private String email;
     private Object sex;
-    private Integer organizationId;
+    private String organizationId;
+    private OrganizationEntity organizationByOrganizationId;
+
+
+    //我手动加的
+
+    private String organizationName;
+
+    @Basic
+    @Column(name = "organizationName")
+    public String getOrganizationName() {
+        return organizationName;
+    }
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
+
+
+
+
+
+
+
 
     @Id
-    @Column(name = "aut_man_id")
-    public int getAutManId() {
+    @Column(name = "autManId")
+    public String getAutManId() {
         return autManId;
     }
 
-    public void setAutManId(int autManId) {
+    public void setAutManId(String autManId) {
         this.autManId = autManId;
     }
 
     @Basic
-    @Column(name = "username")
-    public String getUsername() {
-        return username;
+    @Column(name = "autName")
+    public String getAutName() {
+        return autName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setAutName(String autName) {
+        this.autName = autName;
     }
 
     @Basic
@@ -46,7 +69,7 @@ public class AutManagerEntity {
     }
 
     @Basic
-    @Column(name = "phone_number")
+    @Column(name = "phoneNumber")
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -56,7 +79,7 @@ public class AutManagerEntity {
     }
 
     @Basic
-    @Column(name = "id_card")
+    @Column(name = "idCard")
     public String getIdCard() {
         return idCard;
     }
@@ -86,12 +109,12 @@ public class AutManagerEntity {
     }
 
     @Basic
-    @Column(name = "organization_id")
-    public Integer getOrganizationId() {
+    @Column(name = "organizationId")
+    public String getOrganizationId() {
         return organizationId;
     }
 
-    public void setOrganizationId(Integer organizationId) {
+    public void setOrganizationId(String organizationId) {
         this.organizationId = organizationId;
     }
 
@@ -100,11 +123,28 @@ public class AutManagerEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AutManagerEntity that = (AutManagerEntity) o;
-        return autManId == that.autManId && Objects.equals(username, that.username) && Objects.equals(password, that.password) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(idCard, that.idCard) && Objects.equals(email, that.email) && Objects.equals(sex, that.sex) && Objects.equals(organizationId, that.organizationId);
+        return Objects.equals(autManId, that.autManId) &&
+                Objects.equals(autName, that.autName) &&
+                Objects.equals(password, that.password) &&
+                Objects.equals(phoneNumber, that.phoneNumber) &&
+                Objects.equals(idCard, that.idCard) &&
+                Objects.equals(email, that.email) &&
+                Objects.equals(sex, that.sex) &&
+                Objects.equals(organizationId, that.organizationId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(autManId, username, password, phoneNumber, idCard, email, sex, organizationId);
+        return Objects.hash(autManId, autName, password, phoneNumber, idCard, email, sex, organizationId);
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "organizationId", referencedColumnName = "organizationId")
+    public OrganizationEntity getOrganizationByOrganizationId() {
+        return organizationByOrganizationId;
+    }
+
+    public void setOrganizationByOrganizationId(OrganizationEntity organizationByOrganizationId) {
+        this.organizationByOrganizationId = organizationByOrganizationId;
     }
 }
