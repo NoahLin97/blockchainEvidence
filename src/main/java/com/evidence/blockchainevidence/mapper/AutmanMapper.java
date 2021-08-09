@@ -1,6 +1,6 @@
 package com.evidence.blockchainevidence.mapper;
 
-        import com.evidence.blockchainevidence.entity.AutManagerEntity;
+import com.evidence.blockchainevidence.entity.AutManagerEntity;
         import com.evidence.blockchainevidence.entity.EvidenceEntity;
         import com.evidence.blockchainevidence.entity.NotaryEntity;
         import com.evidence.blockchainevidence.entity.TransactionEntity;
