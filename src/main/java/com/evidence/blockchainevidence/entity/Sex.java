@@ -4,12 +4,12 @@ import java.util.HashMap;
 
 public enum Sex {
 
-    MALE("MALE",1),FAMALE("FEMALE",2),SECRET("SECRET",3);
+    MALE("男",0),FEMALE("女",1);
 
     private String key;
     private Integer value;
 
-    // 将数值1,2,3和MALE,FAMALE,SECRET一起封装到HashMap中
+    // 将数值0,1和MALE,FAMALE一起封装到HashMap中
     private static HashMap<Integer,Sex> valueMap = new HashMap<Integer,Sex>();
 
     private Sex(String key,Integer value){

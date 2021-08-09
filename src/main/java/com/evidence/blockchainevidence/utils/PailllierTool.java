@@ -1,18 +1,13 @@
 package com.evidence.blockchainevidence.utils;
 
-import com.alibaba.fastjson.JSONObject;
 import com.evidence.blockchainevidence.PaillierT.CipherPub;
 import com.evidence.blockchainevidence.PaillierT.PaillierT;
 import com.evidence.blockchainevidence.helib.SEA;
-import com.evidence.blockchainevidence.helib.SLT;
-import com.evidence.blockchainevidence.subprotocols.K2C16;
 import com.evidence.blockchainevidence.subprotocols.K2C8;
 import com.evidence.blockchainevidence.subprotocols.KMP;
 
 import java.math.BigInteger;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class PailllierTool {
     public static void main(String[] args){

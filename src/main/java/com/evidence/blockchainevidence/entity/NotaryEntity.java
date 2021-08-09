@@ -1,8 +1,9 @@
 package com.evidence.blockchainevidence.entity;
 
-import javax.persistence.*;
-import java.util.Collection;
-import java.util.Objects;
+
+ import javax.persistence.*;
+ import java.util.Collection;
+ import java.util.Objects;
 
 @Entity
 @Table(name = "notary", schema = "blockchain_evidence", catalog = "")
@@ -37,7 +38,12 @@ public class NotaryEntity {
     }
 
 
+    private String publicKey;
 
+    @Basic
+    @Column(name = "publicKey")
+    public String getPublicKey(){return publicKey;}
+    public void setPublicKey(String publicKey) {this.publicKey = publicKey;}
 
 
 

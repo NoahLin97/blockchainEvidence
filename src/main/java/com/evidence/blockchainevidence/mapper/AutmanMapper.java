@@ -1,17 +1,14 @@
 package com.evidence.blockchainevidence.mapper;
 
-        import com.evidence.blockchainevidence.entity.AutManagerEntity;
-        import com.evidence.blockchainevidence.entity.EvidenceEntity;
-        import com.evidence.blockchainevidence.entity.NotaryEntity;
-        import com.evidence.blockchainevidence.entity.TransactionEntity;
-        import com.evidence.blockchainevidence.provider.QueryProvider;
-        import org.apache.ibatis.annotations.Mapper;
-        import org.apache.ibatis.annotations.Param;
-        import org.apache.ibatis.annotations.Select;
-        import org.apache.ibatis.annotations.SelectProvider;
-        import org.springframework.stereotype.Component;
+import com.evidence.blockchainevidence.entity.EvidenceEntity;
+import com.evidence.blockchainevidence.entity.TransactionEntity;
+import com.evidence.blockchainevidence.provider.QueryProvider;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.SelectProvider;
+import org.springframework.stereotype.Component;
 
-        import java.util.List;
+import java.util.List;
 
 @Mapper
 @Component
