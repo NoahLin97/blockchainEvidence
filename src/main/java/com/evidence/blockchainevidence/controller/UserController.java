@@ -7,6 +7,7 @@ import com.evidence.blockchainevidence.entity.NotaryEntity;
 import com.evidence.blockchainevidence.entity.Sex;
 import com.evidence.blockchainevidence.helib.SEA;
 import com.evidence.blockchainevidence.helib.SLT;
+import com.evidence.blockchainevidence.mapper.AutmanMapper;
 import com.evidence.blockchainevidence.mapper.NotaryMapper;
 import com.evidence.blockchainevidence.mapper.UserMapper;
 import com.evidence.blockchainevidence.service.UserService;
@@ -19,12 +20,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.evidence.blockchainevidence.controller.AutmanController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.util.*;
+
+import static com.evidence.blockchainevidence.controller.AutmanController.*;
 
 
 @RestController
@@ -36,6 +40,8 @@ public class UserController {
     NotaryMapper notaryMapper;
     @Autowired
     UserService userService;
+    @Autowired(required = false)
+    AutmanMapper autmanMapper;
 
 
     /**
@@ -304,9 +310,135 @@ public class UserController {
 
     }
 
+    /**
+     * 查询申请公证的记录
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/user/notarRecord")
+    public Object notarRecord (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+
+            if(!params.containsKey("userId")){
+                result.put("status",false);
+                result.put("message","给出没有用户Id！");
+                return result;
+            }
+            if(params.get("userId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","用户Id不能为空！");
+                return result;
+            }
+            if(params.containsKey("usernameWildcard ")){
+                params.remove("usernameWildcard ");
+            }
+            if(params.containsKey("notarizationStatus")){
+                if(params.get("notarizationStatus").toString().equals("0")){
+                    result.put("status",false);
+                    result.put("message","公证状态不能为“未公证”！");
+                    return result;
+                }
+            }
+            Map<String,Object> rs= eviSelect(params,autmanMapper);
+
+
+            //去掉状态为“0”的记录，之后要记得写
 
 
 
+            return rs;
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+    /**
+     * 查询交易记录
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/user/transQuery")
+    public Object transQuery (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+            if(!params.containsKey("userId")){
+                result.put("status",false);
+                result.put("message","给出没有用户Id！");
+                return result;
+            }
+            if(params.get("userId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","用户Id不能为空！");
+                return result;
+            }
+            if(params.containsKey("usernameWildcard ")){
+                params.remove("usernameWildcard ");
+            }
+            if(params.containsKey("transactionPeopleCipher    ")){
+                params.remove("transactionPeopleCipher ");
+            }
+            return transSelect(params,autmanMapper);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+    /**
+     * 查询证据记录
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/user/evidenceQuery")
+    public Object evidenceQuery  (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+            if(!params.containsKey("userId")){
+                result.put("status",false);
+                result.put("message","给出没有用户Id！");
+                return result;
+            }
+            if(params.get("userId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","用户Id不能为空！");
+                return result;
+            }
+            if(params.containsKey("usernameWildcard ")){
+                params.remove("usernameWildcard ");
+            }
+            return eviSelect2(params,autmanMapper);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
 
 //    /**
 //     * 用户登录
