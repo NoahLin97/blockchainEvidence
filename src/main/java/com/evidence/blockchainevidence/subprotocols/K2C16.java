@@ -1,9 +1,7 @@
 package com.evidence.blockchainevidence.subprotocols;
 
-import com.evidence.blockchainevidence.PaillierT.CipherPub;
-import com.evidence.blockchainevidence.PaillierT.PaillierT;
-
 import java.math.BigInteger;
+import com.evidence.blockchainevidence.PaillierT.*;
 
 public class K2C16 {
 

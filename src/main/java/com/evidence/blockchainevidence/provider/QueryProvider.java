@@ -1,7 +1,5 @@
 package com.evidence.blockchainevidence.provider;
 
-import org.apache.ibatis.annotations.Param;
-
 public class QueryProvider {
 
     //按公证所需参数查询

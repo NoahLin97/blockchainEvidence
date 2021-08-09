@@ -1,9 +1,9 @@
+
 package com.evidence.blockchainevidence.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.evidence.blockchainevidence.entity.*;
 import com.evidence.blockchainevidence.mapper.AutmanMapper;
-import com.evidence.blockchainevidence.mapper.NotaryMapper;
 import com.evidence.blockchainevidence.mapper.NotaryStatisticsMapper;
 import com.evidence.blockchainevidence.mapper.OrganizationStatisticsMapper;
 import com.evidence.blockchainevidence.utils.ParseRequest;
@@ -24,52 +24,108 @@ public class AutmanController {
 
     @Autowired(required = false)
     AutmanMapper autmanMapper;
-    /**
-     * 查询申请公证的记录
-     */
-    @CrossOrigin(origins ="*")
-    @PostMapping("/aut/notarRecord")
-    public Object notarRecord (HttpServletRequest req){
+
+
+    public static Map<String,Object> eviSelect (JSONObject params, AutmanMapper autmanMapper){
         Map<String,Object> result=new HashMap<>();
 
         try{
-            JSONObject params= ParseRequest.parse(req);
-
 
 
             //直接筛选的
-            String notarizationStatus=params.get("notarizationStatus").toString();
-            String notarizationType=params.get("notarizationType").toString();
-            String paymentStatus =params.get("paymentStatus").toString();
-            String evidenceType =params.get("evidenceType").toString();
-            String organizationId =params.get("organizationId").toString();
+            String notarizationStatus="none";
+            if(params.containsKey("notarizationStatus")){
+                notarizationStatus=params.get("notarizationStatus").toString();
+            }
+
+            String notarizationType="none";
+            if(params.containsKey("notarizationType")){
+                notarizationType=params.get("notarizationType").toString();
+            }
+
+            String paymentStatus="none";
+            if(params.containsKey("paymentStatus")){
+                paymentStatus=params.get("paymentStatus").toString();
+            }
+
+            String evidenceType="none";
+            if(params.containsKey("evidenceType")){
+                evidenceType=params.get("evidenceType").toString();
+            }
+
+            String organizationId="none";
+            if(params.containsKey("organizationId")){
+                organizationId=params.get("organizationId").toString();
+            }
 
             //要通配的明文字符串
-            String evidenceNameWildcard=params.get("evidenceNameWildcard").toString();
 
+            String evidenceNameWildcard="none";
+            if(params.containsKey("evidenceNameWildcard")){
+                evidenceNameWildcard=params.get("evidenceNameWildcard").toString();
+            }
+
+            String usernameWildcard="none";
+            if(params.containsKey("usernameWildcard")){
+                usernameWildcard=params.get("usernameWildcard").toString();
+            }
 
             //要比大小的date
-            String notarizationStartTimeStart =params.get("notarizationStartTimeStart").toString();
-            String notarizationStartTimeEnd =params.get("notarizationStartTimeEnd").toString();
-            String notarizationEndTimeStart =params.get("notarizationEndTimeStart").toString();
-            String notarizationEndTimeEnd =params.get("notarizationEndTimeEnd").toString();
+
+            String notarizationStartTimeStart="none";
+            if(params.containsKey("notarizationStartTimeStart")){
+                notarizationStartTimeStart=params.get("notarizationStartTimeStart").toString();
+            }
+
+            String notarizationStartTimeEnd="none";
+            if(params.containsKey("notarizationStartTimeEnd")){
+                notarizationStartTimeEnd=params.get("notarizationStartTimeEnd").toString();
+            }
+
+            String notarizationEndTimeStart="none";
+            if(params.containsKey("notarizationEndTimeStart")){
+                notarizationEndTimeStart=params.get("notarizationEndTimeStart").toString();
+            }
+
+            String notarizationEndTimeEnd="none";
+            if(params.containsKey("notarizationEndTimeEnd")){
+                notarizationEndTimeEnd=params.get("notarizationEndTimeEnd").toString();
+            }
 
             //要比大小的明文
 
 
             //要比大小的密文
-            Integer notarizationMoneyUpper =Integer.parseInt(params.get("notarizationMoneyUpper").toString());
-            Integer notarizationMoneyFloor =Integer.parseInt(params.get("notarizationMoneyFloor").toString());
-            Integer fileSizeUpper =Integer.parseInt(params.get("fileSizeUpper").toString());
-            Integer fileSizeFloor =Integer.parseInt(params.get("fileSizeFloor").toString());
+
+            Integer notarizationMoneyUpper=-1;
+            if(params.containsKey("notarizationMoneyUpper")){
+                notarizationMoneyUpper=Integer.parseInt(params.get("notarizationMoneyUpper").toString());
+            }
+
+            Integer notarizationMoneyFloor=-1;
+            if(params.containsKey("notarizationMoneyFloor")){
+                notarizationMoneyFloor=Integer.parseInt(params.get("notarizationMoneyFloor").toString());
+            }
+
+            Integer fileSizeUpper=-1;
+            if(params.containsKey("fileSizeUpper")){
+                fileSizeUpper=Integer.parseInt(params.get("fileSizeUpper").toString());
+            }
+
+            Integer fileSizeFloor=-1;
+            if(params.containsKey("fileSizeFloor")){
+                fileSizeFloor=Integer.parseInt(params.get("fileSizeFloor").toString());
+            }
 
             //要通配的密文
 
 
 
             //解密标识符
-            Integer decryptFlag =Integer.parseInt(params.get("decryptFlag").toString());
-
+            Integer decryptFlag=0;
+            if(params.containsKey("decryptFlag")){
+                decryptFlag =Integer.parseInt(params.get("decryptFlag").toString());
+            }
 
 
 
@@ -77,7 +133,7 @@ public class AutmanController {
             List<EvidenceEntity> data = autmanMapper.findEvidence("none","none","none",
                     notarizationStatus, notarizationType,
                     paymentStatus, evidenceType, organizationId,
-                    evidenceNameWildcard, notarizationStartTimeStart,
+                    evidenceNameWildcard, usernameWildcard, notarizationStartTimeStart,
                     notarizationStartTimeEnd, notarizationEndTimeStart,
                     notarizationEndTimeEnd);
 
@@ -130,8 +186,23 @@ public class AutmanController {
             while (iterator.hasNext()) {
                 EvidenceEntity s = iterator.next();
 
-                Integer i=Integer.parseInt(s.getNotarizationStatus().toString());
+                Integer i;
+                i=Integer.parseInt(s.getNotarizationStatus().toString());
                 s.setNotarizationStatus(notarizationStatuses[i]);
+
+                i=Integer.parseInt(s.getEvidenceType().toString());
+                s.setEvidenceType(evidenceTypes[i]);
+
+                if(s.getTransactionStatus()!=null){
+                    i=Integer.parseInt(s.getTransactionStatus().toString());
+                    s.setTransactionStatus(transactionStatuses[i]);
+                }
+                if(s.getNotarizationType()!=null){
+                    i=Integer.parseInt(s.getNotarizationType().toString());
+                    s.setNotarizationType(notarizationTypes[i]);
+                }
+
+
 
                 //如果有解密标记，还要把密文替换为明文
                 if(decryptFlag==1){
@@ -163,44 +234,778 @@ public class AutmanController {
     }
 
 
-
-    /**
-     * 查询申请公证的记录
-     */
-    @CrossOrigin(origins ="*")
-    @PostMapping("/aut/transQuery")
-    public Object transQuery (HttpServletRequest req){
+    public static Map<String,Object> eviSelect2 (JSONObject params, AutmanMapper autmanMapper){
         Map<String,Object> result=new HashMap<>();
 
         try{
-            JSONObject params= ParseRequest.parse(req);
-
 
 
             //直接筛选的
-            String transactionStatus=params.get("transactionStatus").toString();
-            String transactionType=params.get("transactionType").toString();
+            String notarizationStatus="none";
+            if(params.containsKey("notarizationStatus")){
+                notarizationStatus=params.get("notarizationStatus").toString();
+            }
+
+            String evidenceType="none";
+            if(params.containsKey("evidenceType")){
+                evidenceType=params.get("evidenceType").toString();
+            }
+
+            String evidenceBlockchainId="none";
+            if(params.containsKey("evidenceBlockchainId")){
+                evidenceBlockchainId=params.get("evidenceBlockchainId").toString();
+            }
+
+            String evidenceId="none";
+            if(params.containsKey("evidenceId")){
+                evidenceId=params.get("evidenceId").toString();
+            }
+
+            String userId="none";
+            if(params.containsKey("userId")){
+                userId=params.get("userId").toString();
+            }
 
             //要通配的明文字符串
-            String usernameWildcard=params.get("usernameWildcard").toString();
+
+            String evidenceNameWildcard="none";
+            if(params.containsKey("evidenceNameWildcard")){
+                evidenceNameWildcard=params.get("evidenceNameWildcard").toString();
+            }
+
+            String usernameWildcard="none";
+            if(params.containsKey("usernameWildcard")){
+                usernameWildcard=params.get("usernameWildcard").toString();
+            }
 
             //要比大小的date
-            String transactionTimeStart =params.get("transactionTimeStart").toString();
-            String transactionTimeEnd =params.get("transactionTimeEnd").toString();
+
+            String evidenceTimeStart="none";
+            if(params.containsKey("evidenceTimeStart")){
+                evidenceTimeStart=params.get("evidenceTimeStart").toString();
+            }
+
+            String evidenceTimeEnd="none";
+            if(params.containsKey("evidenceTimeEnd")){
+                evidenceTimeEnd=params.get("evidenceTimeEnd").toString();
+            }
+
+            String blockchainTimeStart="none";
+            if(params.containsKey("blockchainTimeStart")){
+                blockchainTimeStart=params.get("blockchainTimeStart").toString();
+            }
+
+            String blockchainTimeEnd="none";
+            if(params.containsKey("notarizationEndTimeEnd")){
+                blockchainTimeEnd=params.get("blockchainTimeEnd").toString();
+            }
 
             //要比大小的明文
 
 
             //要比大小的密文
-            Integer transactionMoneyFloor =Integer.parseInt(params.get("transactionMoneyFloor").toString());
-            Integer transactionMoneyUpper =Integer.parseInt(params.get("transactionMoneyUpper").toString());
+
+            Integer fileSizeUpper=-1;
+            if(params.containsKey("fileSizeUpper")){
+                fileSizeUpper=Integer.parseInt(params.get("fileSizeUpper").toString());
+            }
+
+            Integer fileSizeFloor=-1;
+            if(params.containsKey("fileSizeFloor")){
+                fileSizeFloor=Integer.parseInt(params.get("fileSizeFloor").toString());
+            }
 
             //要通配的密文
 
 
 
             //解密标识符
-            Integer decryptFlag =Integer.parseInt(params.get("decryptFlag").toString());
+            Integer decryptFlag=0;
+            if(params.containsKey("decryptFlag")){
+                decryptFlag =Integer.parseInt(params.get("decryptFlag").toString());
+            }
+
+
+
+            //查询数据库
+            List<EvidenceEntity> data = autmanMapper.findEvidence2( evidenceId,  userId,  usernameWildcard,
+                     notarizationStatus,  evidenceBlockchainId,
+                     evidenceType,
+                     evidenceNameWildcard,  evidenceTimeStart,
+                     evidenceTimeEnd,  blockchainTimeStart,
+                     blockchainTimeEnd) ;
+
+
+
+            //在密文下匹配，剔除不合格的数据
+            Iterator<EvidenceEntity> iterator = data.iterator();
+            while (iterator.hasNext()) {
+                EvidenceEntity s = iterator.next();
+
+
+                //剔除不符合接口要求的数据，这里需要根据接口定制
+                //notarizationStatus为"0"的数据不返回
+                if(s.getNotarizationStatus().toString().equals("0")){
+                    iterator.remove();
+                    continue;
+                }
+
+
+                //密文数值比较阶段
+
+                if(fileSizeUpper!=-1){
+
+                }
+                if(fileSizeFloor!=-1){
+
+                }
+
+                //密文字符通配阶段
+
+
+
+
+//                if (true) {//如果不匹配
+//                    iterator.remove();//使用迭代器的删除方法删除
+//                }
+
+            }
+//            System.out.println(data.size());
+
+
+            //遍历替换enum类型的返回值
+            iterator = data.iterator();
+            while (iterator.hasNext()) {
+                EvidenceEntity s = iterator.next();
+
+                Integer i;
+                i=Integer.parseInt(s.getNotarizationStatus().toString());
+                s.setNotarizationStatus(notarizationStatuses[i]);
+
+                i=Integer.parseInt(s.getEvidenceType().toString());
+                s.setEvidenceType(evidenceTypes[i]);
+
+                if(s.getTransactionStatus()!=null){
+                    i=Integer.parseInt(s.getTransactionStatus().toString());
+                    s.setTransactionStatus(transactionStatuses[i]);
+                }
+                if(s.getNotarizationType()!=null){
+                    i=Integer.parseInt(s.getNotarizationType().toString());
+                    s.setNotarizationType(notarizationTypes[i]);
+                }
+
+
+
+                //如果有解密标记，还要把密文替换为明文
+                if(decryptFlag==1){
+
+                }
+            }
+
+
+
+
+
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+    public static Map<String,Object> userSelect (JSONObject params, AutmanMapper autmanMapper){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+
+            //直接筛选的
+
+            String userId="none";
+            if(params.containsKey("userId")){
+                userId=params.get("userId").toString();
+            }
+
+            String sex="none";
+            if(params.containsKey("sex")){
+                sex=params.get("sex").toString();
+            }
+
+            //要通配的明文字符串
+
+            String usernameWildcard="none";
+            if(params.containsKey("usernameWildcard")){
+                usernameWildcard=params.get("usernameWildcard").toString();
+            }
+
+            String phoneNumberWildcard="none";
+            if(params.containsKey("phoneNumberWildcard")){
+                phoneNumberWildcard=params.get("phoneNumberWildcard").toString();
+            }
+
+            String emailWildcard="none";
+            if(params.containsKey("emailWildcard")){
+                emailWildcard=params.get("emailWildcard").toString();
+            }
+
+            //要比大小的date
+
+
+            //要比大小的明文
+
+
+            //要比大小的密文
+
+            Integer remainsFloor=-1;
+            if(params.containsKey("remainsFloor")){
+                remainsFloor=Integer.parseInt(params.get("remainsFloor").toString());
+            }
+
+            Integer remainsUpper=-1;
+            if(params.containsKey("remainsUpper")){
+                remainsUpper=Integer.parseInt(params.get("remainsUpper").toString());
+            }
+
+            Integer storageSpaceFloor=-1;
+            if(params.containsKey("storageSpaceFloor")){
+                storageSpaceFloor=Integer.parseInt(params.get("storageSpaceFloor").toString());
+            }
+
+            Integer storageSpaceUpper=-1;
+            if(params.containsKey("storageSpaceUpper")){
+                storageSpaceUpper=Integer.parseInt(params.get("storageSpaceUpper").toString());
+            }
+
+            Integer hasUsedStorageFloor=-1;
+            if(params.containsKey("hasUsedStorageFloor")){
+                hasUsedStorageFloor=Integer.parseInt(params.get("hasUsedStorageFloor").toString());
+            }
+
+            Integer hasUsedStorageUpper=-1;
+            if(params.containsKey("hasUsedStorageUpper")){
+                hasUsedStorageUpper=Integer.parseInt(params.get("hasUsedStorageUpper").toString());
+            }
+
+            //要通配的密文
+
+            String idCard="none";
+            if(params.containsKey("idCard")){
+                idCard=params.get("idCard").toString();
+            }
+
+            //解密标识符
+            Integer decryptFlag=0;
+            if(params.containsKey("decryptFlag")){
+                decryptFlag =Integer.parseInt(params.get("decryptFlag").toString());
+            }
+
+
+
+
+            //查询数据库
+            List<UserEntity> data = autmanMapper.findUser( userId,  usernameWildcard,  phoneNumberWildcard,
+                    emailWildcard,  sex);
+
+
+
+            //在密文下匹配，剔除不合格的数据
+            Iterator<UserEntity> iterator = data.iterator();
+            while (iterator.hasNext()) {
+                UserEntity s = iterator.next();
+
+
+                //剔除不符合接口要求的数据，这里需要根据接口定制
+
+
+
+                //密文数值比较阶段
+
+                if(remainsFloor!=-1){
+
+                }
+                if(remainsUpper!=-1){
+
+                }
+                if(storageSpaceFloor!=-1){
+
+                }
+                if(storageSpaceUpper!=-1){
+
+                }
+
+                if(hasUsedStorageFloor!=-1){
+
+                }
+                if(hasUsedStorageUpper!=-1){
+
+                }
+
+
+
+                //密文字符通配阶段
+
+                if(!idCard.equals("none")){
+
+                }
+
+
+
+//                if (true) {//如果不匹配
+//                    iterator.remove();//使用迭代器的删除方法删除
+//                }
+
+            }
+//            System.out.println(data.size());
+
+
+            //遍历替换enum类型的返回值
+            iterator = data.iterator();
+            while (iterator.hasNext()) {
+                UserEntity s = iterator.next();
+
+                Integer i=Integer.parseInt(s.getSex().toString());
+                s.setSex(sexs[i]);
+
+                //如果有解密标记，还要把密文替换为明文
+                if(decryptFlag==1){
+
+                }
+            }
+
+
+
+
+
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+    public static Map<String,Object> orgSelect (JSONObject params, AutmanMapper autmanMapper){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+
+            //直接筛选的
+            String organizationId=params.get("organizationId").toString();
+
+            //要通配的明文字符串
+            String organizationIdNameWildcard=params.get("organizationIdNameWildcard").toString();
+            String addressWildcard=params.get("addressWildcard").toString();
+            String phoneNumberWildcard=params.get("phoneNumberWildcard").toString();
+            String legalPeopleWildcard=params.get("legalPeopleWildcard").toString();
+            String emailWildcard=params.get("emailWildcard").toString();
+            //要比大小的date
+
+
+            //要比大小的明文
+
+
+            //要比大小的密文
+
+            //要通配的密文
+
+            //解密标识符
+//                    Integer decryptFlag =Integer.parseInt(params.get("decryptFlag").toString());
+            Integer decryptFlag=0;
+            if(params.containsKey("decryptFlag")){
+                decryptFlag =Integer.parseInt(params.get("decryptFlag").toString());
+            }
+            //查询数据库
+            List<OrganizationEntity> data = autmanMapper.findOrganization( organizationId ,  organizationIdNameWildcard,  addressWildcard,
+                    phoneNumberWildcard,  legalPeopleWildcard,  emailWildcard);
+
+
+
+            //在密文下匹配，剔除不合格的数据
+            Iterator<OrganizationEntity> iterator = data.iterator();
+            while (iterator.hasNext()) {
+                OrganizationEntity s = iterator.next();
+
+                //剔除不符合接口要求的数据，这里需要根据接口定制
+
+                //密文数值比较阶段
+
+                //密文字符通配阶段
+
+//                if (true) {//如果不匹配
+//                    iterator.remove();//使用迭代器的删除方法删除
+//                }
+
+            }
+//            System.out.println(data.size());
+
+
+            //遍历替换enum类型的返回值
+            iterator = data.iterator();
+            while (iterator.hasNext()) {
+                OrganizationEntity s = iterator.next();
+
+//                        Integer i=Integer.parseInt(s.getTransactionStatus().toString());
+//                        s.setTransactionStatus(transactionStatuses[i]);
+
+                //如果有解密标记，还要把密文替换为明文
+//                        if(decryptFlag==1){
+//
+//                        }
+            }
+
+
+
+
+
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+    public static Map<String,Object> notaSelect (JSONObject params, AutmanMapper autmanMapper){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+
+
+            //直接筛选的
+
+            String notaryId="none";
+            if(params.containsKey("notaryId")){
+                notaryId=params.get("notaryId").toString();
+            }
+
+            String organizationId="none";
+            if(params.containsKey("organizationId")){
+                organizationId=params.get("organizationId").toString();
+            }
+
+            String sex="none";
+            if(params.containsKey("sex")){
+                sex=params.get("sex").toString();
+            }
+
+            String notarizationType="none";
+            if(params.containsKey("notarizationType")){
+                notarizationType=params.get("notarizationType").toString();
+            }
+
+            //要通配的明文字符串
+
+            String notaryNameWildcard="none";
+            if(params.containsKey("notaryNameWildcard")){
+                notaryNameWildcard=params.get("notaryNameWildcard").toString();
+            }
+
+            String phoneNumberWildcard="none";
+            if(params.containsKey("phoneNumberWildcard")){
+                phoneNumberWildcard=params.get("phoneNumberWildcard").toString();
+            }
+
+            String emailWildcard="none";
+            if(params.containsKey("emailWildcard")){
+                emailWildcard=params.get("emailWildcard").toString();
+            }
+
+            String jobNumberWildcard="none";
+            if(params.containsKey("jobNumberWildcard")){
+                jobNumberWildcard=params.get("jobNumberWildcard").toString();
+            }
+            //要比大小的date
+
+
+            //要比大小的明文
+
+
+            //要比大小的密文
+
+            //要通配的密文
+
+            String idCard="none";
+            if(params.containsKey("idCard")){
+                idCard=params.get("idCard").toString();
+            }
+            //解密标识符
+//                    Integer decryptFlag =Integer.parseInt(params.get("decryptFlag").toString());
+            Integer decryptFlag=0;
+            if(params.containsKey("decryptFlag")){
+                decryptFlag =Integer.parseInt(params.get("decryptFlag").toString());
+            }
+            //查询数据库
+            List<NotaryEntity> data = autmanMapper.findNotary( notaryId ,  notaryNameWildcard,  phoneNumberWildcard,  jobNumberWildcard,
+                    emailWildcard,  sex,  organizationId,  notarizationType );
+
+
+
+            //在密文下匹配，剔除不合格的数据
+            Iterator<NotaryEntity> iterator = data.iterator();
+            while (iterator.hasNext()) {
+                NotaryEntity s = iterator.next();
+
+                //剔除不符合接口要求的数据，这里需要根据接口定制
+
+                //密文数值比较阶段
+
+                //密文字符通配阶段
+
+//                if (true) {//如果不匹配
+//                    iterator.remove();//使用迭代器的删除方法删除
+//                }
+
+            }
+//            System.out.println(data.size());
+
+
+            //遍历替换enum类型的返回值
+            iterator = data.iterator();
+            while (iterator.hasNext()) {
+                NotaryEntity s = iterator.next();
+
+                Integer i;
+                i=Integer.parseInt(s.getSex().toString());
+                s.setSex(sexs[i]);
+                i=Integer.parseInt(s.getNotarizationType().toString());
+                s.setNotarizationType(notarizationTypes[i]);
+
+                //如果有解密标记，还要把密文替换为明文
+//                        if(decryptFlag==1){
+//
+//                        }
+            }
+
+
+
+
+
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+
+    public static Map<String,Object> autmanSelect (JSONObject params, AutmanMapper autmanMapper){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+
+
+            //直接筛选的
+            String autManId="none";
+            if(params.containsKey("autManId")){
+                autManId=params.get("autManId").toString();
+            }
+
+            String organizationId="none";
+            if(params.containsKey("organizationId")){
+                organizationId=params.get("organizationId").toString();
+            }
+
+            String sex="none";
+            if(params.containsKey("sex")){
+                sex=params.get("sex").toString();
+            }
+            //要通配的明文字符串
+            String autNameWildcard="none";
+            if(params.containsKey("autNameWildcard")){
+                autNameWildcard=params.get("autNameWildcard").toString();
+            }
+
+            String phoneNumberWildcard="none";
+            if(params.containsKey("phoneNumberWildcard")){
+                phoneNumberWildcard=params.get("phoneNumberWildcard").toString();
+            }
+
+            String emailWildcard="none";
+            if(params.containsKey("emailWildcard")){
+                emailWildcard=params.get("emailWildcard").toString();
+            }
+
+            String jobNumberWildcard="none";
+            if(params.containsKey("jobNumberWildcard")){
+                jobNumberWildcard=params.get("jobNumberWildcard").toString();
+            }
+            //要比大小的date
+
+
+            //要比大小的明文
+
+
+            //要比大小的密文
+
+            //要通配的密文
+
+            String idCard="none";
+            if(params.containsKey("idCard")){
+                idCard=params.get("idCard").toString();
+            }
+            //解密标识符
+//                    Integer decryptFlag =Integer.parseInt(params.get("decryptFlag").toString());
+            Integer decryptFlag=0;
+            if(params.containsKey("decryptFlag")){
+                decryptFlag =Integer.parseInt(params.get("decryptFlag").toString());
+            }
+            //查询数据库
+            List<AutManagerEntity> data = autmanMapper.findAutman( autManId ,  autNameWildcard,  phoneNumberWildcard,  jobNumberWildcard,
+                    emailWildcard,  sex,  organizationId);
+
+
+
+            //在密文下匹配，剔除不合格的数据
+            Iterator<AutManagerEntity> iterator = data.iterator();
+            while (iterator.hasNext()) {
+                AutManagerEntity s = iterator.next();
+
+                //剔除不符合接口要求的数据，这里需要根据接口定制
+
+                //密文数值比较阶段
+
+                //密文字符通配阶段
+
+//                if (true) {//如果不匹配
+//                    iterator.remove();//使用迭代器的删除方法删除
+//                }
+
+            }
+//            System.out.println(data.size());
+
+
+            //遍历替换enum类型的返回值
+            iterator = data.iterator();
+            while (iterator.hasNext()) {
+                AutManagerEntity s = iterator.next();
+
+                Integer i=Integer.parseInt(s.getSex().toString());
+                s.setSex(sexs[i]);
+
+                //如果有解密标记，还要把密文替换为明文
+//                        if(decryptFlag==1){
+//
+//                        }
+            }
+
+
+
+
+
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+    public static Map<String,Object> transSelect (JSONObject params, AutmanMapper autmanMapper){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+
+            //直接筛选的
+            String transactionType="none";
+            if(params.containsKey("transactionType")){
+                transactionType=params.get("transactionType").toString();
+            }
+            //要通配的明文字符串
+            String usernameWildcard="none";
+            if(params.containsKey("usernameWildcard")){
+                usernameWildcard=params.get("usernameWildcard").toString();
+            }
+            //要比大小的date
+            String transactionTimeStart="none";
+            if(params.containsKey("transactionTimeStart")){
+                transactionTimeStart=params.get("transactionTimeStart").toString();
+            }
+
+            String transactionTimeEnd="none";
+            if(params.containsKey("transactionTimeEnd")){
+                transactionTimeEnd=params.get("transactionTimeEnd").toString();
+            }
+            //要比大小的明文
+
+
+            //要比大小的密文
+            Integer transactionMoneyFloor=-1;
+            if(params.containsKey("transactionMoneyFloor")){
+                transactionMoneyFloor=Integer.parseInt(params.get("transactionMoneyFloor").toString());
+            }
+            Integer transactionMoneyUpper=-1;
+            if(params.containsKey("transactionMoneyUpper")){
+                transactionMoneyUpper=Integer.parseInt(params.get("transactionMoneyUpper").toString());
+            }
+            //要通配的密文
+
+
+
+            //解密标识符
+            Integer decryptFlag=0;
+            if(params.containsKey("decryptFlag")){
+                decryptFlag =Integer.parseInt(params.get("decryptFlag").toString());
+            }
 
 
 
@@ -250,8 +1055,9 @@ public class AutmanController {
             while (iterator.hasNext()) {
                 TransactionEntity s = iterator.next();
 
-//                        Integer i=Integer.parseInt(s.getTransactionStatus().toString());
-//                        s.setTransactionStatus(transactionStatuses[i]);
+                Integer i ;
+                i=Integer.parseInt(s.getTransactionType().toString());
+                s.setTransactionType(transactionTypes[i]);
 
                 //如果有解密标记，还要把密文替换为明文
                 if(decryptFlag==1){
@@ -281,6 +1087,437 @@ public class AutmanController {
         return result;
 
     }
+
+
+    
+
+    /**
+     * 查询申请公证的记录
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/aut/notarRecord")
+    public Object notarRecord (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+            if(params.containsKey("notarizationStatus")){
+                if(params.get("notarizationStatus").toString().equals("0")){
+                    result.put("status",false);
+                    result.put("message","公证状态不能为“未公证”！");
+                    return result;
+                }
+            }
+            Map<String,Object> rs= eviSelect(params,autmanMapper);
+            //去掉状态为“0”的记录，之后要记得写
+
+
+
+            return rs;
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+
+    /**
+     * 查询交易记录
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/aut/transQuery")
+    public Object transQuery (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+            return transSelect(params,autmanMapper);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+    /**
+     * 查询所有用户记录
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/aut/userQuery")
+    public Object userQuery (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+            return userSelect(params,autmanMapper);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+    /**
+     * 查询所有公证员记录
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/aut/notaQuery")
+    public Object notaQuery (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+            return notaSelect(params,autmanMapper);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+    /**
+     * 查询所有公证管理员员记录
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/aut/autmanQuery")
+    public Object autmanQuery (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+            return autmanSelect(params,autmanMapper);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+    /**
+     * 查询所有公证机构记录
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/aut/orgaQuery")
+    public Object orgaQuery  (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+            return orgSelect(params,autmanMapper);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+    /**
+     * 查询所有证据记录
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/aut/evidenceQuery")
+    public Object evidenceQuery  (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+            return eviSelect2(params,autmanMapper);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+    /**
+     * 查询所有公证类型
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/noTypeQuery")
+    public Object noTypeQuery (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+
+            int l=notarizationTypes.length;
+
+            List<JSONObject> data = new Vector<>();
+            for(Integer i=0;i<l;i++){
+                JSONObject s=new JSONObject();
+                s.put("notarizationType",i.toString());
+                s.put("notarizationTypeName",notarizationTypes[i]);
+                data.add(s);
+            }
+
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+
+
+    /**
+     * 查询所有交易类型
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/tranTypeQuery")
+    public Object tranTypeQuery (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+
+            int l=transactionTypes.length;
+
+            List<JSONObject> data = new Vector<>();
+            for(Integer i=0;i<l;i++){
+                JSONObject s=new JSONObject();
+                s.put("transactionType",i.toString());
+                s.put("transactionTypeName",transactionTypes[i]);
+                data.add(s);
+            }
+
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+    /**
+     * 查询所有证据类型
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/eviTypeQuery")
+    public Object eviTypeQuery (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+
+            int l=evidenceTypes.length;
+
+            List<JSONObject> data = new Vector<>();
+            for(Integer i=0;i<l;i++){
+                JSONObject s=new JSONObject();
+                s.put("evidenceType",i.toString());
+                s.put("evidenceTypeName",evidenceTypes[i]);
+                data.add(s);
+            }
+
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+    /**
+     * 查询所有证据类型
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/notPayQuery")
+    public Object notPayQuery (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+
+            int l=notarizationMoneys.length;
+
+            List<JSONObject> data = new Vector<>();
+            for(Integer i=0;i<l;i++){
+                JSONObject s=new JSONObject();
+                s.put("notarizationType",i.toString());
+                s.put("notarizationTypeName",notarizationTypes[i]);
+                s.put("notarizationMoney",notarizationMoneys[i]);
+                data.add(s);
+            }
+
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+
+
+    /**
+     * 公证员统计时间查询
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/notStaTimeQuery")
+    public Object notStaTimeQuery (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+
+            //查询数据库
+            List<String> data = autmanMapper.findNotaTimes();
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+    /**
+     * 公证员统计时间查询
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/orgStaTimeQuery ")
+    public Object orgStaTimeQuery  (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+
+            //查询数据库
+            List<String> data = autmanMapper.findOrgTimes();
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+
 
 
     @Autowired(required = false)
@@ -414,6 +1651,7 @@ public class AutmanController {
         return result;
 
     }
+
 
     /**
      * 公证员排名查询
@@ -553,6 +1791,7 @@ public class AutmanController {
 
     }
 
+
     /**
      * 公证机构统计查询
      */
@@ -652,4 +1891,6 @@ public class AutmanController {
     }
 
 
+
 }
+

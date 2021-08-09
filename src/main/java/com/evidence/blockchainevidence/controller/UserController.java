@@ -27,6 +27,8 @@ import java.io.StringWriter;
 import java.math.BigInteger;
 import java.util.*;
 
+import static com.evidence.blockchainevidence.controller.AutmanController.*;
+
 
 @RestController
 public class UserController {
@@ -79,6 +81,8 @@ public class UserController {
         return result;
 
     }
+
+
     /**
      * 数值加密测试,测试qw<kw
      */
@@ -142,7 +146,6 @@ public class UserController {
         return result;
 
     }
-
 
 
     /**
@@ -268,6 +271,8 @@ public class UserController {
         return result;
 
     }
+
+
     /**
      * 查询交易记录
      */
@@ -308,6 +313,8 @@ public class UserController {
         return result;
 
     }
+
+
     /**
      * 查询证据记录
      */
@@ -345,6 +352,8 @@ public class UserController {
         return result;
 
     }
+
+
 
     /**
      * 用户注册
@@ -599,3 +608,7 @@ public class UserController {
 
 
 }
+
+
+
+

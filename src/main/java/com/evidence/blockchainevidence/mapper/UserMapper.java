@@ -28,4 +28,7 @@ public interface UserMapper {
                    @Param("idCard") String idCard,@Param("email") String email,@Param("sex") String sex);
 
 
+
+
+
 }

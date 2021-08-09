@@ -6,6 +6,7 @@ import com.evidence.blockchainevidence.entity.NotaryEntity;
 import com.evidence.blockchainevidence.mapper.AutmanMapper;
 import com.evidence.blockchainevidence.mapper.NotaryMapper;
 import com.evidence.blockchainevidence.service.NotaryService;
+import com.evidence.blockchainevidence.service.UserService;
 import com.evidence.blockchainevidence.subprotocols.K2C8;
 import com.evidence.blockchainevidence.utils.ParseRequest;
 import com.evidence.blockchainevidence.utils.Sha256;
@@ -35,8 +36,9 @@ public class NotaryController {
     @Autowired(required = false)
     AutmanMapper autmanMapper;
     @Autowired
+    UserService userService;
+    @Autowired
     NotaryService notaryService;
-
     /**
      * 查询申请公证的记录
      */
@@ -245,6 +247,11 @@ public class NotaryController {
     }
 
 
+    /**
+     * 公证员完善信息
+     * @param req
+     * @return
+     */
     @CrossOrigin(origins = "*")
     @PostMapping("/notar/update")
     public Object updateNotar(HttpServletRequest req){
@@ -325,6 +332,8 @@ public class NotaryController {
     }
 
 
-
-
 }
+
+
+
+

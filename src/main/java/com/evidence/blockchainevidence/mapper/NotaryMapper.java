@@ -15,7 +15,7 @@ public interface NotaryMapper {
     int insertNotary(@Param("notaryId") String notaryId, @Param("notaryName") String notaryName, @Param("jobNumber") String jobNumber,
                      @Param("password") String password, @Param("phoneNumber") String phoneNumber, @Param("idCard") String idCard,
                      @Param("email") String email, @Param("sex")String sex, @Param("organizationId") String organizationId,
-                     @Param("notarizationType") String notarizationType,@Param("publicKey") String publicKey);
+                     @Param("notarizationType") String notarizationType, @Param("publicKey") String publicKey);
 
     @Select("select * from notary where notaryName = #{notaryName} and password = #{password}")
     NotaryEntity selectByNameAndPwd(@Param("notaryName") String notaryName,@Param("password") String password);
@@ -24,6 +24,7 @@ public interface NotaryMapper {
             "organizationId = #{organizationId},notarizationType = #{notarizationType} where notaryId = #{notaryId} ")
     int updateNotary(@Param("notaryId") String notaryId,@Param("newPassword") String newPassword,@Param("phoneNumber") String phoneNumber,
                      @Param("idCard") String idCard,@Param("email") String email,@Param("sex") String sex,@Param("organizationId") String organizationId,@Param("notarizationType") String notarizationType);
+
 
     @Select("select * from notary")
     List<NotaryEntity> findAll();
