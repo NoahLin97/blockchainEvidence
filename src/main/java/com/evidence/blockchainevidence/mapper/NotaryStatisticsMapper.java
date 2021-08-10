@@ -1,10 +1,8 @@
 package com.evidence.blockchainevidence.mapper;
 
+import com.evidence.blockchainevidence.entity.EvidenceEntity;
 import com.evidence.blockchainevidence.entity.NotaryStatisticsEntity;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -37,7 +35,7 @@ public interface NotaryStatisticsMapper {
             "group by notaryId) as tmp2\n" +
             "on tmp1.notaryId = tmp2.notaryId\n" +
             "left join\n" +
-            "(select notaryId, count(*) as notarizationSuccessCount, sum(notarizationMoney) as notarizationTotalMoney from\n" +
+            "(select notaryId, count(*) as notarizationSuccessCount, null as notarizationTotalMoney from\n" +
             "(SELECT notary.notaryId,evidence.notarizationStatus, evidence.notarizationMoney FROM \n" +
             "notary\n" +
             "left join evidence\n" +
@@ -50,4 +48,24 @@ public interface NotaryStatisticsMapper {
     //公证员排名生成
     @Select("SELECT * FROM notary_statistics where timestamp(timeFlag)=#{timeFlag} order by ${sort} desc;")
     List<NotaryStatisticsEntity> rankBytimeFlagAndsort(@Param("timeFlag") String timeFlag, @Param("sort") String sort);
+
+    //公证金额获取
+    @Select("SELECT notary.notaryId, evidence.notarizationMoney FROM \n" +
+            "notary\n" +
+            "left join evidence\n" +
+            "on notary.notaryId = evidence.notaryId\n" +
+            "where notarizationStatus='3';")
+    List<EvidenceEntity> getNotarizationMoney();
+
+    //公证员金额写入
+    @Update("update notary_statistics\n" +
+            "set notarizationTotalMoney=#{notarizationTotalMoney}\n" +
+            "where notaryStatisticsId is not null and notstyId=#{notstyId};")
+    void setNotarizationTotalMoney(@Param("notstyId")String notstyId, @Param("notarizationTotalMoney")String notarizationTotalMoney);
+
+    //写入密文测试
+    @Update("update evidence\n" +
+            "set notarizationMoney=#{notarizationMoney}\n" +
+            "where evidenceId is not null and notaryId=#{notaryId};")
+    void test(@Param("notaryId")String notaryId, @Param("notarizationMoney")String notarizationMoney);
 }
