@@ -2,10 +2,13 @@
 package com.evidence.blockchainevidence.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.evidence.blockchainevidence.PaillierT.CipherPub;
+import com.evidence.blockchainevidence.PaillierT.PaillierT;
 import com.evidence.blockchainevidence.entity.*;
 import com.evidence.blockchainevidence.mapper.AutmanMapper;
 import com.evidence.blockchainevidence.mapper.NotaryStatisticsMapper;
 import com.evidence.blockchainevidence.mapper.OrganizationStatisticsMapper;
+import com.evidence.blockchainevidence.subprotocols.SAD;
 import com.evidence.blockchainevidence.utils.ParseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.math.BigInteger;
 import java.util.*;
 
 import static com.evidence.blockchainevidence.utils.GlobalParams.*;
@@ -1634,6 +1638,47 @@ public class AutmanController {
             JSONObject params= ParseRequest.parse(req);
             //数据库操作
             notaryStatisticsMapper.notayStatisticsGen();
+            List<EvidenceEntity> notaryNotarizationMoney = notaryStatisticsMapper.getNotarizationMoney();
+
+            //计算每个公证员的公证总金额
+            Map<String, String> notary_Money = new HashMap<String,String>();
+            Iterator<EvidenceEntity> iterator = notaryNotarizationMoney.iterator();
+            //在密文状态下计算notary的公证总金额
+            while (iterator.hasNext()) {
+                EvidenceEntity cur = iterator.next();
+                if(notary_Money.get(cur.getNotaryId()) != null){
+                    //从数据库读取密文后，转成CipherPub进行同态计算
+                    CipherPub cur_money= new CipherPub(cur.getNotarizationMoney());
+                    CipherPub total_money= new CipherPub(notary_Money.get(cur.getNotaryId()));
+                    //跨域加法协议
+                    //Paillier初始化,我这里为了确保参数一致，把它放到类里面了，其实应该保存在加密文件里的
+                    PaillierT paillier = new PaillierT(PaillierT.param);
+                    SAD SA1 = new SAD(cur_money,total_money,paillier);
+                    SA1.StepOne();
+                    SA1.StepTwo();
+                    SA1.StepThree();
+                    CipherPub cans=SA1.FIN;
+                    notary_Money.put(cur.getNotaryId(),cans.toString());
+                    System.out.println(cans.toString().length());
+                }
+                else{
+                    notary_Money.put(cur.getNotaryId(),cur.getNotarizationMoney());
+                }
+            }
+            //写回数据库
+            for (Map.Entry<String, String> entry : notary_Money.entrySet()) {
+                //防止溢出，将总和解密后再重新加密
+                PaillierT paillier = new PaillierT(PaillierT.param);
+                CipherPub tol= new CipherPub(entry.getValue());
+                BigInteger ans=paillier.SDecryption(tol);
+                System.out.println("total="+ans);
+                //生成临时公私钥
+                BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+                BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+                String tmp=paillier.Encryption(ans,pk).toString();
+                notaryStatisticsMapper.setNotarizationTotalMoney(entry.getKey(), tmp);
+            }
+
 
             //填充返回值
             result.put("status",true);
