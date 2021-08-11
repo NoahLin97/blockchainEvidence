@@ -27,6 +27,14 @@ public class TransactionEntity {
     private String username;
     private String transactionPeopleName;
 
+    private Object transactionStatus;
+
+    @Basic
+    @Column(name = "transactionStatus")
+    public Object getTransactionStatus() {return transactionStatus;}
+    public void setTransactionStatus(Object transactionStatus) {this.transactionStatus =transactionStatus; }
+
+
     @Basic
     @Column(name = "username")
     public String getUsername() {

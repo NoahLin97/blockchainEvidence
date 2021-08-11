@@ -3,17 +3,21 @@ package com.evidence.blockchainevidence.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.evidence.blockchainevidence.PaillierT.CipherPub;
 import com.evidence.blockchainevidence.PaillierT.PaillierT;
+import com.evidence.blockchainevidence.entity.EvidenceEntity;
 import com.evidence.blockchainevidence.entity.NotaryEntity;
+import com.evidence.blockchainevidence.entity.TransactionEntity;
 import com.evidence.blockchainevidence.entity.UserEntity;
 import com.evidence.blockchainevidence.helib.SEA;
 import com.evidence.blockchainevidence.helib.SLT;
 import com.evidence.blockchainevidence.mapper.AutmanMapper;
 import com.evidence.blockchainevidence.mapper.NotaryMapper;
 import com.evidence.blockchainevidence.mapper.UserMapper;
+import com.evidence.blockchainevidence.service.EvidenceService;
 import com.evidence.blockchainevidence.service.UserService;
 import com.evidence.blockchainevidence.subprotocols.K2C16;
 import com.evidence.blockchainevidence.subprotocols.K2C8;
 import com.evidence.blockchainevidence.subprotocols.KMP;
+import com.evidence.blockchainevidence.utils.HttpUtils;
 import com.evidence.blockchainevidence.utils.ParseRequest;
 import com.evidence.blockchainevidence.utils.Sha256;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +45,8 @@ public class UserController {
     UserService userService;
     @Autowired(required = false)
     AutmanMapper autmanMapper;
-
+    @Autowired
+    EvidenceService evidenceService;
 
     /**
      * 数据库查询测试
@@ -393,10 +398,12 @@ public class UserController {
             String userId = id.replace("-" , "");
             System.out.println("userId为：" + userId);
 
-            // 假定初始存储空间为100
+            // 假定初始存储空间为100,已用为0
             int storageSpace = 100;
             int hasUsedStorage = 0;
-            int remains = storageSpace - hasUsedStorage;
+
+            // 初始余额为300
+            int remains = 300;
 
             // 生成注册用户的公私钥
             PaillierT paillier = new PaillierT(PaillierT.param);
@@ -600,6 +607,694 @@ public class UserController {
         return result;
 
     }
+
+
+    /**
+     * 公证申请，为某个存证申请公证，生成待交易请求
+     * @param req
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/user/notarReq")
+    public Object requestNotarization(HttpServletRequest req){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try {
+
+            JSONObject params = ParseRequest.parse(req);
+
+            // 获取参数
+            String userId = params.get("userId").toString();
+            String evidenceId = params.get("evidenceId").toString();
+            String organizationId = params.get("organizationId").toString();
+            String notarizationType = params.get("notarizationType").toString();
+            String notarizationMatters = params.get("notarizationMatters").toString();
+
+            // 把接受到的organizationId和notarizationType写入数据库
+            int flag = evidenceService.updateOrganIdAndNotarType(organizationId,notarizationType,evidenceId);
+
+            // 把notarizationMatters写入数据库
+
+
+
+
+
+            // 修改公证状态为等待公证1
+            int flag1 = evidenceService.updateNotarStatus("1",evidenceId);
+
+            // 生成公证申请时间，并写入数据库
+            Date notarizationStartTime = new Date();
+
+
+
+
+            // 生成transactionId，写入数据库（两张表）
+            String id = UUID.randomUUID().toString();
+            // 将UUID中的“-”去掉
+            String transactionId = id.replace("-" , "");
+            System.out.println("transactionId为：" + transactionId);
+
+
+            // 修改支付状态为未支付（两张表），在transaction表增加交易状态
+
+
+
+            // 通过evidenceId找到数据库中的那一行
+            EvidenceEntity evi = null;
+            evi = evidenceService.selectByEvidenceId(evidenceId);
+//            System.out.println(evi.getFileHash());
+
+
+            // 返回
+            result.put("status",true);
+            result.put("message","申请成功");
+//            result.put("organizationId",organizationId);
+//            result.put("notarizationType",notarizationType);
+//            result.put("notarizationMatters",notarizationMatters);
+            result.put("notarizationStatus",evi.getNotarizationStatus());
+            result.put("transactionID",evi.getTransactionId());
+            result.put("transactionStatus",evi.getTransactionStatus());
+            result.put("notarizationStartTime",notarizationStartTime);
+
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+
+
+        return result;
+    }
+
+
+    /**
+     * 公证缴费，为某次公证申请缴费，通过公证申请生成的交易id处理
+     * @param req
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/user/notarPay")
+    public Object payNotarization(HttpServletRequest req){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try {
+
+            JSONObject params = ParseRequest.parse(req);
+
+            // 获取参数
+            String userId = params.get("userId").toString();
+            String evidenceId = params.get("evidenceId").toString();
+            String transactionPeople = params.get("transactionPeople").toString();
+            String notarizationMoney = params.get("notarizationMoney").toString();
+
+
+            // 通过evidenceId找到数据库中的那一行
+            EvidenceEntity evi = null;
+            evi = evidenceService.selectByEvidenceId(evidenceId);
+//            System.out.println(evi.getFileHash());
+
+            // 通过证据表获得交易id
+            String transactionId = evi.getTransactionId();
+
+
+            // 通过transactionId找到数据库中的那一行
+            TransactionEntity tran =null;
+//            tran =
+
+            // 通过userId找到数据库中的那一行
+            UserEntity u1 = null;
+//            u1 = userService
+
+            // 获取用户余额，并写入交易表中
+            String userRemains = u1.getRemains();
+
+
+            // 修改支付交易类型为申请司法公证4，并写入数据库
+
+
+            // 生成支付交易时间，并写入数据库
+
+
+            // 通过evidenceId找到数据库中的那一行
+            EvidenceEntity evi1 = null;
+            evi1 = evidenceService.selectByEvidenceId(evidenceId);
+//            System.out.println(evi.getFileHash());
+
+            // 通过transactionId找到数据库中的那一行
+            TransactionEntity tran1 =null;
+//            tran =
+
+
+            // 与区块链交互
+            Map<String,Object> blockchain = new HashMap<>();
+            JSONObject jsonObject = new JSONObject();
+
+            // evidence表
+            jsonObject.put("evidenceId",evidenceId);
+            jsonObject.put("evidenceType",evi1.getEvidenceType());
+            jsonObject.put("evidenceName",evi1.getEvidenceName());
+            jsonObject.put("filePath",evi1.getFilePath());
+            jsonObject.put("fileSize",evi1.getFileSize());
+            jsonObject.put("fileHash",evi1.getFileHash());
+            jsonObject.put("organizationId",evi1.getOrganizationId());
+            jsonObject.put("notaryId",evi1.getNotaryId());
+            jsonObject.put("notarizationStatus",evi1.getNotarizationStatus());
+            jsonObject.put("notarizationStartTime",evi1.getNotarizationStartTime());
+            jsonObject.put("notarizationMoney",evi1.getNotarizationMoney());
+            jsonObject.put("notarizationType",evi1.getNotarizationType());
+            jsonObject.put("notarizationMatters",evi1.getNotarizationMatters());
+
+            // transaction表
+            jsonObject.put("transactionId",transactionId);
+            jsonObject.put("userRemains",tran1.getUserRemains());
+            jsonObject.put("transactionMoney",tran1.getTransactionMoney());
+            jsonObject.put("transactionPeople",tran1.getTransactionPeople());
+            jsonObject.put("transactionType",tran1.getTransactionType());
+            jsonObject.put("transactionTime",tran1.getTransactionTime());
+            jsonObject.put("transactionStatus",tran1.getTransactionStatus());
+
+
+            blockchain.put("key",evidenceId);
+            blockchain.put("value",jsonObject);
+
+            String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
+            System.out.println("区块链Id为：" + str);
+
+
+
+
+            // 返回
+            result.put("status",true);
+            result.put("message","缴费成功");
+            result.put("transactionId",transactionId);
+            result.put("userRemains",tran1.getUserRemains());
+            result.put("transactionMoney",tran1.getTransactionMoney());
+            result.put("transactionPeople",tran1.getTransactionPeople());
+            result.put("transactionType",tran1.getTransactionType());
+            result.put("transactionTime",tran1.getTransactionTime());
+            result.put("transactionStatus",tran1.getTransactionStatus());
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+
+        return result;
+
+    }
+
+
+    /**
+     * 积分商店充值，交易对象为空
+     * @param req
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/user/charge")
+    public Object chargeUser(HttpServletRequest req){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try {
+
+            JSONObject params = ParseRequest.parse(req);
+
+            // 获取参数
+            String userId = params.get("userId").toString();
+            String transactionMoney = params.get("transactionMoney").toString();
+
+
+            // 生成transactionId，写入transaction表
+            String id = UUID.randomUUID().toString();
+            // 将UUID中的“-”去掉
+            String transactionId = id.replace("-" , "");
+            System.out.println("transactionId为：" + transactionId);
+
+            // 通过userId找到数据库中的那一行
+            UserEntity u1 = null;
+//            u1 = userService
+
+            // 获取用户余额并加上充值金额
+            Integer userRemains =Integer.parseInt(u1.getRemains());
+            userRemains += Integer.getInteger(transactionMoney);
+
+            // 将充值过后的金额写进user表中
+
+
+
+            // 设置交易类型为充值0
+            String transactionType = "0";
+
+            // 生成支付交易时间
+
+            // 判断交易状态，修改为已支付1
+            String transactionStatus = "1";
+
+            // 将以上信息统一写入transaction表中
+//            int flag =
+
+
+            // 与区块链交互
+            Map<String,Object> blockchain = new HashMap<>();
+            JSONObject jsonObject = new JSONObject();
+
+            // 通过transactionId找到数据库中的那一行
+            TransactionEntity tran1 =null;
+//            tran =
+
+
+            // transaction表
+            jsonObject.put("transactionId",transactionId);
+            jsonObject.put("userRemains",tran1.getUserRemains());
+            jsonObject.put("transactionMoney",tran1.getTransactionMoney());
+            jsonObject.put("transactionPeople",tran1.getTransactionPeople());
+            jsonObject.put("transactionType",tran1.getTransactionType());
+            jsonObject.put("transactionTime",tran1.getTransactionTime());
+            jsonObject.put("transactionStatus",tran1.getTransactionStatus());
+
+
+            blockchain.put("key",transactionId);
+            blockchain.put("value",jsonObject);
+
+            String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
+            System.out.println("区块链Id为：" + str);
+
+
+            // 返回
+            result.put("status",true);
+            result.put("message","充值成功");
+            result.put("transactionId",transactionId);
+            result.put("userRemains",tran1.getUserRemains());
+            result.put("transactionMoney",tran1.getTransactionMoney());
+            result.put("transactionPeople",tran1.getTransactionPeople());
+            result.put("transactionType",tran1.getTransactionType());
+            result.put("transactionTime",tran1.getTransactionTime());
+            result.put("transactionStatus",tran1.getTransactionStatus());
+
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+
+        return result;
+
+    }
+
+
+    /**
+     * 积分商店转赠
+     * @param req
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/user/give")
+    public Object giveUser(HttpServletRequest req){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try {
+
+            JSONObject params = ParseRequest.parse(req);
+
+            // 获取参数
+            String userId = params.get("userId").toString();
+            String transactionPeople = params.get("transactionPeople").toString();
+            String transactionMoney = params.get("transactionMoney").toString();
+
+            // 生成transactionId，写入transaction表
+            String id = UUID.randomUUID().toString();
+            // 将UUID中的“-”去掉
+            String transactionId = id.replace("-" , "");
+            System.out.println("transactionId为：" + transactionId);
+
+            // 通过userId找到数据库中的那一行
+            UserEntity u1 = null;
+//            u1 = userService
+
+            // 通过transactionPeople找到数据库中的那一行
+            UserEntity u2 = null;
+//            u2 = userService
+
+
+            // 获取用户余额减去转赠金额，判断余额是否充足
+            Integer userRemains =Integer.parseInt(u1.getRemains());
+            if(userRemains -Integer.getInteger(transactionMoney) < 0){
+                result.put("status",false);
+                result.put("message","余额不足，无法转赠");
+
+                return result;
+            }
+            else{
+                userRemains -= Integer.getInteger(transactionMoney);
+
+                // 获取转赠用户的余额，加上转赠的金额
+                Integer u2Remains = Integer.parseInt(u2.getRemains());
+                u2Remains += Integer.parseInt(transactionMoney);
+
+                // 分别将两个用户的余额更新至数据库
+
+
+                // 设置交易类型为转赠1
+                String transactionType = "1";
+
+                // 生成支付交易时间
+
+
+                // 判断交易状态，修改为已支付1
+                String transactionStatus = "1";
+
+                // 将以上信息统一写入transaction表中
+//            int flag =
+
+
+
+                // 与区块链交互
+                Map<String,Object> blockchain = new HashMap<>();
+                JSONObject jsonObject = new JSONObject();
+
+
+                // 通过transactionId找到数据库中的那一行
+                TransactionEntity tran1 =null;
+//            tran =
+
+
+                // transaction表
+                jsonObject.put("transactionId",transactionId);
+                jsonObject.put("userRemains",tran1.getUserRemains());
+                jsonObject.put("transactionMoney",tran1.getTransactionMoney());
+                jsonObject.put("transactionPeople",tran1.getTransactionPeople());
+                jsonObject.put("transactionType",tran1.getTransactionType());
+                jsonObject.put("transactionTime",tran1.getTransactionTime());
+                jsonObject.put("transactionStatus",tran1.getTransactionStatus());
+
+
+                blockchain.put("key",transactionId);
+                blockchain.put("value",jsonObject);
+
+                String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
+                System.out.println("区块链Id为：" + str);
+
+
+                // 返回
+                result.put("status",true);
+                result.put("message","转赠成功");
+                result.put("transactionId",transactionId);
+                result.put("userRemains",tran1.getUserRemains());
+                result.put("transactionMoney",tran1.getTransactionMoney());
+                result.put("transactionPeople",tran1.getTransactionPeople());
+                result.put("transactionType",tran1.getTransactionType());
+                result.put("transactionTime",tran1.getTransactionTime());
+                result.put("transactionStatus",tran1.getTransactionStatus());
+
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+
+        return result;
+
+    }
+
+
+    /**
+     * 积分商店体现，交易对象为空
+     * @param req
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/user/withdraw")
+    public Object withdrawUser(HttpServletRequest req){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try {
+
+            JSONObject params = ParseRequest.parse(req);
+
+            // 获取参数
+            String userId = params.get("userId").toString();
+            String transactionMoney = params.get("transactionMoney").toString();
+
+            // 生成transactionId，写入transaction表
+            String id = UUID.randomUUID().toString();
+            // 将UUID中的“-”去掉
+            String transactionId = id.replace("-" , "");
+            System.out.println("transactionId为：" + transactionId);
+
+            // 通过userId找到数据库中的那一行
+            UserEntity u1 = null;
+//            u1 = userService
+
+
+            // 获取用户余额减去transactionMoney，判断用户余额是否够体现
+            Integer userRemains = Integer.parseInt(u1.getRemains());
+            if(userRemains - Integer.parseInt(transactionMoney) < 0){
+                result.put("status",false);
+                result.put("message","余额不足，无法体现");
+
+                return result;
+            }
+            else{
+
+                // 减去用户体现的金额
+                userRemains -= Integer.parseInt(transactionMoney);
+
+                // 将用户余额更新至用户表中
+
+
+
+                // 设置交易类型为提现2
+                String transactionType = "2";
+
+
+                // 生成支付交易时间
+
+
+                // 判断交易状态，修改为已支付1
+                String transactionStatus = "1";
+
+
+                // 将以上信息统一写入transaction表中
+//            int flag =
+
+
+
+                // 与区块链交互
+                Map<String,Object> blockchain = new HashMap<>();
+                JSONObject jsonObject = new JSONObject();
+
+
+                // 通过transactionId找到数据库中的那一行
+                TransactionEntity tran1 =null;
+//            tran =
+
+
+                // transaction表
+                jsonObject.put("transactionId",transactionId);
+                jsonObject.put("userRemains",tran1.getUserRemains());
+                jsonObject.put("transactionMoney",tran1.getTransactionMoney());
+                jsonObject.put("transactionPeople",tran1.getTransactionPeople());
+                jsonObject.put("transactionType",tran1.getTransactionType());
+                jsonObject.put("transactionTime",tran1.getTransactionTime());
+                jsonObject.put("transactionStatus",tran1.getTransactionStatus());
+
+
+                blockchain.put("key",transactionId);
+                blockchain.put("value",jsonObject);
+
+                String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
+                System.out.println("区块链Id为：" + str);
+
+
+                // 返回
+                result.put("status",true);
+                result.put("message","体现成功");
+                result.put("transactionId",transactionId);
+                result.put("userRemains",tran1.getUserRemains());
+                result.put("transactionMoney",tran1.getTransactionMoney());
+                result.put("transactionPeople",tran1.getTransactionPeople());
+                result.put("transactionType",tran1.getTransactionType());
+                result.put("transactionTime",tran1.getTransactionTime());
+                result.put("transactionStatus",tran1.getTransactionStatus());
+
+            }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+
+        return result;
+
+    }
+
+
+    /**
+     * 积分商城购买存储空间
+     * @param req
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/user/memPay")
+    public Object memPayUser(HttpServletRequest req){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try {
+
+            JSONObject params = ParseRequest.parse(req);
+
+            // 获取参数
+            String userId = params.get("userId").toString();
+            String transactionMoney = params.get("transactionMoney").toString();
+            String storageSize = params.get("storageSize").toString();
+
+
+            // 生成transactionId，写入transaction表
+            String id = UUID.randomUUID().toString();
+            // 将UUID中的“-”去掉
+            String transactionId = id.replace("-" , "");
+            System.out.println("transactionId为：" + transactionId);
+
+            // 通过userId找到数据库中的那一行
+            UserEntity u1 = null;
+//            u1 = userService
+
+            // 获取用户余额减去transactionMoney，判断用户余额是否够买存储空间
+            Integer userRemains = Integer.parseInt(u1.getRemains());
+            if(userRemains - Integer.parseInt(transactionMoney) < 0){
+
+                result.put("status",false);
+                result.put("message","余额不足，无法购买存储空间");
+
+                return result;
+            }
+            else{
+
+                // 减去用户购买存储空间的金额
+                userRemains -= Integer.parseInt(transactionMoney);
+
+                // 将用户余额更新至用户表中
+
+                // 获取用户存储空间，加上购买的存储空间
+                Integer u1StorageSize =Integer.parseInt(u1.getStorageSpace());
+                u1StorageSize += Integer.parseInt(storageSize);
+
+                // 更新存储空间至用户表中
+
+                // 设置交易类型为购买存储空间3
+                String transactionType = "3";
+
+
+                // 生成支付交易时间
+
+
+                // 判断交易状态，修改为已支付1
+                String transactionStatus = "1";
+
+
+                // 将以上信息统一写入transaction表中
+//            int flag =
+
+
+
+                // 与区块链交互
+                Map<String,Object> blockchain = new HashMap<>();
+                JSONObject jsonObject = new JSONObject();
+
+
+                // 通过transactionId找到数据库中的那一行
+                TransactionEntity tran1 =null;
+//            tran =
+
+
+                // transaction表
+                jsonObject.put("transactionId",transactionId);
+                jsonObject.put("userRemains",tran1.getUserRemains());
+                jsonObject.put("transactionMoney",tran1.getTransactionMoney());
+                jsonObject.put("transactionPeople",tran1.getTransactionPeople());
+                jsonObject.put("transactionType",tran1.getTransactionType());
+                jsonObject.put("transactionTime",tran1.getTransactionTime());
+                jsonObject.put("transactionStatus",tran1.getTransactionStatus());
+
+
+                blockchain.put("key",transactionId);
+                blockchain.put("value",jsonObject);
+
+                String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
+                System.out.println("区块链Id为：" + str);
+
+
+                // 返回
+                result.put("status",true);
+                result.put("message","体现成功");
+                result.put("transactionId",transactionId);
+                result.put("userRemains",tran1.getUserRemains());
+                result.put("transactionMoney",tran1.getTransactionMoney());
+                result.put("transactionPeople",tran1.getTransactionPeople());
+                result.put("transactionType",tran1.getTransactionType());
+                result.put("transactionTime",tran1.getTransactionTime());
+                result.put("transactionStatus",tran1.getTransactionStatus());
+
+
+
+            }
+
+
+
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+
+        return result;
+
+    }
+
+
+
+
 
 
 
