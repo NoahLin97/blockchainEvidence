@@ -13,6 +13,8 @@ import com.evidence.blockchainevidence.mapper.AutmanMapper;
 import com.evidence.blockchainevidence.mapper.NotaryMapper;
 import com.evidence.blockchainevidence.mapper.UserMapper;
 import com.evidence.blockchainevidence.service.EvidenceService;
+import com.evidence.blockchainevidence.service.OrganizationService;
+import com.evidence.blockchainevidence.service.TransactionService;
 import com.evidence.blockchainevidence.service.UserService;
 import com.evidence.blockchainevidence.subprotocols.K2C16;
 import com.evidence.blockchainevidence.subprotocols.K2C8;
@@ -29,9 +31,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.evidence.blockchainevidence.controller.AutmanController.*;
+import static com.evidence.blockchainevidence.utils.GlobalParams.*;
 
 
 @RestController
@@ -47,6 +51,10 @@ public class UserController {
     AutmanMapper autmanMapper;
     @Autowired
     EvidenceService evidenceService;
+    @Autowired
+    OrganizationService organizationService;
+    @Autowired
+    TransactionService transactionService;
 
     /**
      * 数据库查询测试
@@ -359,6 +367,117 @@ public class UserController {
     }
 
 
+    /**
+     * 生成公证机构
+     * @param req
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/organizationGen")
+    public Object genOrganization(HttpServletRequest req){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try{
+
+            JSONObject params = ParseRequest.parse(req);
+
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("organizationName")){
+                result.put("status",false);
+                result.put("message","没有给出organizationName");
+                return result;
+            }
+            if(params.get("organizationName").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","organizationName不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("address")){
+                result.put("status",false);
+                result.put("message","没有给出address");
+                return result;
+            }
+            if(params.get("address").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","address不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("phoneNumber")){
+                result.put("status",false);
+                result.put("message","没有给出phoneNumber");
+                return result;
+            }
+            if(params.get("phoneNumber").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","phoneNumber不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("email")){
+                result.put("status",false);
+                result.put("message","没有给出email");
+                return result;
+            }
+            if(params.get("email").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","email不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("legalPeople")){
+                result.put("status",false);
+                result.put("message","没有给出legalPeople");
+                return result;
+            }
+            if(params.get("legalPeople").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","legalPeople不能为空");
+                return result;
+            }
+
+            // 获取参数
+            String organizationName = params.get("organizationName").toString();
+            String address = params.get("address").toString();
+            String phoneNumber = params.get("phoneNumber").toString();
+            String email = params.get("email").toString();
+            String legalPeople = params.get("legalPeople").toString();
+
+            // 生成organizationId
+            String id = UUID.randomUUID().toString();
+            // 将UUID中的“-”去掉
+            String organizationId = id.replace("-" , "");
+            System.out.println("userId为：" + organizationId);
+
+            // 存入数据库
+            int flag = organizationService.insertOrganization(organizationId,organizationName,address,phoneNumber,email,legalPeople);
+
+            if(flag == 1){
+                result.put("status",true);
+                result.put("message","注册成功!");
+
+            }
+            else{
+                result.put("status",false);
+                result.put("message","注册失败!");
+            }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
 
     /**
      * 用户注册
@@ -373,6 +492,73 @@ public class UserController {
 
         try{
             JSONObject params = ParseRequest.parse(req);
+
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("username")){
+                result.put("status",false);
+                result.put("message","没有给出username");
+                return result;
+            }
+            if(params.get("username").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","username不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("password")){
+                result.put("status",false);
+                result.put("message","没有给出password");
+                return result;
+            }
+            if(params.get("password").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","password不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("phoneNumber")){
+                result.put("status",false);
+                result.put("message","没有给出phoneNumber");
+                return result;
+            }
+            if(params.get("phoneNumber").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","phoneNumber不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("idCard")){
+                result.put("status",false);
+                result.put("message","没有给出idCard");
+                return result;
+            }
+            if(params.get("idCard").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","idCard不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("email")){
+                result.put("status",false);
+                result.put("message","没有给出email");
+                return result;
+            }
+            if(params.get("email").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","email不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("sex")){
+                result.put("status",false);
+                result.put("message","没有给出sex");
+                return result;
+            }
+            if(params.get("sex").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","sex不能为空");
+                return result;
+            }
 
             // 获取参数
             String username = params.get("username").toString();
@@ -402,8 +588,8 @@ public class UserController {
             int storageSpace = 100;
             int hasUsedStorage = 0;
 
-            // 初始余额为300
-            int remains = 300;
+            // 初始余额为500
+            int remains = 500;
 
             // 生成注册用户的公私钥
             PaillierT paillier = new PaillierT(PaillierT.param);
@@ -432,17 +618,16 @@ public class UserController {
             String temp = SK0.parseString(midCard,paillier);
             System.out.println("大整数转化为字符串：" + temp);
 
-
             // 存储空间加密
-            System.out.println("加密前：" + storageSpace);
+            System.out.println("存储空间加密前：" + storageSpace);
             String sstorageSpace = paillier.Encryption(BigInteger.valueOf(storageSpace),pk).toString();
-            System.out.println("加密后：" + sstorageSpace);
+            System.out.println("存储空间加密后：" + sstorageSpace);
 
             // 存储空间解密测试
             BigInteger mstorageSpace = paillier.SDecryption(new CipherPub(sstorageSpace));
-            System.out.println("解密后：" + mstorageSpace);
+            System.out.println("存储空间解密后：" + mstorageSpace);
 
-            // 剩余空间加密
+            // 余额加密
             String sremains = paillier.Encryption(BigInteger.valueOf(remains),pk).toString();
 
             // 已使用空间加密
@@ -491,6 +676,30 @@ public class UserController {
         try {
 
             JSONObject params = ParseRequest.parse(req);
+
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("username")){
+                result.put("status",false);
+                result.put("message","没有给出username");
+                return result;
+            }
+            if(params.get("username").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","username不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("password")){
+                result.put("status",false);
+                result.put("message","没有给出password");
+                return result;
+            }
+            if(params.get("password").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","password不能为空");
+                return result;
+            }
+
 
             // 获取参数
             String username = params.get("username").toString();
@@ -545,6 +754,73 @@ public class UserController {
         try{
 
             JSONObject params = ParseRequest.parse(req);
+
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("userId")){
+                result.put("status",false);
+                result.put("message","没有给出userId");
+                return result;
+            }
+            if(params.get("userId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","userId不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("newPassword")){
+                result.put("status",false);
+                result.put("message","没有给出newPassword");
+                return result;
+            }
+            if(params.get("newPassword").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","newPassword不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("phoneNumber")){
+                result.put("status",false);
+                result.put("message","没有给出phoneNumber");
+                return result;
+            }
+            if(params.get("phoneNumber").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","phoneNumber不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("idCard")){
+                result.put("status",false);
+                result.put("message","没有给出idCard");
+                return result;
+            }
+            if(params.get("idCard").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","idCard不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("email")){
+                result.put("status",false);
+                result.put("message","没有给出email");
+                return result;
+            }
+            if(params.get("email").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","email不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("sex")){
+                result.put("status",false);
+                result.put("message","没有给出sex");
+                return result;
+            }
+            if(params.get("sex").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","sex不能为空");
+                return result;
+            }
 
             // 获取参数
             String userId = params.get("userId").toString();
@@ -624,6 +900,62 @@ public class UserController {
 
             JSONObject params = ParseRequest.parse(req);
 
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("userId")){
+                result.put("status",false);
+                result.put("message","没有给出userId");
+                return result;
+            }
+            if(params.get("userId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","userId不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("evidenceId")){
+                result.put("status",false);
+                result.put("message","没有给出evidenceId");
+                return result;
+            }
+            if(params.get("evidenceId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","evidenceId不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("organizationId")){
+                result.put("status",false);
+                result.put("message","没有给出organizationId");
+                return result;
+            }
+            if(params.get("organizationId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","organizationId不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("notarizationType")){
+                result.put("status",false);
+                result.put("message","没有给出notarizationType");
+                return result;
+            }
+            if(params.get("notarizationType").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notarizationType不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("notarizationMatters")){
+                result.put("status",false);
+                result.put("message","没有给出notarizationMatters");
+                return result;
+            }
+            if(params.get("notarizationMatters").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notarizationMatters不能为空");
+                return result;
+            }
+
             // 获取参数
             String userId = params.get("userId").toString();
             String evidenceId = params.get("evidenceId").toString();
@@ -635,30 +967,60 @@ public class UserController {
             int flag = evidenceService.updateOrganIdAndNotarType(organizationId,notarizationType,evidenceId);
 
             // 把notarizationMatters写入数据库
+            int flag1 = evidenceService.updateNotarMatters(notarizationMatters,evidenceId);
 
-
-
-
-
-            // 修改公证状态为等待公证1
-            int flag1 = evidenceService.updateNotarStatus("1",evidenceId);
+            // 修改公证状态为等待公证1,并写入数据库
+            int flag2 = evidenceService.updateNotarStatus("1",evidenceId);
 
             // 生成公证申请时间，并写入数据库
-            Date notarizationStartTime = new Date();
+            Date time = new Date(System.currentTimeMillis());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String notarizationStartTime = sdf.format(time);
+            int flag3 = evidenceService.updateNotarStartTime(notarizationStartTime,evidenceId);
 
+            // 获取用户余额，写入数据库
+            UserEntity u1 = null;
+            u1 = userService.selectByUserId(userId);
 
+            // 获取交易金额：查globalparams，根据公证类型获取对应的公证金额
+            Integer temp = Integer.parseInt(notarizationType);
+            String transactionMoney = notarizationMoneys[temp].toString();
 
+            // 对要存入数据库的数据加密
+            // 生成注册用户的公私钥
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+
+//            // 余额加密
+//            System.out.println("余额加密前：" + u1.getRemains());
+//            String suserRemains = paillier.Encryption(BigInteger.valueOf(Integer.parseInt(u1.getRemains())),pk).toString();
+//            System.out.println("余额加密后：" + suserRemains);
+//
+//            // 余额解密测试
+//            BigInteger muserRemains = paillier.SDecryption(new CipherPub(suserRemains));
+//            System.out.println("余额解密后：" + muserRemains);
+
+            // 交易金额加密
+            String notarizationMoney = paillier.Encryption(BigInteger.valueOf(Integer.parseInt(transactionMoney)),pk).toString();
 
             // 生成transactionId，写入数据库（两张表）
             String id = UUID.randomUUID().toString();
             // 将UUID中的“-”去掉
             String transactionId = id.replace("-" , "");
             System.out.println("transactionId为：" + transactionId);
+            // 写入transaction表
+            int flag4 = transactionService.insertNotarTran(transactionId,userId,u1.getRemains(),notarizationMoney,"4");
+            // 写入evidence表
+            int flag5 = evidenceService.updateTranId(transactionId,evidenceId);
+
+            // 交易金额写入evidence表
+            int flag6 = evidenceService.updateNotarMoney(notarizationMoney,evidenceId);
 
 
-            // 修改支付状态为未支付（两张表），在transaction表增加交易状态
-
-
+            // 修改支付状态为未支付0（两张表），在transaction表增加交易状态
+            int flag7 = evidenceService.updateTranStatus("0",evidenceId);
+            int flag8 = transactionService.updateTranStatus("0",transactionId);
 
             // 通过evidenceId找到数据库中的那一行
             EvidenceEntity evi = null;
@@ -668,15 +1030,15 @@ public class UserController {
 
             // 返回
             result.put("status",true);
-            result.put("message","申请成功");
+            result.put("message","申请公证成功");
 //            result.put("organizationId",organizationId);
 //            result.put("notarizationType",notarizationType);
 //            result.put("notarizationMatters",notarizationMatters);
             result.put("notarizationStatus",evi.getNotarizationStatus());
-            result.put("transactionID",evi.getTransactionId());
+            result.put("transactionId",evi.getTransactionId());
             result.put("transactionStatus",evi.getTransactionStatus());
-            result.put("notarizationStartTime",notarizationStartTime);
-
+            result.put("notarizationStartTime",evi.getNotarizationStartTime());
+            result.put("notarizationMoney",transactionMoney);
 
 
         }catch (Exception e){
@@ -709,12 +1071,56 @@ public class UserController {
 
             JSONObject params = ParseRequest.parse(req);
 
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("userId")){
+                result.put("status",false);
+                result.put("message","没有给出userId");
+                return result;
+            }
+            if(params.get("userId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","userId不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("evidenceId")){
+                result.put("status",false);
+                result.put("message","没有给出evidenceId");
+                return result;
+            }
+            if(params.get("evidenceId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","evidenceId不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("transactionPeople")){
+                result.put("status",false);
+                result.put("message","没有给出transactionPeople");
+                return result;
+            }
+            if(params.get("transactionPeople").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","transactionPeople不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("notarizationMoney")){
+                result.put("status",false);
+                result.put("message","没有给出notarizationMoney");
+                return result;
+            }
+            if(params.get("notarizationMoney").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notarizationMoney不能为空");
+                return result;
+            }
+
             // 获取参数
             String userId = params.get("userId").toString();
             String evidenceId = params.get("evidenceId").toString();
             String transactionPeople = params.get("transactionPeople").toString();
             String notarizationMoney = params.get("notarizationMoney").toString();
-
 
             // 通过evidenceId找到数据库中的那一行
             EvidenceEntity evi = null;
@@ -724,23 +1130,72 @@ public class UserController {
             // 通过证据表获得交易id
             String transactionId = evi.getTransactionId();
 
-
             // 通过transactionId找到数据库中的那一行
             TransactionEntity tran =null;
-//            tran =
+            tran = transactionService.selectByTransactionId(transactionId);
 
-            // 通过userId找到数据库中的那一行
-            UserEntity u1 = null;
-//            u1 = userService
+//            // 通过userId找到数据库中的那一行
+//            UserEntity u1 = null;
+//            u1 = userService.selectByUserId(userId);
 
-            // 获取用户余额，并写入交易表中
-            String userRemains = u1.getRemains();
+//            // 获取用户余额，并写入交易表中
+//            String userRemains = u1.getRemains();
+//            int flag = transactionService.updateUserRemains(userRemains,transactionId);
 
+            // 解密transaction表中的userRemains和notarizationMoney，判断是否可以缴费成功
+            // 生成注册用户的公私钥
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
 
-            // 修改支付交易类型为申请司法公证4，并写入数据库
+            // 解密userRemains和notarizationMoney
+            BigInteger muserRemains = paillier.SDecryption(new CipherPub(tran.getUserRemains()));
+            System.out.println("余额解密后：" + muserRemains);
 
+            BigInteger mnotarizationMoney = paillier.SDecryption(new CipherPub(tran.getTransactionMoney()));
+            System.out.println("交易金额解密后：" + mnotarizationMoney);
 
-            // 生成支付交易时间，并写入数据库
+            if(muserRemains.intValue() - mnotarizationMoney.intValue() < 0){
+                result.put("status",false);
+                result.put("message","余额不足，无法进行公证缴费");
+
+                return result;
+            }
+            else {
+
+                // 更新userId的余额，减去公证金额，并写入数据库
+                int i = muserRemains.intValue() - mnotarizationMoney.intValue();
+                String si =  paillier.Encryption(BigInteger.valueOf(i),pk).toString();
+                int flag = userService.updateRemains(si,userId);
+
+                // 更新transactionPeople的余额，加上公证金额，并写入数据库
+                // 获取transactionPeople那一行
+                UserEntity u2 = null;
+                u2 = userService.selectByUserId(transactionPeople);
+
+                // 解密余额
+                System.out.println(u2.getRemains());
+                BigInteger m = paillier.SDecryption(new CipherPub(u2.getRemains()));
+                System.out.println("transactionPeople余额解密后：" + m);
+
+                int j = m.intValue() + mnotarizationMoney.intValue();
+                String sj = paillier.Encryption(BigInteger.valueOf(j),pk).toString();
+                int flag1 = userService.updateRemains(sj,transactionPeople);
+
+                // 修改支付交易类型为申请司法公证4，并写入数据库
+                // 不需要了
+
+                // 生成支付交易时间，并写入数据库
+                Date time = new Date(System.currentTimeMillis());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String transactionTime = sdf.format(time);
+                int flag2 = transactionService.updateTranTime(transactionTime,transactionId);
+
+                // 更新两张表的支付交易状态
+                int flag3 = evidenceService.updateTranStatus("1",evidenceId);
+                int flag4 = transactionService.updateTranStatus("1",transactionId);
+
+            }
 
 
             // 通过evidenceId找到数据库中的那一行
@@ -750,7 +1205,7 @@ public class UserController {
 
             // 通过transactionId找到数据库中的那一行
             TransactionEntity tran1 =null;
-//            tran =
+            tran1 = transactionService.selectByTransactionId(transactionId);
 
 
             // 与区块链交互
@@ -758,42 +1213,40 @@ public class UserController {
             JSONObject jsonObject = new JSONObject();
 
             // evidence表
-            jsonObject.put("evidenceId",evidenceId);
-            jsonObject.put("evidenceType",evi1.getEvidenceType());
-            jsonObject.put("evidenceName",evi1.getEvidenceName());
-            jsonObject.put("filePath",evi1.getFilePath());
-            jsonObject.put("fileSize",evi1.getFileSize());
-            jsonObject.put("fileHash",evi1.getFileHash());
-            jsonObject.put("organizationId",evi1.getOrganizationId());
-            jsonObject.put("notaryId",evi1.getNotaryId());
-            jsonObject.put("notarizationStatus",evi1.getNotarizationStatus());
-            jsonObject.put("notarizationStartTime",evi1.getNotarizationStartTime());
-            jsonObject.put("notarizationMoney",evi1.getNotarizationMoney());
-            jsonObject.put("notarizationType",evi1.getNotarizationType());
-            jsonObject.put("notarizationMatters",evi1.getNotarizationMatters());
-
-            // transaction表
-            jsonObject.put("transactionId",transactionId);
-            jsonObject.put("userRemains",tran1.getUserRemains());
-            jsonObject.put("transactionMoney",tran1.getTransactionMoney());
-            jsonObject.put("transactionPeople",tran1.getTransactionPeople());
-            jsonObject.put("transactionType",tran1.getTransactionType());
-            jsonObject.put("transactionTime",tran1.getTransactionTime());
-            jsonObject.put("transactionStatus",tran1.getTransactionStatus());
+//            jsonObject.put("evidenceId",evidenceId);
+//            jsonObject.put("evidenceType",evi1.getEvidenceType());
+//            jsonObject.put("evidenceName",evi1.getEvidenceName());
+//            jsonObject.put("filePath",evi1.getFilePath());
+//            jsonObject.put("fileSize",evi1.getFileSize());
+//            jsonObject.put("fileHash",evi1.getFileHash());
+//            jsonObject.put("organizationId",evi1.getOrganizationId());
+//            jsonObject.put("notaryId",evi1.getNotaryId());
+//            jsonObject.put("notarizationStatus",evi1.getNotarizationStatus());
+//            jsonObject.put("notarizationStartTime",evi1.getNotarizationStartTime());
+//            jsonObject.put("notarizationMoney",evi1.getNotarizationMoney());
+//            jsonObject.put("notarizationType",evi1.getNotarizationType());
+//            jsonObject.put("notarizationMatters",evi1.getNotarizationMatters());
+//
+//            // transaction表
+//            jsonObject.put("transactionId",transactionId);
+//            jsonObject.put("userRemains",tran1.getUserRemains());
+//            jsonObject.put("transactionMoney",tran1.getTransactionMoney());
+//            jsonObject.put("transactionPeople",tran1.getTransactionPeople());
+//            jsonObject.put("transactionType",tran1.getTransactionType());
+//            jsonObject.put("transactionTime",tran1.getTransactionTime());
+//            jsonObject.put("transactionStatus",tran1.getTransactionStatus());
 
 
             blockchain.put("key",evidenceId);
             blockchain.put("value",jsonObject);
 
-            String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
-            System.out.println("区块链Id为：" + str);
-
-
+//            String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
+//            System.out.println("区块链Id为：" + str);
 
 
             // 返回
             result.put("status",true);
-            result.put("message","缴费成功");
+            result.put("message","公证缴费成功");
             result.put("transactionId",transactionId);
             result.put("userRemains",tran1.getUserRemains());
             result.put("transactionMoney",tran1.getTransactionMoney());

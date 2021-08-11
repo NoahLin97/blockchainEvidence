@@ -120,6 +120,95 @@ public class NotaryController {
 
             JSONObject params = ParseRequest.parse(req);
 
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("notaryName")){
+                result.put("status",false);
+                result.put("message","没有给出notaryName");
+                return result;
+            }
+            if(params.get("notaryName").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notaryName不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("password")){
+                result.put("status",false);
+                result.put("message","没有给出password");
+                return result;
+            }
+            if(params.get("password").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","password不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("phoneNumber")){
+                result.put("status",false);
+                result.put("message","没有给出phoneNumber");
+                return result;
+            }
+            if(params.get("phoneNumber").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","phoneNumber不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("idCard")){
+                result.put("status",false);
+                result.put("message","没有给出idCard");
+                return result;
+            }
+            if(params.get("idCard").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","idCard不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("email")){
+                result.put("status",false);
+                result.put("message","没有给出email");
+                return result;
+            }
+            if(params.get("email").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","email不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("sex")){
+                result.put("status",false);
+                result.put("message","没有给出sex");
+                return result;
+            }
+            if(params.get("sex").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","sex不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("organizationId")){
+                result.put("status",false);
+                result.put("message","没有给出organizationId");
+                return result;
+            }
+            if(params.get("organizationId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","organizationId不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("notarizationType")){
+                result.put("status",false);
+                result.put("message","没有给出notarizationType");
+                return result;
+            }
+            if(params.get("notarizationType").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notarizationType不能为空");
+                return result;
+            }
+
             // 获取参数
             String notaryName = params.get("notaryName").toString();
             String password = params.get("password").toString();
@@ -206,6 +295,29 @@ public class NotaryController {
 
             JSONObject params = ParseRequest.parse(req);
 
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("notaryName")){
+                result.put("status",false);
+                result.put("message","没有给出notaryName");
+                return result;
+            }
+            if(params.get("notaryName").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notaryName不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("password")){
+                result.put("status",false);
+                result.put("message","没有给出password");
+                return result;
+            }
+            if(params.get("password").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","password不能为空");
+                return result;
+            }
+
             // 获取参数
             String notaryName = params.get("notaryName").toString();
             String password = params.get("password").toString();
@@ -262,6 +374,95 @@ public class NotaryController {
 
             JSONObject params = ParseRequest.parse(req);
 
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("notaryId")){
+                result.put("status",false);
+                result.put("message","没有给出notaryId");
+                return result;
+            }
+            if(params.get("notaryId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notaryId不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("newPassword")){
+                result.put("status",false);
+                result.put("message","没有给出newPassword");
+                return result;
+            }
+            if(params.get("newPassword").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","newPassword不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("phoneNumber")){
+                result.put("status",false);
+                result.put("message","没有给出phoneNumber");
+                return result;
+            }
+            if(params.get("phoneNumber").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","phoneNumber不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("idCard")){
+                result.put("status",false);
+                result.put("message","没有给出idCard");
+                return result;
+            }
+            if(params.get("idCard").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","idCard不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("email")){
+                result.put("status",false);
+                result.put("message","没有给出email");
+                return result;
+            }
+            if(params.get("email").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","email不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("sex")){
+                result.put("status",false);
+                result.put("message","没有给出sex");
+                return result;
+            }
+            if(params.get("sex").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","sex不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("organizationId")){
+                result.put("status",false);
+                result.put("message","没有给出organizationId");
+                return result;
+            }
+            if(params.get("organizationId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","organizationId不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("notarizationType")){
+                result.put("status",false);
+                result.put("message","没有给出notarizationType");
+                return result;
+            }
+            if(params.get("notarizationType").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notarizationType不能为空");
+                return result;
+            }
+
             // 获取参数
             String notaryId = params.get("notaryId").toString();
             String newPassword = params.get("newPassword").toString();
@@ -310,8 +511,6 @@ public class NotaryController {
                 result.put("status",false);
                 result.put("message","更新失败!");
             }
-
-
 
 
 

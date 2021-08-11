@@ -24,4 +24,25 @@ public class EvidenceService {
         return evidenceMapper.updateNotarStatus(notarizationStatus,evidenceId);
     }
 
+    public int updateNotarMatters(String notarizationMatters,String evidenceId){
+        return evidenceMapper.updateNotarMatters(notarizationMatters,evidenceId);
+    }
+
+    public int updateNotarStartTime(String notarizationStartTime,String evidneceId){
+        return evidenceMapper.updateNotarStartTime(notarizationStartTime,evidneceId);
+    }
+
+    public int updateTranId(String transactionId,String evidenceId){
+        return evidenceMapper.updateTranId(transactionId,evidenceId);
+    }
+
+    public int updateTranStatus(String transactionStatus,String evidenceId){
+        return evidenceMapper.updateTranStatus(transactionStatus,evidenceId);
+    }
+
+    public int updateNotarMoney(String notarizationMoney,String evidenceId){
+        return evidenceMapper.updateNotarMoney(notarizationMoney,evidenceId);
+    }
+
+
 }

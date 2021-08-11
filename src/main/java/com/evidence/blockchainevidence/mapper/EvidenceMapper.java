@@ -21,7 +21,19 @@ public interface EvidenceMapper {
     @Update("update evidence set notarizationStatus = #{notarizationStatus} where evidenceId = #{evidenceId}")
     int updateNotarStatus(@Param("notarizationStatus") String notarizationStatus,@Param("evidenceId") String evidenceId);
 
+    @Update("update evidence set notarizationMatters = #{notarizationMatters} where evidenceId = #{evidenceId}")
+    int updateNotarMatters(@Param("notarizationMatters") String notarizationMatters,@Param("evidenceId") String evidenceId);
 
+    @Update("update evidence set notarizationStartTime = #{notarizationStartTime} where evidenceId = #{evidenceId}")
+    int updateNotarStartTime(@Param("notarizationStartTime") String notarizationStartTime,@Param("evidenceId") String evidenceId);
 
+    @Update("update evidence set transactionID = #{transactionId} where evidenceId = #{evidenceId}")
+    int updateTranId(@Param("transactionId") String transactionId,@Param("evidenceId") String evidenceId);
+
+    @Update("update evidence set transactionStatus = #{transactionStatus} where evidenceId = #{evidenceId}")
+    int updateTranStatus(@Param("transactionStatus") String transactionStatus,@Param("evidenceId") String evidenceId);
+
+    @Update("update evidence set notarizationMoney = #{notarizationMoney} where evidenceId = #{evidenceId}")
+    int updateNotarMoney(@Param("notarizationMoney") String notarizationMoney,@Param("evidenceId") String evidenceId);
 
 }
