@@ -9,7 +9,8 @@ public class GlobalParams {
     public static String[] autmanstr={"idCard"};
     public static String[] manstr={"idCard"};
     public static String[] tranencnum={"userRemains","transactionMoney","storageSize"};
-    public static String[] tranencstr={"evidenceName","transactionPeople"};
+    public static String[] tranencstr={"transactionPeople"};
+    //下面这个涉及中文，用K2C16，其他用K2C8
     public static String[] eviencstr={"evidenceName"};
     public static String[] eviencnum={"fileSize","notarizationMoney"};
     public static String[] statencnum={"notarizationTotalMoney"};

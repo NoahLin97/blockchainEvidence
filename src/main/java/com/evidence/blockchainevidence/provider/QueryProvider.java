@@ -9,7 +9,7 @@ public class QueryProvider {
                                  String evidenceNameWildcard, String usernameWildcard, String notarizationStartTimeStart,
                                  String notarizationStartTimeEnd, String notarizationEndTimeStart,
                                  String notarizationEndTimeEnd) {
-        String sql = "select evidenceId,evidenceName,userId,evidence.notaryId,notaryName,evidence.organizationId,organizationName," +
+        String sql = "select evidenceId,evidenceName,evidence.userId,evidence.notaryId,notaryName,evidence.organizationId,organizationName," +
                 "blockchainTime,evidenceBlockchainId,evidenceTime,evidenceType,fileHash,filePath,fileSize," +
                 "notarizationBlockchainIdEnd,notarizationBlockchainIdStart," +
                 "notarizationEndTime,notarizationInformation,notarizationMatters,notarizationMoney,notarizationStartTime,notarizationStatus,evidence.notarizationType,transactionId, transactionStatus" +
@@ -59,9 +59,9 @@ public class QueryProvider {
             sql+=" and organizationId=#{organizationId}";
         }
         //要通配的字符串
-        if(!evidenceNameWildcard.equals("none")){
-            sql+=" and evidenceName like '%"+evidenceNameWildcard+"%'";
-        }
+//        if(!evidenceNameWildcard.equals("none")){
+//            sql+=" and evidenceName like '%"+evidenceNameWildcard+"%'";
+//        }
         if(!usernameWildcard.equals("none")){
             sql+=" and username like '%"+usernameWildcard+"%'";
         }
@@ -101,7 +101,7 @@ public class QueryProvider {
                                  String evidenceNameWildcard, String evidenceTimeStart,
                                  String evidenceTimeEnd, String blockchainTimeStart,
                                  String blockchainTimeEnd) {
-        String sql = "select evidenceId,evidenceName,userId,evidence.notaryId,notaryName,evidence.organizationId,organizationName," +
+        String sql = "select evidenceId,evidenceName,evidence.userId,evidence.notaryId,notaryName,evidence.organizationId,organizationName," +
                 "blockchainTime,evidenceBlockchainId,evidenceTime,evidenceType,fileHash,filePath,fileSize," +
                 "notarizationBlockchainIdEnd,notarizationBlockchainIdStart," +
                 "notarizationEndTime,notarizationInformation,notarizationMatters,notarizationMoney,notarizationStartTime,notarizationStatus,evidence.notarizationType,transactionId, transactionStatus" +
@@ -144,9 +144,9 @@ public class QueryProvider {
         }
 
         //要通配的字符串
-        if(!evidenceNameWildcard.equals("none")){
-            sql+=" and evidenceName like '%"+evidenceNameWildcard+"%'";
-        }
+//        if(!evidenceNameWildcard.equals("none")){
+//            sql+=" and evidenceName like '%"+evidenceNameWildcard+"%'";
+//        }
         if(!usernameWildcard.equals("none")){
             sql+=" and username like '%"+usernameWildcard+"%'";
         }
@@ -240,21 +240,21 @@ public class QueryProvider {
             sql+=" and userId=#{userId}";
         }
 
-        if(!sex.equals("sex")){
+        if(!sex.equals("none")){
             sql+=" and sex=#{sex}";
         }
 
         //要通配的字符串
         if(!usernameWildcard.equals("none")){
-            sql+=" and username '%"+usernameWildcard+"%'";
+            sql+=" and username like '%"+usernameWildcard+"%'";
         }
 
         if(!phoneNumberWildcard.equals("none")){
-            sql+=" and phoneNumber '%"+phoneNumberWildcard+"%'";
+            sql+=" and phoneNumber like '%"+phoneNumberWildcard+"%'";
         }
 
         if(!emailWildcard.equals("none")){
-            sql+=" and email '%"+emailWildcard+"%'";
+            sql+=" and email like '%"+emailWildcard+"%'";
         }
 
         //要比大小的date

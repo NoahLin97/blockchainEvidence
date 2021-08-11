@@ -5,9 +5,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.evidence.blockchainevidence.PaillierT.CipherPub;
 import com.evidence.blockchainevidence.PaillierT.PaillierT;
 import com.evidence.blockchainevidence.entity.*;
+import com.evidence.blockchainevidence.helib.SLT;
 import com.evidence.blockchainevidence.mapper.AutmanMapper;
 import com.evidence.blockchainevidence.mapper.NotaryStatisticsMapper;
 import com.evidence.blockchainevidence.mapper.OrganizationStatisticsMapper;
+import com.evidence.blockchainevidence.subprotocols.K2C16;
+import com.evidence.blockchainevidence.subprotocols.K2C8;
+import com.evidence.blockchainevidence.subprotocols.KET;
 import com.evidence.blockchainevidence.subprotocols.SAD;
 import com.evidence.blockchainevidence.utils.ParseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,10 +69,7 @@ public class AutmanController {
 
             //要通配的明文字符串
 
-            String evidenceNameWildcard="none";
-            if(params.containsKey("evidenceNameWildcard")){
-                evidenceNameWildcard=params.get("evidenceNameWildcard").toString();
-            }
+
 
             String usernameWildcard="none";
             if(params.containsKey("usernameWildcard")){
@@ -123,7 +124,10 @@ public class AutmanController {
             }
 
             //要通配的密文
-
+            String evidenceName="none";
+            if(params.containsKey("evidenceName")){
+                evidenceName=params.get("evidenceName").toString();
+            }
 
 
             //解密标识符
@@ -138,12 +142,12 @@ public class AutmanController {
             List<EvidenceEntity> data = autmanMapper.findEvidence("none","none","none",
                     notarizationStatus, notarizationType,
                     paymentStatus, evidenceType, organizationId,
-                    evidenceNameWildcard, usernameWildcard, notarizationStartTimeStart,
+                    evidenceName, usernameWildcard, notarizationStartTimeStart,
                     notarizationStartTimeEnd, notarizationEndTimeStart,
                     notarizationEndTimeEnd);
 
 
-
+            PaillierT paillier = new PaillierT(PaillierT.param);
             //在密文下匹配，剔除不合格的数据
             Iterator<EvidenceEntity> iterator = data.iterator();
             while (iterator.hasNext()) {
@@ -160,21 +164,123 @@ public class AutmanController {
 
                 //密文数值比较阶段
 
-                if(notarizationMoneyUpper!=-1){
-
-                }
                 if(notarizationMoneyFloor!=-1){
+                    if(!s.getNotarizationMoney().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+                        CipherPub cqw=paillier.Encryption(BigInteger.valueOf(notarizationMoneyFloor),pk);
+                        CipherPub ckw= new CipherPub(s.getNotarizationMoney());
 
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        SLT SK1 = new SLT(cqw,ckw,paillier);
+
+                        SK1.StepOne();
+                        SK1.StepTwo();
+                        SK1.StepThree();
+                        CipherPub cans=SK1.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
+                }
+                if(notarizationMoneyUpper!=-1){
+                    if(!s.getNotarizationMoney().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+                        CipherPub cqw=paillier.Encryption(BigInteger.valueOf(notarizationMoneyUpper),pk);
+                        CipherPub ckw= new CipherPub(s.getNotarizationMoney());
+
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        SLT SK1 = new SLT(cqw,ckw,paillier);
+
+                        SK1.StepOne();
+                        SK1.StepTwo();
+                        SK1.StepThree();
+                        CipherPub cans=SK1.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
+                }
+
+
+
+
+                if(fileSizeFloor!=-1){
+                    if(!s.getFileSize().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+                        CipherPub cqw=paillier.Encryption(BigInteger.valueOf(fileSizeFloor),pk);
+                        CipherPub ckw= new CipherPub(s.getFileSize());
+
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        SLT SK1 = new SLT(cqw,ckw,paillier);
+
+                        SK1.StepOne();
+                        SK1.StepTwo();
+                        SK1.StepThree();
+                        CipherPub cans=SK1.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
                 }
                 if(fileSizeUpper!=-1){
+                    if(!s.getFileSize().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+                        CipherPub cqw=paillier.Encryption(BigInteger.valueOf(fileSizeUpper),pk);
+                        CipherPub ckw= new CipherPub(s.getFileSize());
 
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        SLT SK1 = new SLT(cqw,ckw,paillier);
+
+                        SK1.StepOne();
+                        SK1.StepTwo();
+                        SK1.StepThree();
+                        CipherPub cans=SK1.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
                 }
-                if(fileSizeFloor!=-1){
-
-                }
-
                 //密文字符通配阶段
+                if(!evidenceName.equals("none")){
+                    if(!s.getEvidenceName().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
 
+                        K2C16 k2c16 = new K2C16(evidenceName, pk, paillier);
+                        k2c16.StepOne();
+                        CipherPub cqw=k2c16.FIN;
+                        CipherPub ckw= new CipherPub(s.getEvidenceName());
+
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        KET ket = new KET(cqw,ckw,paillier);
+                        ket.StepOne();
+                        ket.StepTwo();
+                        ket.StepThree();
+                        CipherPub cans=ket.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
+                }
 
 
 
@@ -211,7 +317,19 @@ public class AutmanController {
 
                 //如果有解密标记，还要把密文替换为明文
                 if(decryptFlag==1){
+                    //解密数字
 
+                    if(!s.getFileSize().equals("")){
+                        s.setFileSize(paillier.SDecryption(new CipherPub(s.getFileSize())).intValue()+"");
+                    }
+                    if(!s.getNotarizationMoney().equals("")){
+                        s.setNotarizationMoney(paillier.SDecryption(new CipherPub(s.getNotarizationMoney())).intValue()+"");
+                    }
+
+                    //解密字符
+                    if(!s.getEvidenceName().equals("")){
+                        s.setEvidenceName(K2C16.parseString(paillier.SDecryption(new CipherPub(s.getEvidenceName())),paillier));
+                    }
                 }
             }
 
@@ -273,9 +391,9 @@ public class AutmanController {
 
             //要通配的明文字符串
 
-            String evidenceNameWildcard="none";
-            if(params.containsKey("evidenceNameWildcard")){
-                evidenceNameWildcard=params.get("evidenceNameWildcard").toString();
+            String evidenceName="none";
+            if(params.containsKey("evidenceName")){
+                evidenceName=params.get("evidenceName").toString();
             }
 
             String usernameWildcard="none";
@@ -336,7 +454,7 @@ public class AutmanController {
             List<EvidenceEntity> data = autmanMapper.findEvidence2( evidenceId,  userId,  usernameWildcard,
                      notarizationStatus,  evidenceBlockchainId,
                      evidenceType,
-                     evidenceNameWildcard,  evidenceTimeStart,
+                    evidenceName,  evidenceTimeStart,
                      evidenceTimeEnd,  blockchainTimeStart,
                      blockchainTimeEnd) ;
 
@@ -344,6 +462,7 @@ public class AutmanController {
 
             //在密文下匹配，剔除不合格的数据
             Iterator<EvidenceEntity> iterator = data.iterator();
+            PaillierT paillier = new PaillierT(PaillierT.param);
             while (iterator.hasNext()) {
                 EvidenceEntity s = iterator.next();
 
@@ -358,15 +477,75 @@ public class AutmanController {
 
                 //密文数值比较阶段
 
-                if(fileSizeUpper!=-1){
-
-                }
                 if(fileSizeFloor!=-1){
+                    if(!s.getFileSize().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+                        CipherPub cqw=paillier.Encryption(BigInteger.valueOf(fileSizeFloor),pk);
+                        CipherPub ckw= new CipherPub(s.getFileSize());
 
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        SLT SK1 = new SLT(cqw,ckw,paillier);
+
+                        SK1.StepOne();
+                        SK1.StepTwo();
+                        SK1.StepThree();
+                        CipherPub cans=SK1.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
                 }
+                if(fileSizeUpper!=-1){
+                    if(!s.getFileSize().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+                        CipherPub cqw=paillier.Encryption(BigInteger.valueOf(fileSizeUpper),pk);
+                        CipherPub ckw= new CipherPub(s.getFileSize());
 
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        SLT SK1 = new SLT(cqw,ckw,paillier);
+
+                        SK1.StepOne();
+                        SK1.StepTwo();
+                        SK1.StepThree();
+                        CipherPub cans=SK1.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
+                }
                 //密文字符通配阶段
+                if(!evidenceName.equals("none")){
+                    if(!s.getEvidenceName().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
 
+                        K2C16 k2c16 = new K2C16(evidenceName, pk, paillier);
+                        k2c16.StepOne();
+                        CipherPub cqw=k2c16.FIN;
+                        CipherPub ckw= new CipherPub(s.getEvidenceName());
+
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        KET ket = new KET(cqw,ckw,paillier);
+                        ket.StepOne();
+                        ket.StepTwo();
+                        ket.StepThree();
+                        CipherPub cans=ket.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
+                }
 
 
 
@@ -403,7 +582,19 @@ public class AutmanController {
 
                 //如果有解密标记，还要把密文替换为明文
                 if(decryptFlag==1){
+//解密数字
 
+                    if(!s.getFileSize().equals("")){
+                        s.setFileSize(paillier.SDecryption(new CipherPub(s.getFileSize())).intValue()+"");
+                    }
+                    if(!s.getNotarizationMoney().equals("")){
+                        s.setNotarizationMoney(paillier.SDecryption(new CipherPub(s.getNotarizationMoney())).intValue()+"");
+                    }
+
+                    //解密字符
+                    if(!s.getEvidenceName().equals("")){
+                        s.setEvidenceName(K2C16.parseString(paillier.SDecryption(new CipherPub(s.getEvidenceName())),paillier));
+                    }
                 }
             }
 
@@ -523,8 +714,8 @@ public class AutmanController {
                     emailWildcard,  sex);
 
 
-
             //在密文下匹配，剔除不合格的数据
+            PaillierT paillier = new PaillierT(PaillierT.param);
             Iterator<UserEntity> iterator = data.iterator();
             while (iterator.hasNext()) {
                 UserEntity s = iterator.next();
@@ -537,31 +728,166 @@ public class AutmanController {
                 //密文数值比较阶段
 
                 if(remainsFloor!=-1){
+                    if(!s.getRemains().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+                        CipherPub cqw=paillier.Encryption(BigInteger.valueOf(remainsFloor),pk);
+                        CipherPub ckw= new CipherPub(s.getRemains());
+
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        SLT SK1 = new SLT(cqw,ckw,paillier);
+
+                        SK1.StepOne();
+                        SK1.StepTwo();
+                        SK1.StepThree();
+                        CipherPub cans=SK1.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
 
                 }
                 if(remainsUpper!=-1){
+                    if(!s.getRemains().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+                        CipherPub cqw=paillier.Encryption(BigInteger.valueOf(remainsUpper),pk);
+                        CipherPub ckw= new CipherPub(s.getRemains());
 
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        SLT SK1 = new SLT(ckw,cqw,paillier);
+
+                        SK1.StepOne();
+                        SK1.StepTwo();
+                        SK1.StepThree();
+                        CipherPub cans=SK1.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
                 }
                 if(storageSpaceFloor!=-1){
+                    if(!s.getStorageSpace().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+                        CipherPub cqw=paillier.Encryption(BigInteger.valueOf(storageSpaceFloor),pk);
+                        CipherPub ckw= new CipherPub(s.getStorageSpace());
 
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        SLT SK1 = new SLT(cqw,ckw,paillier);
+
+                        SK1.StepOne();
+                        SK1.StepTwo();
+                        SK1.StepThree();
+                        CipherPub cans=SK1.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
                 }
                 if(storageSpaceUpper!=-1){
+                    if(!s.getStorageSpace().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+                        CipherPub cqw=paillier.Encryption(BigInteger.valueOf(storageSpaceUpper),pk);
+                        CipherPub ckw= new CipherPub(s.getStorageSpace());
 
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        SLT SK1 = new SLT(ckw,cqw,paillier);
+
+                        SK1.StepOne();
+                        SK1.StepTwo();
+                        SK1.StepThree();
+                        CipherPub cans=SK1.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
                 }
 
                 if(hasUsedStorageFloor!=-1){
+                    if(!s.getHasUsedStorage().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+                        CipherPub cqw=paillier.Encryption(BigInteger.valueOf(hasUsedStorageFloor),pk);
+                        CipherPub ckw= new CipherPub(s.getHasUsedStorage());
 
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        SLT SK1 = new SLT(cqw,ckw,paillier);
+
+                        SK1.StepOne();
+                        SK1.StepTwo();
+                        SK1.StepThree();
+                        CipherPub cans=SK1.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
                 }
                 if(hasUsedStorageUpper!=-1){
+                    if(!s.getHasUsedStorage().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+                        CipherPub cqw=paillier.Encryption(BigInteger.valueOf(hasUsedStorageUpper),pk);
+                        CipherPub ckw= new CipherPub(s.getHasUsedStorage());
 
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        SLT SK1 = new SLT(cqw,ckw,paillier);
+
+                        SK1.StepOne();
+                        SK1.StepTwo();
+                        SK1.StepThree();
+                        CipherPub cans=SK1.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
                 }
 
 
 
                 //密文字符通配阶段
-
                 if(!idCard.equals("none")){
+                    if(!s.getIdCard().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
 
+                        K2C8 k2c8 = new K2C8(idCard, pk, paillier);
+                        k2c8.StepOne();
+                        CipherPub cqw=k2c8.FIN;
+                        CipherPub ckw= new CipherPub(s.getIdCard());
+
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        KET ket = new KET(cqw,ckw,paillier);
+                        ket.StepOne();
+                        ket.StepTwo();
+                        ket.StepThree();
+                        CipherPub cans=ket.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
                 }
 
 
@@ -584,6 +910,25 @@ public class AutmanController {
 
                 //如果有解密标记，还要把密文替换为明文
                 if(decryptFlag==1){
+
+                    //解密数字
+
+                    if(!s.getRemains().equals("")){
+                        s.setRemains(paillier.SDecryption(new CipherPub(s.getRemains())).intValue()+"");
+                    }
+                    if(!s.getStorageSpace().equals("")){
+                        s.setStorageSpace(paillier.SDecryption(new CipherPub(s.getStorageSpace())).intValue()+"");
+                    }
+                    if(!s.getHasUsedStorage().equals("")){
+                        s.setHasUsedStorage(paillier.SDecryption(new CipherPub(s.getHasUsedStorage())).intValue()+"");
+                    }
+
+                    //解密字符
+
+                    if(!s.getIdCard().equals("")){
+                        s.setIdCard(K2C8.parseString(paillier.SDecryption(new CipherPub(s.getIdCard())),paillier));
+                    }
+
 
                 }
             }
@@ -779,7 +1124,7 @@ public class AutmanController {
                     emailWildcard,  sex,  organizationId,  notarizationType );
 
 
-
+            PaillierT paillier = new PaillierT(PaillierT.param);
             //在密文下匹配，剔除不合格的数据
             Iterator<NotaryEntity> iterator = data.iterator();
             while (iterator.hasNext()) {
@@ -791,6 +1136,30 @@ public class AutmanController {
 
                 //密文字符通配阶段
 
+                if(!idCard.equals("none")){
+                    if(!s.getIdCard().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+
+                        K2C8 k2c8 = new K2C8(idCard, pk, paillier);
+                        k2c8.StepOne();
+                        CipherPub cqw=k2c8.FIN;
+                        CipherPub ckw= new CipherPub(s.getIdCard());
+
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        KET ket = new KET(cqw,ckw,paillier);
+                        ket.StepOne();
+                        ket.StepTwo();
+                        ket.StepThree();
+                        CipherPub cans=ket.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
+                }
 //                if (true) {//如果不匹配
 //                    iterator.remove();//使用迭代器的删除方法删除
 //                }
@@ -811,9 +1180,13 @@ public class AutmanController {
                 s.setNotarizationType(notarizationTypes[i]);
 
                 //如果有解密标记，还要把密文替换为明文
-//                        if(decryptFlag==1){
-//
-//                        }
+                        if(decryptFlag==1){
+                            //解密字符
+
+                            if(!s.getIdCard().equals("")){
+                                s.setIdCard(K2C8.parseString(paillier.SDecryption(new CipherPub(s.getIdCard())),paillier));
+                            }
+                        }
             }
 
 
@@ -910,6 +1283,7 @@ public class AutmanController {
 
             //在密文下匹配，剔除不合格的数据
             Iterator<AutManagerEntity> iterator = data.iterator();
+            PaillierT paillier = new PaillierT(PaillierT.param);
             while (iterator.hasNext()) {
                 AutManagerEntity s = iterator.next();
 
@@ -918,7 +1292,30 @@ public class AutmanController {
                 //密文数值比较阶段
 
                 //密文字符通配阶段
+                if(!idCard.equals("none")){
+                    if(!s.getIdCard().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
 
+                        K2C8 k2c8 = new K2C8(idCard, pk, paillier);
+                        k2c8.StepOne();
+                        CipherPub cqw=k2c8.FIN;
+                        CipherPub ckw= new CipherPub(s.getIdCard());
+
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        KET ket = new KET(cqw,ckw,paillier);
+                        ket.StepOne();
+                        ket.StepTwo();
+                        ket.StepThree();
+                        CipherPub cans=ket.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
+                }
 //                if (true) {//如果不匹配
 //                    iterator.remove();//使用迭代器的删除方法删除
 //                }
@@ -936,9 +1333,13 @@ public class AutmanController {
                 s.setSex(sexs[i]);
 
                 //如果有解密标记，还要把密文替换为明文
-//                        if(decryptFlag==1){
-//
-//                        }
+                        if(decryptFlag==1){
+                            //解密字符
+
+                            if(!s.getIdCard().equals("")){
+                                s.setIdCard(K2C8.parseString(paillier.SDecryption(new CipherPub(s.getIdCard())),paillier));
+                            }
+                        }
             }
 
 
@@ -967,7 +1368,7 @@ public class AutmanController {
 
     public static Map<String,Object> transSelect (JSONObject params, AutmanMapper autmanMapper){
         Map<String,Object> result=new HashMap<>();
-
+        PaillierT paillier = new PaillierT(PaillierT.param);
         try{
 
             //直接筛选的
@@ -1004,7 +1405,10 @@ public class AutmanController {
             }
             //要通配的密文
 
-
+            String transactionPeople="none";
+            if(params.containsKey("transactionPeople")){
+                transactionPeople=params.get("transactionPeople").toString();
+            }
 
             //解密标识符
             Integer decryptFlag=0;
@@ -1035,16 +1439,77 @@ public class AutmanController {
                 //密文数值比较阶段
 
                 if(transactionMoneyFloor!=-1){
+                    if(!s.getTransactionMoney().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+                        CipherPub cqw=paillier.Encryption(BigInteger.valueOf(transactionMoneyFloor),pk);
+                        CipherPub ckw= new CipherPub(s.getTransactionMoney());
+
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        SLT SK1 = new SLT(cqw,ckw,paillier);
+
+                        SK1.StepOne();
+                        SK1.StepTwo();
+                        SK1.StepThree();
+                        CipherPub cans=SK1.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
 
                 }
                 if(transactionMoneyUpper!=-1){
+                    if(!s.getTransactionMoney().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+                        CipherPub cqw=paillier.Encryption(BigInteger.valueOf(transactionMoneyUpper),pk);
+                        CipherPub ckw= new CipherPub(s.getTransactionMoney());
 
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        SLT SK1 = new SLT(ckw,cqw,paillier);
+
+                        SK1.StepOne();
+                        SK1.StepTwo();
+                        SK1.StepThree();
+                        CipherPub cans=SK1.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
                 }
 
 
                 //密文字符通配阶段
+                if(!transactionPeople.equals("none")){
+                    if(!s.getTransactionPeople().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
 
+                        K2C8 k2c8 = new K2C8(transactionPeople, pk, paillier);
+                        k2c8.StepOne();
+                        CipherPub cqw=k2c8.FIN;
+                        CipherPub ckw= new CipherPub(s.getTransactionPeople());
 
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        KET ket = new KET(cqw,ckw,paillier);
+                        ket.StepOne();
+                        ket.StepTwo();
+                        ket.StepThree();
+                        CipherPub cans=ket.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
+                }
 
 
 //                if (true) {//如果不匹配
@@ -1066,6 +1531,19 @@ public class AutmanController {
 
                 //如果有解密标记，还要把密文替换为明文
                 if(decryptFlag==1){
+                    if(!s.getTransactionMoney().equals("")){
+                        s.setTransactionMoney(paillier.SDecryption(new CipherPub(s.getTransactionMoney())).intValue()+"");
+                    }
+                    if(!s.getUserRemains().equals("")){
+                        s.setUserRemains(paillier.SDecryption(new CipherPub(s.getUserRemains())).intValue()+"");
+                    }
+                    if(!s.getStorageSize().equals("")){
+                        s.setStorageSize(paillier.SDecryption(new CipherPub(s.getStorageSize())).intValue()+"");
+                    }
+
+                    if(!s.getTransactionPeople().equals("")){
+                        s.setTransactionPeople(K2C8.parseString(paillier.SDecryption(new CipherPub(s.getTransactionPeople())),paillier));
+                    }
 
                 }
             }
