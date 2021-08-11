@@ -20,7 +20,7 @@ public interface NotaryStatisticsMapper {
 
     //公证员统计生成
     @Insert("insert into notary_statistics(notaryStatisticsId ,notstyId, notaryName, organizationName, notarizationCount, notarizationSuccessCount, notarizationTotalMoney, notarizationType, timeFlag)\n" +
-            "select uuid() as notaryStatisticsId, tmp1.notaryId, notaryName, organizationName, notarizationCount, notarizationSuccessCount, notarizationTotalMoney, notarizationType, now() as timeFlag from\n" +
+            "select uuid() as notaryStatisticsId, tmp1.notaryId, notaryName, organizationName, notarizationCount, notarizationSuccessCount, notarizationTotalMoney, notarizationType, #{timeFlag} as timeFlag from\n" +
             "(SELECT notaryId, notaryName, organization.organizationName, notarizationType from\n" +
             "notary\n" +
             "left join organization\n" +
@@ -43,7 +43,7 @@ public interface NotaryStatisticsMapper {
             "where notarizationStatus='3'\n" +
             "group by notaryId) as tmp3\n" +
             "on tmp2.notaryId = tmp3.notaryId;")
-    void notayStatisticsGen();
+    void notayStatisticsGen(@Param("timeFlag") String timeFlag);
 
     //公证员排名生成
     @Select("SELECT * FROM notary_statistics where timestamp(timeFlag)=#{timeFlag} order by ${sort} desc;")
@@ -60,8 +60,8 @@ public interface NotaryStatisticsMapper {
     //公证员金额写入
     @Update("update notary_statistics\n" +
             "set notarizationTotalMoney=#{notarizationTotalMoney}\n" +
-            "where notaryStatisticsId is not null and notstyId=#{notstyId};")
-    void setNotarizationTotalMoney(@Param("notstyId")String notstyId, @Param("notarizationTotalMoney")String notarizationTotalMoney);
+            "where notaryStatisticsId is not null and notstyId=#{notstyId} and timestamp(timeFlag)=#{timeFlag};")
+    void setNotarizationTotalMoney(@Param("notstyId")String notstyId, @Param("notarizationTotalMoney")String notarizationTotalMoney, @Param("timeFlag") String timeFlag);
 
     //写入密文测试
     @Update("update evidence\n" +

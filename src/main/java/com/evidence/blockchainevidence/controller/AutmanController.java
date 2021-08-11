@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.evidence.blockchainevidence.utils.GlobalParams.*;
@@ -1598,8 +1599,12 @@ public class AutmanController {
 //                        s.setTransactionStatus(transactionStatuses[i]);
 
                 //如果有解密标记，还要把密文替换为明文
-                if(decryptFlag==1){
-
+                if(decryptFlag==1 && s.getNotarizationTotalMoney() != null){
+                    //解密公证总金额
+                    CipherPub tol_money = new CipherPub(s.getNotarizationTotalMoney());
+                    PaillierT paillier = new PaillierT(PaillierT.param);
+                    BigInteger ans=paillier.SDecryption(tol_money);
+                    s.setNotarizationTotalMoney(ans.toString());
                 }
             }
 
@@ -1636,8 +1641,13 @@ public class AutmanController {
 
         try{
             JSONObject params= ParseRequest.parse(req);
+            //生成当前时间戳
+            Date time = new Date(System.currentTimeMillis());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String current = sdf.format(time);
+
             //数据库操作
-            notaryStatisticsMapper.notayStatisticsGen();
+            notaryStatisticsMapper.notayStatisticsGen(current);
             List<EvidenceEntity> notaryNotarizationMoney = notaryStatisticsMapper.getNotarizationMoney();
 
             //计算每个公证员的公证总金额
@@ -1659,7 +1669,7 @@ public class AutmanController {
                     SA1.StepThree();
                     CipherPub cans=SA1.FIN;
                     notary_Money.put(cur.getNotaryId(),cans.toString());
-                    System.out.println(cans.toString().length());
+//                    System.out.println(cans.toString().length());
                 }
                 else{
                     notary_Money.put(cur.getNotaryId(),cur.getNotarizationMoney());
@@ -1676,7 +1686,7 @@ public class AutmanController {
                 BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
                 BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
                 String tmp=paillier.Encryption(ans,pk).toString();
-                notaryStatisticsMapper.setNotarizationTotalMoney(entry.getKey(), tmp);
+                notaryStatisticsMapper.setNotarizationTotalMoney(entry.getKey(), tmp, current);
             }
 
 
@@ -1774,8 +1784,12 @@ public class AutmanController {
 //                        s.setTransactionStatus(transactionStatuses[i]);
 
                 //如果有解密标记，还要把密文替换为明文
-                if(decryptFlag==1){
-
+                if(decryptFlag==1 && s.getNotarizationTotalMoney() != null) {
+                    //解密公证总金额
+                    CipherPub tol_money = new CipherPub(s.getNotarizationTotalMoney());
+                    PaillierT paillier = new PaillierT(PaillierT.param);
+                    BigInteger ans = paillier.SDecryption(tol_money);
+                    s.setNotarizationTotalMoney(ans.toString());
                 }
             }
 
@@ -1817,7 +1831,52 @@ public class AutmanController {
         try{
             JSONObject params= ParseRequest.parse(req);
             //数据库操作
-            organizationStatisticsMapper.OrganizationStatisticsGen();
+            //生成当前时间戳
+            Date time = new Date(System.currentTimeMillis());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String current = sdf.format(time);
+
+            organizationStatisticsMapper.OrganizationStatisticsGen(current);
+            List<EvidenceEntity> organizationNotarizationMoney = organizationStatisticsMapper.getNotarizationMoney();
+
+            //计算每个公证机构的公证总金额
+            Map<String, String> organization_Money = new HashMap<String,String>();
+            Iterator<EvidenceEntity> iterator = organizationNotarizationMoney.iterator();
+            //在密文状态下计算notary的公证总金额
+            while (iterator.hasNext()) {
+                EvidenceEntity cur = iterator.next();
+                if(organization_Money.get(cur.getOrganizationId()) != null){
+                    //从数据库读取密文后，转成CipherPub进行同态计算
+                    CipherPub cur_money= new CipherPub(cur.getNotarizationMoney());
+                    CipherPub total_money= new CipherPub(organization_Money.get(cur.getOrganizationId()));
+                    //跨域加法协议
+                    //Paillier初始化,我这里为了确保参数一致，把它放到类里面了，其实应该保存在加密文件里的
+                    PaillierT paillier = new PaillierT(PaillierT.param);
+                    SAD SA1 = new SAD(cur_money,total_money,paillier);
+                    SA1.StepOne();
+                    SA1.StepTwo();
+                    SA1.StepThree();
+                    CipherPub cans=SA1.FIN;
+                    organization_Money.put(cur.getOrganizationId(),cans.toString());
+//                    System.out.println(cans.toString().length());
+                }
+                else{
+                    organization_Money.put(cur.getOrganizationId(),cur.getNotarizationMoney());
+                }
+            }
+            //写回数据库
+            for (Map.Entry<String, String> entry : organization_Money.entrySet()) {
+                //防止溢出，将总和解密后再重新加密
+                PaillierT paillier = new PaillierT(PaillierT.param);
+                CipherPub tol= new CipherPub(entry.getValue());
+                BigInteger ans=paillier.SDecryption(tol);
+                System.out.println("total="+ans);
+                //生成临时公私钥
+                BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+                BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+                String tmp=paillier.Encryption(ans,pk).toString();
+                organizationStatisticsMapper.setNotarizationTotalMoney(entry.getKey(), tmp, current);
+            }
 
             //填充返回值
             result.put("status",true);
@@ -1907,8 +1966,12 @@ public class AutmanController {
 //                s.setNotarizationType(notarizationTypes[i]);
 
                 //如果有解密标记，还要把密文替换为明文
-                if(decryptFlag==1){
-
+                if(decryptFlag==1 && s.getNotarizationTotalMoney() != null) {
+                    //解密公证总金额
+                    CipherPub tol_money = new CipherPub(s.getNotarizationTotalMoney());
+                    PaillierT paillier = new PaillierT(PaillierT.param);
+                    BigInteger ans = paillier.SDecryption(tol_money);
+                    s.setNotarizationTotalMoney(ans.toString());
                 }
             }
 
