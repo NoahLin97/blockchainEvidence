@@ -549,19 +549,19 @@ public class NotaryController {
         try {
             JSONObject params = ParseRequest.parse(req);
 
-            if(!params.containsKey("evidence_id")){
+            if(!params.containsKey("evidenceId")){
                 result.put("status",false);
                 result.put("message","evidence_id不能为空");
                 return result;
             }
-            if(!params.containsKey("notary_id")){
+            if(!params.containsKey("notaryId")){
                 result.put("status",false);
-                result.put("message","notary_id不能为空");
+                result.put("message","notaryId不能为空");
                 return result;
             }
-            if(!params.containsKey("accept_flag")){
+            if(!params.containsKey("acceptFlag")){
                 result.put("status",false);
-                result.put("message","accept_flag不能为空");
+                result.put("message","acceptFlag不能为空");
                 return result;
             }
             if(!params.containsKey("notarizationInformation")){
@@ -571,42 +571,42 @@ public class NotaryController {
             }
 
             // 获取参数
-            String evidence_id = params.get("evidence_id").toString();
-            String notary_id = params.get("notary_id").toString();
-            String accept_flag = params.get("accept_flag").toString();
+            String evidenceId = params.get("evidenceId").toString();
+            String notaryId = params.get("notaryId").toString();
+            String acceptFlag = params.get("acceptFlag").toString();
             String notarizationInformation = params.get("notarizationInformation").toString();
 
             // 将公证状态写入数据库
             String notarizationStatus=null;
 
-            if(accept_flag.equals("1"))
+            if(acceptFlag.equals("1"))
                 notarizationStatus="3";
 
-            else if(accept_flag.equals("0"))
+            else if(acceptFlag.equals("0"))
                 notarizationStatus="4";
 
-            evidenceService.updateNotarStatus(notarizationStatus,evidence_id);
+            evidenceService.updateNotarStatus(notarizationStatus,evidenceId);
 
             //公证审核信息
-            evidenceService.updateNotarInfo(notarizationInformation,evidence_id);
+            evidenceService.updateNotarInfo(notarizationInformation,evidenceId);
 
             //公证完成时间
             Date time = new Date(System.currentTimeMillis());
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String notarizationEndTime = sdf.format(time);
-            evidenceService.updateNotarEndTime(notarizationEndTime,evidence_id);
+            evidenceService.updateNotarEndTime(notarizationEndTime,evidenceId);
 
             //将结果上传区块链
             Map<String,Object> request=new HashMap<>();
 
             JSONObject value=new JSONObject();
-            value.put("evidence_id",evidence_id);
-            value.put("notary_id",notary_id);
+            value.put("evidenceId",evidenceId);
+            value.put("notaryId",notaryId);
             value.put("type","NotarizationAudit");
-            value.put("accept_flag",notary_id);
+            value.put("acceptFlag",notaryId);
             value.put("notarizationInformation",notarizationInformation);
 
-            request.put("key",evidence_id);
+            request.put("key",evidenceId);
             request.put("value",value);
 
             String str= HttpUtils.doPost(blockchain_url+"writeNotarizationAudit",request);
