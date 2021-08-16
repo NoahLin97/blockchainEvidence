@@ -603,7 +603,7 @@ public class NotaryController {
             value.put("evidenceId",evidenceId);
             value.put("notaryId",notaryId);
             value.put("type","NotarizationAudit");
-            value.put("acceptFlag",acceptFlag);
+            value.put("notarizationStatus",notarizationStatus);
             value.put("notarizationInformation",notarizationInformation);
 
             request.put("key",evidenceId);
