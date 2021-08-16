@@ -53,4 +53,8 @@ public interface EvidenceMapper {
 
     @Update("update evidence set notarizationBlockchainIdEnd = #{notarizationBlockchainIdEnd} where evidenceId = #{evidenceId}")
     int updateNotarBlockchainIdEnd(@Param("notarizationBlockchainIdEnd") String notarizationBlockchainIdEnd,@Param("evidenceId") String evidenceId);
+
+    @Update("update evidence set notaryId = #{notaryId} where evidenceId = #{evidenceId}")
+    int updateNotaryId(@Param("notaryId") String notaryId,@Param("evidenceId") String evidenceId);
+
 }

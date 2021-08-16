@@ -13,10 +13,11 @@ import com.evidence.blockchainevidence.utils.HttpUtils;
 import com.evidence.blockchainevidence.utils.ParseRequest;
 import com.evidence.blockchainevidence.utils.Sha256;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigInteger;
@@ -627,6 +628,79 @@ public class NotaryController {
         }
         return result;
     }
+
+
+    /**
+     * 预约公证，审核公证申请
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/notar/appoint")
+    public Object appointNotar(HttpServletRequest req){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try {
+
+            JSONObject params = ParseRequest.parse(req);
+
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("evidenceId")){
+                result.put("status",false);
+                result.put("message","没有给出evidenceId");
+                return result;
+            }
+            if(params.get("evidenceId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","evidenceId不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("notaryId")){
+                result.put("status",false);
+                result.put("message","没有给出notaryId");
+                return result;
+            }
+            if(params.get("notaryId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notaryId不能为空");
+                return result;
+            }
+
+            // 获取参数
+            String evidenceId = params.get("evidenceId").toString();
+            String notaryId = params.get("notaryId").toString();
+
+            // 分配公证员
+            int flag = evidenceService.updateNotaryId(notaryId,evidenceId);
+
+            // 修改公证状态为公证审核中2
+            int flag1 = evidenceService.updateNotarStatus("2",evidenceId);
+
+            if(flag == 1 && flag1 == 1){
+                result.put("status",true);
+                result.put("message","预约成功!");
+            }
+            else{
+                result.put("status",false);
+                result.put("message","预约失败!");
+            }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+
+        }
+        return result;
+
+    }
+
+
 
 
 }

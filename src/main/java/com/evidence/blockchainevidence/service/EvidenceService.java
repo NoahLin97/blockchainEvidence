@@ -68,6 +68,8 @@ public class EvidenceService {
         return evidenceMapper.updateNotarBlockchainIdEnd(notarizationBlockchainIdEnd,evidenceId);
     }
 
-
+    public int updateNotaryId(String notaryId,String evidenceId){
+        return evidenceMapper.updateNotaryId(notaryId,evidenceId);
+    }
 
 }
