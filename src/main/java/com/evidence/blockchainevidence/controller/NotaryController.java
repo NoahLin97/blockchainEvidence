@@ -5,24 +5,23 @@ import com.evidence.blockchainevidence.PaillierT.PaillierT;
 import com.evidence.blockchainevidence.entity.NotaryEntity;
 import com.evidence.blockchainevidence.mapper.AutmanMapper;
 import com.evidence.blockchainevidence.mapper.NotaryMapper;
+import com.evidence.blockchainevidence.service.EvidenceService;
 import com.evidence.blockchainevidence.service.NotaryService;
 import com.evidence.blockchainevidence.service.UserService;
 import com.evidence.blockchainevidence.subprotocols.K2C8;
+import com.evidence.blockchainevidence.utils.HttpUtils;
 import com.evidence.blockchainevidence.utils.ParseRequest;
 import com.evidence.blockchainevidence.utils.Sha256;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static com.evidence.blockchainevidence.controller.AutmanController.eviSelect;
 
@@ -39,6 +38,12 @@ public class NotaryController {
     UserService userService;
     @Autowired
     NotaryService notaryService;
+    @Autowired
+    EvidenceService evidenceService;
+
+    //区块链服务端地址
+    public static String blockchain_url = "http://127.0.0.1:8090/";
+
     /**
      * 查询申请公证的记录
      */
@@ -104,6 +109,7 @@ public class NotaryController {
         return result;
 
     }
+
 
     /**
      * 公证员注册
@@ -528,6 +534,98 @@ public class NotaryController {
 
         return result;
 
+    }
+
+    /**
+     * 公证审核
+     * @param req
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/notar/audit")
+    public Object auditNotar(HttpServletRequest req){
+        Map<String,Object> result = new HashMap<>();
+
+        try {
+            JSONObject params = ParseRequest.parse(req);
+
+            if(!params.containsKey("evidence_id")){
+                result.put("status",false);
+                result.put("message","evidence_id不能为空");
+                return result;
+            }
+            if(!params.containsKey("notary_id")){
+                result.put("status",false);
+                result.put("message","notary_id不能为空");
+                return result;
+            }
+            if(!params.containsKey("accept_flag")){
+                result.put("status",false);
+                result.put("message","accept_flag不能为空");
+                return result;
+            }
+            if(!params.containsKey("notarizationInformation")){
+                result.put("status",false);
+                result.put("message","notarizationInformation不能为空");
+                return result;
+            }
+
+            // 获取参数
+            String evidence_id = params.get("evidence_id").toString();
+            String notary_id = params.get("notary_id").toString();
+            String accept_flag = params.get("accept_flag").toString();
+            String notarizationInformation = params.get("notarizationInformation").toString();
+
+            // 将公证状态写入数据库
+            String notarizationStatus=null;
+
+            if(accept_flag.equals("1"))
+                notarizationStatus="3";
+
+            else if(accept_flag.equals("0"))
+                notarizationStatus="4";
+
+            evidenceService.updateNotarStatus(notarizationStatus,evidence_id);
+
+            //公证审核信息
+            evidenceService.updateNotarInfo(notarizationInformation,evidence_id);
+
+            //公证完成时间
+            Date time = new Date(System.currentTimeMillis());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String notarizationEndTime = sdf.format(time);
+            evidenceService.updateNotarEndTime(notarizationEndTime,evidence_id);
+
+            //将结果上传区块链
+            Map<String,Object> request=new HashMap<>();
+
+            JSONObject value=new JSONObject();
+            value.put("evidence_id",evidence_id);
+            value.put("notary_id",notary_id);
+            value.put("type","NotarizationAudit");
+            value.put("accept_flag",notary_id);
+            value.put("notarizationInformation",notarizationInformation);
+
+            request.put("key",evidence_id);
+            request.put("value",value);
+
+            String str= HttpUtils.doPost(blockchain_url+"writeNotarizationAudit",request);
+            System.out.println(str);
+
+            result.put("message","公证审核完成");
+            result.put("status",true);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+
+        }
+        return result;
     }
 
 

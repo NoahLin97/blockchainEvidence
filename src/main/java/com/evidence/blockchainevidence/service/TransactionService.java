@@ -36,4 +36,12 @@ public class TransactionService {
         return transactionMapper.updateTranPeople(transactionPeople,transactionId);
     }
 
+    public int updateTranBlockchainId(String transactionBlockchainId,String transactionId){
+        return transactionMapper.updateTranBlockchainId(transactionBlockchainId,transactionId);
+    }
+
+    public int updateBlockchainTime(String blockchainTime,String transactionId) {
+        return transactionMapper.updateBlockchainTime(blockchainTime, transactionId);
+    }
+
 }

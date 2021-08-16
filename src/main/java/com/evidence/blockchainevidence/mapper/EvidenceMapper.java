@@ -36,4 +36,21 @@ public interface EvidenceMapper {
     @Update("update evidence set notarizationMoney = #{notarizationMoney} where evidenceId = #{evidenceId}")
     int updateNotarMoney(@Param("notarizationMoney") String notarizationMoney,@Param("evidenceId") String evidenceId);
 
+    @Update("update evidence set notarizationInformation = #{notarizationInformation} where evidenceId = #{evidenceId}")
+    int updateNotarInfo(@Param("notarizationInformation") String notarizationInformation,@Param("evidenceId") String evidenceId);
+
+    @Update("update evidence set notarizationEndTime = #{notarizationEndTime} where evidenceId = #{evidenceId}")
+    int updateNotarEndTime(@Param("notarizationEndTime") String notarizationEndTime,@Param("evidenceId") String evidenceId);
+
+    @Update("update evidence set EvidenceBlockchainId = #{EvidenceBlockchainId} where evidenceId = #{evidenceId}")
+    int updateEvidenceBlockchainId(@Param("EvidenceBlockchainId") String EvidenceBlockchainId,@Param("evidenceId") String evidenceId);
+
+    @Update("update evidence set blockchainTime = #{blockchainTime} where evidenceId = #{evidenceId}")
+    int updateBlockchainTime(@Param("blockchainTime") String blockchainTime,@Param("evidenceId") String evidenceId);
+
+    @Update("update evidence set notarizationBlockchainIdStart = #{notarizationBlockchainIdStart} where evidenceId = #{evidenceId}")
+    int updateNotarBlockchainIdStart(@Param("notarizationBlockchainIdStart") String notarizationBlockchainIdStart,@Param("evidenceId") String evidenceId);
+
+    @Update("update evidence set notarizationBlockchainIdEnd = #{notarizationBlockchainIdEnd} where evidenceId = #{evidenceId}")
+    int updateNotarBlockchainIdEnd(@Param("notarizationBlockchainIdEnd") String notarizationBlockchainIdEnd,@Param("evidenceId") String evidenceId);
 }

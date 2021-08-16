@@ -44,5 +44,30 @@ public class EvidenceService {
         return evidenceMapper.updateNotarMoney(notarizationMoney,evidenceId);
     }
 
+    public int updateNotarInfo(String notarizationInformation,String evidenceId){
+        return evidenceMapper.updateNotarInfo(notarizationInformation,evidenceId);
+    }
+
+    public int updateNotarEndTime(String notarizationEndTime,String evidenceId){
+        return evidenceMapper.updateNotarEndTime(notarizationEndTime,evidenceId);
+    }
+
+    public int updateEvidenceBlockchainId(String evidenceBlockchainId,String evidenceId){
+        return evidenceMapper.updateEvidenceBlockchainId(evidenceBlockchainId,evidenceId);
+    }
+
+    public int updateBlockchainTime(String blockchainTime,String evidenceId){
+        return evidenceMapper.updateBlockchainTime(blockchainTime,evidenceId);
+    }
+
+    public int updateNotarBlockchainIdStart(String notarizationBlockchainIdStart,String evidenceId){
+        return evidenceMapper.updateNotarBlockchainIdStart(notarizationBlockchainIdStart,evidenceId);
+    }
+
+    public int updateNotarBlockchainIdEnd(String notarizationBlockchainIdEnd,String evidenceId){
+        return evidenceMapper.updateNotarBlockchainIdEnd(notarizationBlockchainIdEnd,evidenceId);
+    }
+
+
 
 }

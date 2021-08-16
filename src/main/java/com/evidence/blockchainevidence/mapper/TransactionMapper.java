@@ -29,4 +29,9 @@ public interface TransactionMapper {
     @Update("update transaction set transactionPeople = #{transactionPeople} where transactionId = #{transactionId}")
     int updateTranPeople(@Param("transactionPeople") String transactionPeople,@Param("transactionId") String transactionId);
 
+    @Update("update transaction set transactionBlockchainId = #{transactionBlockchainId} where transactionId = #{transactionId}")
+    int updateTranBlockchainId(@Param("transactionBlockchainId") String transactionBlockchainId,@Param("transactionId") String transactionId);
+
+    @Update("update transaction set blockchainTime = #{blockchainTime} where transactionId = #{transactionId}")
+    int updateBlockchainTime(@Param("blockchainTime") String blockchainTime,@Param("transactionId") String transactionId);
 }

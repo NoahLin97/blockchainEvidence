@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigInteger;
@@ -228,6 +230,49 @@ public class UserController {
         }
         return result;
 
+    }
+
+    @PostMapping(path = "/getInfo")
+    public Object getInfo(HttpServletRequest request) throws IOException, InterruptedException {
+        BufferedReader br = request.getReader();
+        String str, wholeStr = "";
+        while((str = br.readLine()) != null){
+            wholeStr += str;
+        }
+        JSONObject json=JSONObject.parseObject(wholeStr);
+        String txID = json.getString("txID");
+        String type = json.getString("type");
+        String time= json.getString("timestamp");
+        JSONObject value = json.getJSONObject("value");
+        if (type.equals("evidence"))
+        {
+            String evidenceId = json.getString("key");
+            //存证区块链交易id
+            evidenceService.updateEvidenceBlockchainId(txID,evidenceId);
+            //上链时间
+            evidenceService.updateBlockchainTime(time,evidenceId);
+        }
+        else if(type.equals("notarizationApply"))
+        {
+            String evidenceId = json.getString("key");
+            //公证申请区块链交易id
+            evidenceService.updateNotarBlockchainIdStart(txID,evidenceId);
+        }
+        else if(type.equals("notarizationAudit"))
+        {
+            String evidenceId = json.getString("key");
+            //公证完成区块链交易id
+            evidenceService.updateNotarBlockchainIdEnd(txID,evidenceId);
+        }
+        else if(type.equals("transaction"))
+        {
+            String transactionId = json.getString("key");
+            //上链时间
+            transactionService.updateBlockchainTime(time,transactionId);
+            //支付交易区块链交易id
+            transactionService.updateTranBlockchainId(txID,transactionId);
+        }
+        return true;
     }
 
 
