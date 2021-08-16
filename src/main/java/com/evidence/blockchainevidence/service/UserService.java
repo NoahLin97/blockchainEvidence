@@ -37,6 +37,11 @@ public class UserService {
         return userMapper.updateRemains(remains,userId);
     }
 
+    public int updateStorageSpace(String storageSpace,String userId){
+        return userMapper.updateStorageSpace(storageSpace,userId);
+    }
+
+
 
 
 }

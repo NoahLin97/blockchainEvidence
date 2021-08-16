@@ -32,4 +32,8 @@ public class TransactionService {
         return transactionMapper.updateTranTime(transactionTime,transactionId);
     }
 
+    public int updateTranPeople(String transactionPeople,String transactionId){
+        return transactionMapper.updateTranPeople(transactionPeople,transactionId);
+    }
+
 }

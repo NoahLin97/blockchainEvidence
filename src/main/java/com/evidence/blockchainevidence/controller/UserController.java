@@ -19,7 +19,6 @@ import com.evidence.blockchainevidence.service.UserService;
 import com.evidence.blockchainevidence.subprotocols.K2C16;
 import com.evidence.blockchainevidence.subprotocols.K2C8;
 import com.evidence.blockchainevidence.subprotocols.KMP;
-import com.evidence.blockchainevidence.utils.HttpUtils;
 import com.evidence.blockchainevidence.utils.ParseRequest;
 import com.evidence.blockchainevidence.utils.Sha256;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.evidence.blockchainevidence.controller.AutmanController.*;
-import static com.evidence.blockchainevidence.utils.GlobalParams.*;
+import static com.evidence.blockchainevidence.utils.GlobalParams.notarizationMoneys;
 
 
 @RestController
@@ -1165,6 +1164,7 @@ public class UserController {
 
                 // 更新userId的余额，减去公证金额，并写入数据库
                 int i = muserRemains.intValue() - mnotarizationMoney.intValue();
+                System.out.println("user更新后余额为：" + i);
                 String si =  paillier.Encryption(BigInteger.valueOf(i),pk).toString();
                 int flag = userService.updateRemains(si,userId);
 
@@ -1179,6 +1179,7 @@ public class UserController {
                 System.out.println("transactionPeople余额解密后：" + m);
 
                 int j = m.intValue() + mnotarizationMoney.intValue();
+                System.out.println("transactionPeople更新后余额为：" + j);
                 String sj = paillier.Encryption(BigInteger.valueOf(j),pk).toString();
                 int flag1 = userService.updateRemains(sj,transactionPeople);
 
@@ -1195,6 +1196,8 @@ public class UserController {
                 int flag3 = evidenceService.updateTranStatus("1",evidenceId);
                 int flag4 = transactionService.updateTranStatus("1",transactionId);
 
+                // 还要把transactionPeople写进transaction表中
+                int flag5 = transactionService.updateTranPeople(transactionPeople,transactionId);
             }
 
 
@@ -1213,28 +1216,28 @@ public class UserController {
             JSONObject jsonObject = new JSONObject();
 
             // evidence表
-//            jsonObject.put("evidenceId",evidenceId);
-//            jsonObject.put("evidenceType",evi1.getEvidenceType());
-//            jsonObject.put("evidenceName",evi1.getEvidenceName());
-//            jsonObject.put("filePath",evi1.getFilePath());
-//            jsonObject.put("fileSize",evi1.getFileSize());
-//            jsonObject.put("fileHash",evi1.getFileHash());
-//            jsonObject.put("organizationId",evi1.getOrganizationId());
-//            jsonObject.put("notaryId",evi1.getNotaryId());
-//            jsonObject.put("notarizationStatus",evi1.getNotarizationStatus());
-//            jsonObject.put("notarizationStartTime",evi1.getNotarizationStartTime());
-//            jsonObject.put("notarizationMoney",evi1.getNotarizationMoney());
-//            jsonObject.put("notarizationType",evi1.getNotarizationType());
-//            jsonObject.put("notarizationMatters",evi1.getNotarizationMatters());
-//
-//            // transaction表
-//            jsonObject.put("transactionId",transactionId);
-//            jsonObject.put("userRemains",tran1.getUserRemains());
-//            jsonObject.put("transactionMoney",tran1.getTransactionMoney());
-//            jsonObject.put("transactionPeople",tran1.getTransactionPeople());
-//            jsonObject.put("transactionType",tran1.getTransactionType());
-//            jsonObject.put("transactionTime",tran1.getTransactionTime());
-//            jsonObject.put("transactionStatus",tran1.getTransactionStatus());
+            jsonObject.put("evidenceId",evidenceId);
+            jsonObject.put("evidenceType",evi1.getEvidenceType());
+            jsonObject.put("evidenceName",evi1.getEvidenceName());
+            jsonObject.put("filePath",evi1.getFilePath());
+            jsonObject.put("fileSize",evi1.getFileSize());
+            jsonObject.put("fileHash",evi1.getFileHash());
+            jsonObject.put("organizationId",evi1.getOrganizationId());
+            jsonObject.put("notaryId",evi1.getNotaryId());
+            jsonObject.put("notarizationStatus",evi1.getNotarizationStatus());
+            jsonObject.put("notarizationStartTime",evi1.getNotarizationStartTime());
+            jsonObject.put("notarizationMoney",evi1.getNotarizationMoney());
+            jsonObject.put("notarizationType",evi1.getNotarizationType());
+            jsonObject.put("notarizationMatters",evi1.getNotarizationMatters());
+
+            // transaction表
+            jsonObject.put("transactionId",transactionId);
+            jsonObject.put("userRemains",tran1.getUserRemains());
+            jsonObject.put("transactionMoney",tran1.getTransactionMoney());
+            jsonObject.put("transactionPeople",tran1.getTransactionPeople());
+            jsonObject.put("transactionType",tran1.getTransactionType());
+            jsonObject.put("transactionTime",tran1.getTransactionTime());
+            jsonObject.put("transactionStatus",tran1.getTransactionStatus());
 
 
             blockchain.put("key",evidenceId);
@@ -1286,10 +1289,32 @@ public class UserController {
 
             JSONObject params = ParseRequest.parse(req);
 
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("userId")){
+                result.put("status",false);
+                result.put("message","没有给出userId");
+                return result;
+            }
+            if(params.get("userId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","userId不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("transactionMoney")){
+                result.put("status",false);
+                result.put("message","没有给出transactionMoney");
+                return result;
+            }
+            if(params.get("transactionMoney").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","transactionMoney不能为空");
+                return result;
+            }
+
             // 获取参数
             String userId = params.get("userId").toString();
             String transactionMoney = params.get("transactionMoney").toString();
-
 
             // 生成transactionId，写入transaction表
             String id = UUID.randomUUID().toString();
@@ -1299,26 +1324,46 @@ public class UserController {
 
             // 通过userId找到数据库中的那一行
             UserEntity u1 = null;
-//            u1 = userService
+            u1 = userService.selectByUserId(userId);
+
+            // 解密用户余额
+            // 生成注册用户的公私钥
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+
+            // 解密userRemains
+            BigInteger muserRemains = paillier.SDecryption(new CipherPub(u1.getRemains()));
+            System.out.println("余额解密后：" + muserRemains);
+            System.out.println("transactionMoney为：" + transactionMoney);
 
             // 获取用户余额并加上充值金额
-            Integer userRemains =Integer.parseInt(u1.getRemains());
-            userRemains += Integer.getInteger(transactionMoney);
+//            Integer userRemains =Integer.parseInt(u1.getRemains());
+            int i = muserRemains.intValue() + Integer.parseInt(transactionMoney);
+            System.out.println("充值后的金额为：" + i);
+
+            // 对充值后的金额和transactionMoney加密
+            String si =  paillier.Encryption(BigInteger.valueOf(i),pk).toString();
+            String stransactionMoney = paillier.Encryption(BigInteger.valueOf(Integer.parseInt(transactionMoney)),pk).toString();
 
             // 将充值过后的金额写进user表中
-
-
+            int flag = userService.updateRemains(si,userId);
 
             // 设置交易类型为充值0
             String transactionType = "0";
 
+            // 将以上信息统一写入transaction表中
+            int flag1 = transactionService.insertNotarTran(transactionId,userId,u1.getRemains(),stransactionMoney,transactionType);
+
             // 生成支付交易时间
+            Date time = new Date(System.currentTimeMillis());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String transactionTime = sdf.format(time);
+            int flag2 = transactionService.updateTranTime(transactionTime,transactionId);
 
             // 判断交易状态，修改为已支付1
             String transactionStatus = "1";
-
-            // 将以上信息统一写入transaction表中
-//            int flag =
+            int flag3 = transactionService.updateTranStatus(transactionStatus,transactionId);
 
 
             // 与区块链交互
@@ -1327,8 +1372,7 @@ public class UserController {
 
             // 通过transactionId找到数据库中的那一行
             TransactionEntity tran1 =null;
-//            tran =
-
+            tran1 = transactionService.selectByTransactionId(transactionId);
 
             // transaction表
             jsonObject.put("transactionId",transactionId);
@@ -1343,8 +1387,8 @@ public class UserController {
             blockchain.put("key",transactionId);
             blockchain.put("value",jsonObject);
 
-            String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
-            System.out.println("区块链Id为：" + str);
+//            String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
+//            System.out.println("区块链Id为：" + str);
 
 
             // 返回
@@ -1357,7 +1401,6 @@ public class UserController {
             result.put("transactionType",tran1.getTransactionType());
             result.put("transactionTime",tran1.getTransactionTime());
             result.put("transactionStatus",tran1.getTransactionStatus());
-
 
 
         }catch (Exception e){
@@ -1390,6 +1433,40 @@ public class UserController {
 
             JSONObject params = ParseRequest.parse(req);
 
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("userId")){
+                result.put("status",false);
+                result.put("message","没有给出userId");
+                return result;
+            }
+            if(params.get("userId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","userId不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("transactionPeople")){
+                result.put("status",false);
+                result.put("message","没有给出transactionPeople");
+                return result;
+            }
+            if(params.get("transactionPeople").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","transactionPeople不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("transactionMoney")){
+                result.put("status",false);
+                result.put("message","没有给出transactionMoney");
+                return result;
+            }
+            if(params.get("transactionMoney").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","transactionMoney不能为空");
+                return result;
+            }
+
             // 获取参数
             String userId = params.get("userId").toString();
             String transactionPeople = params.get("transactionPeople").toString();
@@ -1403,44 +1480,87 @@ public class UserController {
 
             // 通过userId找到数据库中的那一行
             UserEntity u1 = null;
-//            u1 = userService
+            u1 = userService.selectByUserId(userId);
 
             // 通过transactionPeople找到数据库中的那一行
             UserEntity u2 = null;
-//            u2 = userService
+            u2 = userService.selectByUserId(transactionPeople);
 
+            // 解密user和transactionPeople的余额
+            // 生成注册用户的公私钥
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+
+            BigInteger mu1Remains = paillier.SDecryption(new CipherPub(u1.getRemains()));
+            BigInteger mu2Remains = paillier.SDecryption(new CipherPub(u2.getRemains()));
+            System.out.println("u1余额解密后：" + mu1Remains);
+            System.out.println("u2余额解密后：" + mu2Remains);
+            System.out.println("transactionMoney为：" + transactionMoney);
 
             // 获取用户余额减去转赠金额，判断余额是否充足
-            Integer userRemains =Integer.parseInt(u1.getRemains());
-            if(userRemains -Integer.getInteger(transactionMoney) < 0){
+//            Integer userRemains =Integer.parseInt(u1.getRemains());
+            System.out.println(mu1Remains.intValue());
+            System.out.println(Integer.parseInt(transactionMoney));
+            if(mu1Remains.intValue() - Integer.parseInt(transactionMoney) < 0){
                 result.put("status",false);
                 result.put("message","余额不足，无法转赠");
 
                 return result;
             }
             else{
-                userRemains -= Integer.getInteger(transactionMoney);
+                int i = mu1Remains.intValue() - Integer.parseInt(transactionMoney);
+                System.out.println("转赠后u1余额为：" + i);
 
                 // 获取转赠用户的余额，加上转赠的金额
-                Integer u2Remains = Integer.parseInt(u2.getRemains());
-                u2Remains += Integer.parseInt(transactionMoney);
+//                Integer u2Remains = Integer.parseInt(u2.getRemains());
+//                u2Remains += Integer.parseInt(transactionMoney);
+                int j = mu2Remains.intValue() + Integer.parseInt(transactionMoney);
+                System.out.println("转赠后u2的余额为：" + j);
 
                 // 分别将两个用户的余额更新至数据库
+                String si =  paillier.Encryption(BigInteger.valueOf(i),pk).toString();
+                String sj = paillier.Encryption(BigInteger.valueOf(j),pk).toString();
+                int flag = userService.updateRemains(si,userId);
+                int flag1 = userService.updateRemains(sj,transactionPeople);
 
+                // 加密transactionPeople和transactionMoney
+//                String stransactionPeople = paillier.Encryption(BigInteger.valueOf(Integer.parseInt(transactionPeople)),pk).toString();
+                // transactionPeople加密
+                System.out.println("transactionPeople为：" + transactionPeople);
+                K2C8 SK0 = new K2C8(transactionPeople,pk,paillier);
+                System.out.println("K2C8转换后的大整数为：" + SK0.getB());
+                SK0.StepOne();
+                String stransactionPeople = SK0.FIN.toString();
+                System.out.println("K2C8加密后的大整数为：" + stransactionPeople);
+
+                // transactionPeople解密测试
+                BigInteger mtransactionPeople = paillier.SDecryption(SK0.FIN);
+                System.out.println("解密后的大整数值为：" + mtransactionPeople);
+
+                String temp = SK0.parseString(mtransactionPeople,paillier);
+                System.out.println("大整数转化为字符串：" + temp);
+
+                String stransactionMoney = paillier.Encryption(BigInteger.valueOf(Integer.parseInt(transactionMoney)),pk).toString();
 
                 // 设置交易类型为转赠1
                 String transactionType = "1";
 
-                // 生成支付交易时间
+                // 将以上信息统一写入transaction表中
+                int flag2 = transactionService.insertNotarTran(transactionId,userId,u1.getRemains(),stransactionMoney,transactionType);
 
+                // 生成支付交易时间
+                Date time = new Date(System.currentTimeMillis());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String transactionTime = sdf.format(time);
+                int flag3 = transactionService.updateTranTime(transactionTime,transactionId);
 
                 // 判断交易状态，修改为已支付1
                 String transactionStatus = "1";
+                int flag4 = transactionService.updateTranStatus(transactionStatus,transactionId);
 
-                // 将以上信息统一写入transaction表中
-//            int flag =
-
-
+                // 把transactionPeople写入数据库
+                int flag5 = transactionService.updateTranPeople(stransactionPeople,transactionId);
 
                 // 与区块链交互
                 Map<String,Object> blockchain = new HashMap<>();
@@ -1449,7 +1569,7 @@ public class UserController {
 
                 // 通过transactionId找到数据库中的那一行
                 TransactionEntity tran1 =null;
-//            tran =
+                tran1 = transactionService.selectByTransactionId(transactionId);
 
 
                 // transaction表
@@ -1465,8 +1585,8 @@ public class UserController {
                 blockchain.put("key",transactionId);
                 blockchain.put("value",jsonObject);
 
-                String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
-                System.out.println("区块链Id为：" + str);
+//                String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
+//                System.out.println("区块链Id为：" + str);
 
 
                 // 返回
@@ -1512,6 +1632,29 @@ public class UserController {
 
             JSONObject params = ParseRequest.parse(req);
 
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("userId")){
+                result.put("status",false);
+                result.put("message","没有给出userId");
+                return result;
+            }
+            if(params.get("userId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","userId不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("transactionMoney")){
+                result.put("status",false);
+                result.put("message","没有给出transactionMoney");
+                return result;
+            }
+            if(params.get("transactionMoney").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","transactionMoney不能为空");
+                return result;
+            }
+
             // 获取参数
             String userId = params.get("userId").toString();
             String transactionMoney = params.get("transactionMoney").toString();
@@ -1524,12 +1667,21 @@ public class UserController {
 
             // 通过userId找到数据库中的那一行
             UserEntity u1 = null;
-//            u1 = userService
+            u1 = userService.selectByUserId(userId);
 
+            // 用户余额解密
+            // 生成注册用户的公私钥
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+
+            BigInteger mu1Remains = paillier.SDecryption(new CipherPub(u1.getRemains()));
+            System.out.println("u1余额解密后：" + mu1Remains);
+            System.out.println("transactionMoney为：" + transactionMoney);
 
             // 获取用户余额减去transactionMoney，判断用户余额是否够体现
-            Integer userRemains = Integer.parseInt(u1.getRemains());
-            if(userRemains - Integer.parseInt(transactionMoney) < 0){
+//            Integer userRemains = Integer.parseInt(u1.getRemains());
+            if(mu1Remains.intValue() - Integer.parseInt(transactionMoney) < 0){
                 result.put("status",false);
                 result.put("message","余额不足，无法体现");
 
@@ -1538,26 +1690,32 @@ public class UserController {
             else{
 
                 // 减去用户体现的金额
-                userRemains -= Integer.parseInt(transactionMoney);
+//                userRemains -= Integer.parseInt(transactionMoney);
+                int i = mu1Remains.intValue() - Integer.parseInt(transactionMoney);
+                System.out.println("提现后u1余额为：" + i);
 
                 // 将用户余额更新至用户表中
-
-
+                String si =  paillier.Encryption(BigInteger.valueOf(i),pk).toString();
+                int flag = userService.updateRemains(si,userId);
 
                 // 设置交易类型为提现2
                 String transactionType = "2";
 
+                // 加密transactionMoney
+                String stransactionMoney = paillier.Encryption(BigInteger.valueOf(Integer.parseInt(transactionMoney)),pk).toString();
+
+                // 将以上信息统一写入transaction表中
+                int flag1 = transactionService.insertNotarTran(transactionId,userId,u1.getRemains(),stransactionMoney,transactionType);
 
                 // 生成支付交易时间
-
+                Date time = new Date(System.currentTimeMillis());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String transactionTime = sdf.format(time);
+                int flag2 = transactionService.updateTranTime(transactionTime,transactionId);
 
                 // 判断交易状态，修改为已支付1
                 String transactionStatus = "1";
-
-
-                // 将以上信息统一写入transaction表中
-//            int flag =
-
+                int flag3 = transactionService.updateTranStatus(transactionStatus,transactionId);
 
 
                 // 与区块链交互
@@ -1567,8 +1725,7 @@ public class UserController {
 
                 // 通过transactionId找到数据库中的那一行
                 TransactionEntity tran1 =null;
-//            tran =
-
+                tran1 = transactionService.selectByTransactionId(transactionId);
 
                 // transaction表
                 jsonObject.put("transactionId",transactionId);
@@ -1583,8 +1740,8 @@ public class UserController {
                 blockchain.put("key",transactionId);
                 blockchain.put("value",jsonObject);
 
-                String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
-                System.out.println("区块链Id为：" + str);
+//                String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
+//                System.out.println("区块链Id为：" + str);
 
 
                 // 返回
@@ -1631,11 +1788,44 @@ public class UserController {
 
             JSONObject params = ParseRequest.parse(req);
 
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("userId")){
+                result.put("status",false);
+                result.put("message","没有给出userId");
+                return result;
+            }
+            if(params.get("userId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","userId不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("transactionMoney")){
+                result.put("status",false);
+                result.put("message","没有给出transactionMoney");
+                return result;
+            }
+            if(params.get("transactionMoney").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","transactionMoney不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("storageSize")){
+                result.put("status",false);
+                result.put("message","没有给出storageSize");
+                return result;
+            }
+            if(params.get("storageSize").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","storageSize不能为空");
+                return result;
+            }
+
             // 获取参数
             String userId = params.get("userId").toString();
             String transactionMoney = params.get("transactionMoney").toString();
             String storageSize = params.get("storageSize").toString();
-
 
             // 生成transactionId，写入transaction表
             String id = UUID.randomUUID().toString();
@@ -1645,11 +1835,21 @@ public class UserController {
 
             // 通过userId找到数据库中的那一行
             UserEntity u1 = null;
-//            u1 = userService
+            u1 = userService.selectByUserId(userId);
+
+            // 用户余额解密
+            // 生成注册用户的公私钥
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+
+            BigInteger mu1Remains = paillier.SDecryption(new CipherPub(u1.getRemains()));
+            System.out.println("u1余额解密后：" + mu1Remains);
+            System.out.println("transactionMoney为：" + transactionMoney);
 
             // 获取用户余额减去transactionMoney，判断用户余额是否够买存储空间
-            Integer userRemains = Integer.parseInt(u1.getRemains());
-            if(userRemains - Integer.parseInt(transactionMoney) < 0){
+//            Integer userRemains = Integer.parseInt(u1.getRemains());
+            if(mu1Remains.intValue() - Integer.parseInt(transactionMoney) < 0){
 
                 result.put("status",false);
                 result.put("message","余额不足，无法购买存储空间");
@@ -1659,41 +1859,54 @@ public class UserController {
             else{
 
                 // 减去用户购买存储空间的金额
-                userRemains -= Integer.parseInt(transactionMoney);
+//                userRemains -= Integer.parseInt(transactionMoney);
+                int i = mu1Remains.intValue() - Integer.parseInt(transactionMoney);
+                System.out.println("购买存储空间后u1的余额为：" + i);
 
                 // 将用户余额更新至用户表中
+                String si =  paillier.Encryption(BigInteger.valueOf(i),pk).toString();
+                int flag = userService.updateRemains(si,userId);
 
                 // 获取用户存储空间，加上购买的存储空间
-                Integer u1StorageSize =Integer.parseInt(u1.getStorageSpace());
-                u1StorageSize += Integer.parseInt(storageSize);
+//                Integer u1StorageSize =Integer.parseInt(u1.getStorageSpace());
+//                u1StorageSize += Integer.parseInt(storageSize);
+                BigInteger mu1StorageSpace = paillier.SDecryption(new CipherPub(u1.getStorageSpace()));
+                System.out.println("u1存储空间解密后：" + mu1StorageSpace);
+
+                int j = mu1StorageSpace.intValue() + Integer.parseInt(storageSize);
+                System.out.println("购买后的存储空间为：" + j);
 
                 // 更新存储空间至用户表中
+                String sj = paillier.Encryption(BigInteger.valueOf(j),pk).toString();
+                int flag1 = userService.updateStorageSpace(sj,userId);
 
                 // 设置交易类型为购买存储空间3
                 String transactionType = "3";
 
+                // 加密transactionMoney
+                String stransactionMoney = paillier.Encryption(BigInteger.valueOf(Integer.parseInt(transactionMoney)),pk).toString();
+
+                // 将以上信息统一写入transaction表中
+                int flag2 = transactionService.insertNotarTran(transactionId,userId,u1.getRemains(),stransactionMoney,transactionType);
 
                 // 生成支付交易时间
-
+                Date time = new Date(System.currentTimeMillis());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String transactionTime = sdf.format(time);
+                int flag3 = transactionService.updateTranTime(transactionTime,transactionId);
 
                 // 判断交易状态，修改为已支付1
                 String transactionStatus = "1";
-
-
-                // 将以上信息统一写入transaction表中
-//            int flag =
-
+                int flag4 = transactionService.updateTranStatus(transactionStatus,transactionId);
 
 
                 // 与区块链交互
                 Map<String,Object> blockchain = new HashMap<>();
                 JSONObject jsonObject = new JSONObject();
 
-
                 // 通过transactionId找到数据库中的那一行
                 TransactionEntity tran1 =null;
-//            tran =
-
+                tran1 = transactionService.selectByTransactionId(transactionId);
 
                 // transaction表
                 jsonObject.put("transactionId",transactionId);
@@ -1708,13 +1921,13 @@ public class UserController {
                 blockchain.put("key",transactionId);
                 blockchain.put("value",jsonObject);
 
-                String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
-                System.out.println("区块链Id为：" + str);
+//                String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
+//                System.out.println("区块链Id为：" + str);
 
 
                 // 返回
                 result.put("status",true);
-                result.put("message","体现成功");
+                result.put("message","存储空间购买成功");
                 result.put("transactionId",transactionId);
                 result.put("userRemains",tran1.getUserRemains());
                 result.put("transactionMoney",tran1.getTransactionMoney());
@@ -1724,10 +1937,7 @@ public class UserController {
                 result.put("transactionStatus",tran1.getTransactionStatus());
 
 
-
             }
-
-
 
 
 

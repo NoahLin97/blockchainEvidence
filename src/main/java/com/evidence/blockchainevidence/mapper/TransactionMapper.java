@@ -26,4 +26,7 @@ public interface TransactionMapper {
     @Update("update transaction set transactionTime = #{transactionTime} where transactionId = #{transactionId}")
     int updateTranTime(@Param("transactionTime") String transactionTime,@Param("transactionId") String transactionId);
 
+    @Update("update transaction set transactionPeople = #{transactionPeople} where transactionId = #{transactionId}")
+    int updateTranPeople(@Param("transactionPeople") String transactionPeople,@Param("transactionId") String transactionId);
+
 }

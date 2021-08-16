@@ -37,4 +37,7 @@ public interface UserMapper {
     @Update("update user set remains = #{remains} where userId = #{userId}")
     int updateRemains(@Param("remains") String remains,@Param("userId") String userId);
 
+    @Update("update user set storageSpace = #{storageSpace} where userId = #{userId}")
+    int updateStorageSpace(@Param("storageSpace") String storageSpace,@Param("userId") String userId);
+
 }
