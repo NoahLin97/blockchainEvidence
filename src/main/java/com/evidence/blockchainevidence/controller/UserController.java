@@ -232,6 +232,9 @@ public class UserController {
 
     }
 
+    /**
+     * 获取区块链交易id和上链时间
+     */
     @PostMapping(path = "/getInfo")
     public Object getInfo(HttpServletRequest request) throws IOException, InterruptedException {
         BufferedReader br = request.getReader();
