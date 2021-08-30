@@ -1291,7 +1291,7 @@ public class UserController {
             blockchain.put("key",evidenceId);
             blockchain.put("value",jsonObject);
 
-//            String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
+//            String str= HttpUtils.doPost("http://192.168.31.218:8090/writeNotarizationApply",blockchain);
 //            System.out.println("区块链Id为：" + str);
 
 
@@ -1435,7 +1435,7 @@ public class UserController {
             blockchain.put("key",transactionId);
             blockchain.put("value",jsonObject);
 
-//            String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
+//            String str= HttpUtils.doPost("http://192.168.31.218:8090/writeCharge",blockchain);
 //            System.out.println("区块链Id为：" + str);
 
 
@@ -1633,7 +1633,7 @@ public class UserController {
                 blockchain.put("key",transactionId);
                 blockchain.put("value",jsonObject);
 
-//                String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
+//                String str= HttpUtils.doPost("http://192.168.31.218:8090/writeGive",blockchain);
 //                System.out.println("区块链Id为：" + str);
 
 
@@ -1788,7 +1788,7 @@ public class UserController {
                 blockchain.put("key",transactionId);
                 blockchain.put("value",jsonObject);
 
-//                String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
+//                String str= HttpUtils.doPost("http://192.168.31.218:8090/writeWithdraw",blockchain);
 //                System.out.println("区块链Id为：" + str);
 
 
@@ -1969,7 +1969,7 @@ public class UserController {
                 blockchain.put("key",transactionId);
                 blockchain.put("value",jsonObject);
 
-//                String str= HttpUtils.doPost("http://192.168.31.218:8090/writenotarizationapply",blockchain);
+//                String str= HttpUtils.doPost("http://192.168.31.218:8090/writeMemPay",blockchain);
 //                System.out.println("区块链Id为：" + str);
 
 

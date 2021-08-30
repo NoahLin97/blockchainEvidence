@@ -1,14 +1,11 @@
 package com.evidence.blockchainevidence.mapper;
 
-        import com.evidence.blockchainevidence.entity.*;
-        import com.evidence.blockchainevidence.provider.QueryProvider;
-        import org.apache.ibatis.annotations.Mapper;
-        import org.apache.ibatis.annotations.Param;
-        import org.apache.ibatis.annotations.Select;
-        import org.apache.ibatis.annotations.SelectProvider;
-        import org.springframework.stereotype.Component;
+import com.evidence.blockchainevidence.entity.*;
+import com.evidence.blockchainevidence.provider.QueryProvider;
+import org.apache.ibatis.annotations.*;
+import org.springframework.stereotype.Component;
 
-        import java.util.List;
+import java.util.List;
 
 @Mapper
 @Component
@@ -56,4 +53,21 @@ public interface AutmanMapper {
 
     @Select("SELECT DISTINCT timeFlag FROM organization_statistics")
     List<String> findOrgTimes();
+
+    @Select("select * from aut_manager where autName= #{autName} and password = #{password} ")
+    AutManagerEntity selectByNameAndPwd(@Param("autName") String username, @Param("password") String password);
+
+
+    @Insert("insert into aut_manager(autManId,autName,password,phoneNumber,idCard,email,sex,organizationId)" +
+            " values(#{autManId},#{autName},#{password},#{phoneNumber},#{idCard},#{email},#{sex},#{organizationId})")
+    int insertAutman(@Param("autManId") String autManId, @Param("autName") String autName, @Param("password") String password,
+                   @Param("phoneNumber") String phoneNumber, @Param("idCard") String idCard, @Param("email") String email,
+                   @Param("sex") String sex, @Param("organizationId") String organizationId);
+
+
+    @Update("update aut_manager set password = #{newPassword},phoneNumber = #{phoneNumber},idCard = #{idCard},email = #{email},sex = #{sex}, organizationId = #{organizationId} where autManId = #{autManId} ")
+    int updateAutman(@Param("autManId") String autManId,@Param("newPassword") String newPassword,@Param("phoneNumber") String phoneNumber,
+                   @Param("idCard") String idCard,@Param("email") String email,@Param("sex") String sex,@Param("organizationId") String organizationId);
+
+
 }
