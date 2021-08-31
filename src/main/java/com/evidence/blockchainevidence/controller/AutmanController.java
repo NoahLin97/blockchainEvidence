@@ -1769,6 +1769,48 @@ public class AutmanController {
 
     }
 
+    /**
+     * 查询公证数量
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/noNumQuery")
+    public Object noNumQuery (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+
+            //查询数据库
+            int successNum = autmanMapper.totalSuccess();
+            int notSuccessNum = autmanMapper.totalNotSuccess();
+
+            JSONObject data=new JSONObject();
+            data.put("successNum",successNum);
+            data.put("notSuccessNum",notSuccessNum);
+            data.put("totalNum",successNum+notSuccessNum);
+
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
+
+
+
 
     /**
      * 查询所有公证类型

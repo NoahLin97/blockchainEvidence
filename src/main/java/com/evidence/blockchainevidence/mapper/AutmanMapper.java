@@ -70,4 +70,11 @@ public interface AutmanMapper {
                    @Param("idCard") String idCard,@Param("email") String email,@Param("sex") String sex,@Param("organizationId") String organizationId);
 
 
+    //总成功数
+    @Select("SELECT count(*) as a FROM `evidence` where notarizationStatus=\"3\"")
+    int totalSuccess();
+
+    //总不成功数
+    @Select("SELECT count(*) as a FROM `evidence` where notarizationStatus=\"4\"")
+    int totalNotSuccess();
 }
