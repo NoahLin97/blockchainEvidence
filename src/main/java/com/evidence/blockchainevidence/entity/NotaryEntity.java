@@ -22,6 +22,9 @@ public class NotaryEntity {
     private Collection<NotaryStatisticsEntity> notaryStatisticsByNotaryId;
     private Collection<RankEntity> ranksByNotaryId;
 
+    private String workYear;
+    private String position;
+
 
     //我手动加的
 
@@ -142,6 +145,28 @@ public class NotaryEntity {
     public void setNotarizationType(Object notarizationType) {
         this.notarizationType = notarizationType;
     }
+
+    @Basic
+    @Column(name = "workYear")
+    public Object getWorkYear() {
+        return workYear;
+    }
+
+    public void setWorkYear(String workYear) {
+        this.workYear = workYear;
+    }
+
+    @Basic
+    @Column(name = "position")
+    public Object getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+
 
     @Override
     public boolean equals(Object o) {

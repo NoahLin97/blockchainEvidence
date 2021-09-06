@@ -3,13 +3,11 @@ package com.evidence.blockchainevidence.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.evidence.blockchainevidence.PaillierT.CipherPub;
 import com.evidence.blockchainevidence.PaillierT.PaillierT;
-import com.evidence.blockchainevidence.entity.EvidenceEntity;
-import com.evidence.blockchainevidence.entity.NotaryEntity;
-import com.evidence.blockchainevidence.entity.TransactionEntity;
-import com.evidence.blockchainevidence.entity.UserEntity;
+import com.evidence.blockchainevidence.entity.*;
 import com.evidence.blockchainevidence.helib.SEA;
 import com.evidence.blockchainevidence.helib.SLT;
 import com.evidence.blockchainevidence.mapper.AutmanMapper;
+import com.evidence.blockchainevidence.mapper.NotarizationTypeMapper;
 import com.evidence.blockchainevidence.mapper.NotaryMapper;
 import com.evidence.blockchainevidence.mapper.UserMapper;
 import com.evidence.blockchainevidence.service.EvidenceService;
@@ -36,7 +34,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.evidence.blockchainevidence.controller.AutmanController.*;
-import static com.evidence.blockchainevidence.utils.GlobalParams.notarizationMoneys;
 
 
 @RestController
@@ -56,6 +53,8 @@ public class UserController {
     OrganizationService organizationService;
     @Autowired
     TransactionService transactionService;
+    @Autowired
+    NotarizationTypeMapper notarizationTypeMapper;
 
     /**
      * 数据库查询测试
@@ -981,14 +980,14 @@ public class UserController {
                 return result;
             }
 
-            if(!params.containsKey("notarizationType")){
+            if(!params.containsKey("notarizationTypeId")){
                 result.put("status",false);
-                result.put("message","没有给出notarizationType");
+                result.put("message","没有给出notarizationTypeId");
                 return result;
             }
-            if(params.get("notarizationType").toString().equals("none")){
+            if(params.get("notarizationTypeId").toString().equals("none")){
                 result.put("status",false);
-                result.put("message","notarizationType不能为空");
+                result.put("message","notarizationTypeId不能为空");
                 return result;
             }
 
@@ -1007,11 +1006,14 @@ public class UserController {
             String userId = params.get("userId").toString();
             String evidenceId = params.get("evidenceId").toString();
             String organizationId = params.get("organizationId").toString();
-            String notarizationType = params.get("notarizationType").toString();
+            String notarizationTypeId = params.get("notarizationTypeId").toString();
             String notarizationMatters = params.get("notarizationMatters").toString();
 
+            // 从数据库查找公证类型名称和公证金额
+            NotarizationTypeEntity n1 = notarizationTypeMapper.selectNotarizationType(notarizationTypeId);
+
             // 把接受到的organizationId和notarizationType写入数据库
-            int flag = evidenceService.updateOrganIdAndNotarType(organizationId,notarizationType,evidenceId);
+            int flag = evidenceService.updateOrganIdAndNotarType(organizationId,n1.getNotarizationTypeName(),evidenceId);
 
             // 把notarizationMatters写入数据库
             int flag1 = evidenceService.updateNotarMatters(notarizationMatters,evidenceId);
@@ -1029,15 +1031,18 @@ public class UserController {
             UserEntity u1 = null;
             u1 = userService.selectByUserId(userId);
 
-            // 获取交易金额：查globalparams，根据公证类型获取对应的公证金额
-            Integer temp = Integer.parseInt(notarizationType);
-            String transactionMoney = notarizationMoneys[temp].toString();
 
             // 对要存入数据库的数据加密
             // 生成注册用户的公私钥
             PaillierT paillier = new PaillierT(PaillierT.param);
             BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
             BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+
+            // 获取交易金额：查globalparams，根据公证类型获取对应的公证金额
+//            Integer temp = Integer.parseInt(notarizationType);
+//            String transactionMoney = notarizationMoneys[temp].toString();
+            BigInteger btransactionMoney = paillier.SDecryption(new CipherPub(n1.getNotarizationMoney()));
+            String transactionMoney = btransactionMoney.toString();
 
 //            // 余额加密
 //            System.out.println("余额加密前：" + u1.getRemains());

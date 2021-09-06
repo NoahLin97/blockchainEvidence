@@ -216,6 +216,29 @@ public class NotaryController {
                 return result;
             }
 
+            if(!params.containsKey("workYear")){
+                result.put("status",false);
+                result.put("message","没有给出workYear");
+                return result;
+            }
+            if(params.get("workYear").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","workYear不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("position")){
+                result.put("status",false);
+                result.put("message","没有给出position");
+                return result;
+            }
+            if(params.get("position").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","position不能为空");
+                return result;
+            }
+
+
             // 获取参数
             String notaryName = params.get("notaryName").toString();
             String password = params.get("password").toString();
@@ -224,6 +247,8 @@ public class NotaryController {
             String email = params.get("email").toString();
             String organizationId = params.get("organizationId").toString();
             String jobNumber = params.get("jobNumber").toString();
+            String workYear = params.get("workYear").toString();
+            String position = params.get("position").toString();
 
             // 处理sex枚举类型数据
             String sex = params.get("sex").toString();
@@ -260,7 +285,7 @@ public class NotaryController {
             System.out.println("公钥为：" + publicKey);
 
             // 存入数据库
-            int flag = notaryService.insertNotary(notaryId, notaryName, jobNumber, password, phoneNumber, idCard, email, sex, organizationId, notarizationType, publicKey);
+            int flag = notaryService.insertNotary(notaryId, notaryName, jobNumber, password, phoneNumber, idCard, email, sex, organizationId, notarizationType, publicKey, workYear, position);
 
             if (flag == 1) {
                 result.put("status", true);
@@ -470,6 +495,29 @@ public class NotaryController {
                 return result;
             }
 
+            if(!params.containsKey("workYear")){
+                result.put("status",false);
+                result.put("message","没有给出workYear");
+                return result;
+            }
+            if(params.get("workYear").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","workYear不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("position")){
+                result.put("status",false);
+                result.put("message","没有给出position");
+                return result;
+            }
+            if(params.get("position").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","position不能为空");
+                return result;
+            }
+
+
             // 获取参数
             String notaryId = params.get("notaryId").toString();
             String newPassword = params.get("newPassword").toString();
@@ -479,6 +527,9 @@ public class NotaryController {
             String sex = params.get("sex").toString();
             String organizationId = params.get("organizationId").toString();
             String notarizationType = params.get("notarizationType").toString();
+            String workYear = params.get("workYear").toString();
+            String position = params.get("position").toString();
+
 
             // 将密码用sha-256加密
             newPassword = Sha256.SHA(newPassword);
@@ -507,7 +558,7 @@ public class NotaryController {
             System.out.println("大整数转化为字符串：" + temp);
 
             // 更新数据库
-            int flag = notaryService.updateNotary(notaryId,newPassword,phoneNumber,idCard,email,sex,organizationId,notarizationType);
+            int flag = notaryService.updateNotary(notaryId,newPassword,phoneNumber,idCard,email,sex,organizationId,notarizationType,workYear,position);
 
 
             if(flag == 1){

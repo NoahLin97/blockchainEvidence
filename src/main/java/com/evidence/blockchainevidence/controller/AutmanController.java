@@ -7,6 +7,7 @@ import com.evidence.blockchainevidence.PaillierT.PaillierT;
 import com.evidence.blockchainevidence.entity.*;
 import com.evidence.blockchainevidence.helib.SLT;
 import com.evidence.blockchainevidence.mapper.AutmanMapper;
+import com.evidence.blockchainevidence.mapper.NotarizationTypeMapper;
 import com.evidence.blockchainevidence.mapper.NotaryStatisticsMapper;
 import com.evidence.blockchainevidence.mapper.OrganizationStatisticsMapper;
 import com.evidence.blockchainevidence.subprotocols.K2C16;
@@ -35,6 +36,8 @@ public class AutmanController {
     @Autowired(required = false)
     AutmanMapper autmanMapper;
 
+    @Autowired
+    NotarizationTypeMapper notarizationTypeMapper;
 
     public static Map<String,Object> eviSelect (JSONObject params, AutmanMapper autmanMapper){
         Map<String,Object> result=new HashMap<>();
@@ -2927,6 +2930,255 @@ public class AutmanController {
 
         return result;
 
+    }
+
+
+    /**
+     * 新增公证类型
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/aut/notarTypeAdd")
+    public Object addNotarType(HttpServletRequest req){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try{
+
+            JSONObject params = ParseRequest.parse(req);
+
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("notarizationTypeName")){
+                result.put("status",false);
+                result.put("message","没有给出notarizationTypeName");
+                return result;
+            }
+            if(params.get("notarizationTypeName").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notarizationTypeName不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("notarizationMoney")){
+                result.put("status",false);
+                result.put("message","没有给出notarizationMoney");
+                return result;
+            }
+            if(params.get("notarizationMoney").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notarizationMoney不能为空");
+                return result;
+            }
+
+            // 获取参数
+            String notarizationTypeName = params.get("notarizationTypeName").toString();
+            String notarizationMoney = params.get("notarizationMoney").toString();
+
+            // 生成notarizationTypeId
+            String id = UUID.randomUUID().toString();
+            // 将UUID中的“-”去掉
+            String notarizationTypeId = id.replace("-" , "");
+            System.out.println("notarizationTypeId为：" + notarizationTypeId);
+
+            // 生成注册用户的公私钥
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+
+            // 加密公证金额
+            String snotarizationMoney = paillier.Encryption(BigInteger.valueOf(Integer.parseInt(notarizationMoney)),pk).toString();
+
+            // 存入数据库
+            int flag = notarizationTypeMapper.insertNotarizationType(notarizationTypeId,notarizationTypeName,snotarizationMoney);
+
+
+            if(flag == 1){
+                result.put("status",true);
+                result.put("message","新增公证类型成功!");
+                result.put("notarizationTypeId",notarizationTypeId);
+            }
+            else{
+                result.put("status",false);
+                result.put("message","新增公证类型失败!");
+            }
+
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+
+        return result;
+
+
+
+    }
+
+
+
+
+    /**
+     * 更新公证类型
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/aut/notarTypeUpdate")
+    public Object updateNotarType(HttpServletRequest req){
+
+
+        Map<String,Object> result = new HashMap<>();
+
+        try{
+
+            JSONObject params = ParseRequest.parse(req);
+
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("notarizationTypeId")){
+                result.put("status",false);
+                result.put("message","没有给出notarizationTypeId");
+                return result;
+            }
+            if(params.get("notarizationTypeId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notarizationTypeId不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("notarizationTypeName")){
+                result.put("status",false);
+                result.put("message","没有给出notarizationTypeName");
+                return result;
+            }
+            if(params.get("notarizationTypeName").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notarizationTypeName不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("notarizationMoney")){
+                result.put("status",false);
+                result.put("message","没有给出notarizationMoney");
+                return result;
+            }
+            if(params.get("notarizationMoney").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notarizationMoney不能为空");
+                return result;
+            }
+
+            // 获取参数
+            String notarizationTypeId = params.get("notarizationTypeId").toString();
+            String notarizationTypeName = params.get("notarizationTypeName").toString();
+            String notarizationMoney = params.get("notarizationMoney").toString();
+
+            // 生成注册用户的公私钥
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+
+            // 加密公证金额
+            String snotarizationMoney = paillier.Encryption(BigInteger.valueOf(Integer.parseInt(notarizationMoney)),pk).toString();
+
+            int flag = notarizationTypeMapper.updateNotarizationType(notarizationTypeId,notarizationTypeName,snotarizationMoney);
+
+
+
+            if(flag == 1){
+                result.put("status",true);
+                result.put("message","更新公证类型成功!");
+                result.put("notarizationTypeId",notarizationTypeId);
+            }
+            else{
+                result.put("status",false);
+                result.put("message","更新公证类型失败!");
+            }
+
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+
+        return result;
+
+
+
+    }
+
+
+
+    /**
+     * 查找公证类型名称和公证金额
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/aut/notarTypeSelect")
+    public Object selectNotarType(HttpServletRequest req) {
+
+
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+
+            JSONObject params = ParseRequest.parse(req);
+
+            // 判断前端传来的参数是否正确
+            if (!params.containsKey("notarizationTypeId")) {
+                result.put("status", false);
+                result.put("message", "没有给出notarizationTypeId");
+                return result;
+            }
+            if (params.get("notarizationTypeId").toString().equals("none")) {
+                result.put("status", false);
+                result.put("message", "notarizationTypeId不能为空");
+                return result;
+            }
+
+            // 获取参数
+            String notarizationTypeId = params.get("notarizationTypeId").toString();
+
+            // 数据库查找
+            NotarizationTypeEntity n1 = notarizationTypeMapper.selectNotarizationType(notarizationTypeId);
+
+            // 生成注册用户的公私钥
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+
+            // 解密公证金额
+            BigInteger mnotarizationMoney = paillier.SDecryption(new CipherPub(n1.getNotarizationMoney()));
+            System.out.println("公证金额解密后：" + mnotarizationMoney);
+
+
+            result.put("status", true);
+            result.put("message", "查找成功!");
+            result.put("notarizationTypeName", n1.getNotarizationTypeName());
+            result.put("notarizationMoney", mnotarizationMoney);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status", false);
+            result.put("message", str);
+        }
+
+        return result;
     }
 
 
