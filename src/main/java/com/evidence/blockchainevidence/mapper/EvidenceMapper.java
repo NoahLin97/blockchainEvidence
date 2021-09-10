@@ -2,10 +2,7 @@ package com.evidence.blockchainevidence.mapper;
 
 
 import com.evidence.blockchainevidence.entity.EvidenceEntity;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
 
 @Mapper
@@ -56,5 +53,16 @@ public interface EvidenceMapper {
 
     @Update("update evidence set notaryId = #{notaryId} where evidenceId = #{evidenceId}")
     int updateNotaryId(@Param("notaryId") String notaryId,@Param("evidenceId") String evidenceId);
+
+    @Insert("insert into evidence(evidenceId, userId, evidenceType, evidenceName, filePath, fileSize, evidenceBlockchainId, blockchainTime, evidenceTime)\n" +
+            "select uuid() as evidenceId, #{userId} as userId, #{evidenceType} as evidenceType, #{evidenceName} as evidenceName, " +
+            "#{filePath} as filePath, #{fileSize} as fileSize, #{evidenceBlockchainId} as evidenceBlockchainId, #{blockchainTime} as blockchainTime," +
+            "#{evidenceTime} as evidenceTime;")
+    void insertEvi(@Param("userId") String userId, @Param("evidenceType") String evidenceType, @Param("evidenceName") String evidenceName,
+                   @Param("filePath") String filePath, @Param("fileSize") String fileSize, @Param("evidenceBlockchainId") String evidenceBlockchainId,
+                   @Param("blockchainTime") String blockchainTime, @Param("evidenceTime") String evidenceTime);
+
+    @Select("select filePath from evidence where evidenceId = #{evidenceId};")
+    String getfilePathByEvidenceId(@Param("evidenceId") String evidenceId);
 
 }

@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
@@ -3179,6 +3181,86 @@ public class AutmanController {
         }
 
         return result;
+    }
+
+
+    /**
+     * 机构管理员上传申请材料
+     * @param req
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/aut/uplaodMaterialFile")
+    public Object addEvidenceUser(HttpServletRequest req){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try {
+
+//            JSONObject params = ParseRequest.parse(req);
+
+            // 获取参数
+            String autManId = req.getParameter("autManId");
+            String notarizationType = req.getParameter("notarizationType");
+
+            MultipartHttpServletRequest multipartReq = (MultipartHttpServletRequest) req;
+            List<MultipartFile> files = multipartReq.getFiles("file");
+
+            //生成当前时间戳
+            Date time = new Date(System.currentTimeMillis());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String current_time = sdf.format(time);
+            SimpleDateFormat sdf_stamp = new SimpleDateFormat("yyyyMMddHHmmss");
+            String timestamp = sdf_stamp.format(time);
+
+
+//            String userId = params.get("userId").toString();
+//            String evidenceType = params.get("evidenceType").toString();
+//            String evidenceName = params.get("evidenceName").toString();
+
+            // 1. 文件存放路径 ："/用户id/"
+            String folderPath = "/"+autManId+"_"+notarizationType+"_"+timestamp;
+
+            // 2. 转发数据给 云 的 后端 （还未测试，不一定可以发送成功）
+            Map<String, Object> map = new HashMap<>();
+            map.put("file",files);
+            map.put("FolderPath",folderPath);
+//            String s = HttpUtils.doPost("http://localhost:8090/uploadFiles", map);
+
+            // 云发回来的数据是一个map，里面存放{"status":false/ture,"message":"xxxx"/success,"data":null/"xxxx"}
+            // 可以根据status值来判断是否上传成功
+            // 3. 根据返回信息判断是否上传成功，上传不成功，返回失败信息给前端
+            Map<String, Object> resInfo = new HashMap<>();
+            resInfo.put("status",true);
+            resInfo.put("message","xxxxxx");
+            Boolean statusInfo = (boolean)resInfo.get("status");
+            if(statusInfo == false){
+                result.put("status",false);
+                result.put("message",resInfo.get("message"));
+                return result;
+            }
+
+            //4. 上传成功
+            //存储信息到数据库
+
+
+
+            // 5. 返回成功信息给前端
+            result.put("status",true);
+            result.put("message","success");
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+
+        return result;
+
     }
 
 

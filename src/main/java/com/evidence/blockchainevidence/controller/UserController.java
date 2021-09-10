@@ -6,10 +6,7 @@ import com.evidence.blockchainevidence.PaillierT.PaillierT;
 import com.evidence.blockchainevidence.entity.*;
 import com.evidence.blockchainevidence.helib.SEA;
 import com.evidence.blockchainevidence.helib.SLT;
-import com.evidence.blockchainevidence.mapper.AutmanMapper;
-import com.evidence.blockchainevidence.mapper.NotarizationTypeMapper;
-import com.evidence.blockchainevidence.mapper.NotaryMapper;
-import com.evidence.blockchainevidence.mapper.UserMapper;
+import com.evidence.blockchainevidence.mapper.*;
 import com.evidence.blockchainevidence.service.EvidenceService;
 import com.evidence.blockchainevidence.service.OrganizationService;
 import com.evidence.blockchainevidence.service.TransactionService;
@@ -19,17 +16,19 @@ import com.evidence.blockchainevidence.subprotocols.K2C8;
 import com.evidence.blockchainevidence.subprotocols.KMP;
 import com.evidence.blockchainevidence.utils.ParseRequest;
 import com.evidence.blockchainevidence.utils.Sha256;
+import com.evidence.blockchainevidence.utils.StreamUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.math.BigInteger;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -1993,6 +1992,204 @@ public class UserController {
             }
 
 
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+
+        return result;
+
+    }
+
+
+    @Autowired(required = false)
+    EvidenceMapper evidenceMapper;
+    /**
+     * 用户上传文件
+     * @param req
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/user/addEvidence")
+    public Object addEvidenceUser(HttpServletRequest req){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try {
+
+//            JSONObject params = ParseRequest.parse(req);
+
+            // 获取参数
+            String userId = req.getParameter("userId");
+            String evidenceType = req.getParameter("evidenceType");
+            String evidenceName = req.getParameter("evidenceName");
+
+            MultipartHttpServletRequest multipartReq = (MultipartHttpServletRequest) req;
+            List<MultipartFile> files = multipartReq.getFiles("file");
+
+            //生成当前时间戳
+            Date time = new Date(System.currentTimeMillis());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String current_time = sdf.format(time);
+            SimpleDateFormat sdf_stamp = new SimpleDateFormat("yyyyMMddHHmmss");
+            String timestamp = sdf_stamp.format(time);
+
+
+//            String userId = params.get("userId").toString();
+//            String evidenceType = params.get("evidenceType").toString();
+//            String evidenceName = params.get("evidenceName").toString();
+
+            // 1. 文件存放路径 ："/用户id/"
+            String folderPath = "/"+userId+"_"+evidenceName+"_"+timestamp;
+
+            // 2. 转发数据给 云 的 后端 （还未测试，不一定可以发送成功）
+            Map<String, Object> map = new HashMap<>();
+            map.put("file",files);
+            map.put("FolderPath",folderPath);
+//            String s = HttpUtils.doPost("http://localhost:8090/uploadFiles", map);
+
+            // 云发回来的数据是一个map，里面存放{"status":false/ture,"message":"xxxx"/success,"data":null/"xxxx"}
+            // 可以根据status值来判断是否上传成功
+            // 3. 根据返回信息判断是否上传成功，上传不成功，返回失败信息给前端
+            Map<String, Object> resInfo = new HashMap<>();
+            resInfo.put("status",true);
+            resInfo.put("message","xxxxxx");
+            Boolean statusInfo = (boolean)resInfo.get("status");
+            if(statusInfo == false){
+                result.put("status",false);
+                result.put("message",resInfo.get("message"));
+                return result;
+            }
+
+            //4. 上传成功
+            //4.1 与区块链交互，返回存证区块链交易id和上链时间(待修改)
+            String evidenceBlockchainId = "123456789";
+            Date tmp_time = new Date(System.currentTimeMillis());
+            String blockchain_time = sdf.format(tmp_time);
+
+            //4.2 存储信息到数据库
+            //计算文件总大小
+            Integer filesize = 0;
+            for(int i = 0; i < files.size(); i++) {
+                Float filesize_tmp = Float.parseFloat(String.valueOf(files.get(i).getSize())) / 1024;
+                filesize += filesize_tmp.intValue();
+            }
+
+            //加密字段
+
+            //Paillier初始化
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            //为新用户生成公私钥
+            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+            //加密存证名称和文件大小,得到string形式的密文，这个是用来存数据库的
+            String filesize_cipher = paillier.Encryption(BigInteger.valueOf(filesize),pk).toString();
+            K2C16 k2c16 = new K2C16(evidenceName, pk, paillier);
+            k2c16.StepOne();
+            CipherPub tmp = k2c16.FIN;
+            String evidenceName_cipher = tmp.toString();
+
+            evidenceMapper.insertEvi(userId, evidenceType, evidenceName_cipher, folderPath, filesize_cipher, evidenceBlockchainId,
+                    blockchain_time, current_time);
+
+            // 5. 返回成功信息给前端
+            result.put("status",true);
+            result.put("message","success");
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+
+        return result;
+
+    }
+
+
+    /**
+     * 用户/公证员/机构管理员/系统管理员 下载存证文件
+     * @param req
+     * @param response
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/downloadUserFile")
+    public Object getEvidenceFileUser(HttpServletRequest req, HttpServletResponse response){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try {
+
+//            JSONObject params = ParseRequest.parse(req);
+
+            // 1. 获取参数
+            String evidenceId = req.getParameter("evidenceId");
+
+            // 2. 从数据库中查找文件路径
+            String folderPath = evidenceMapper.getfilePathByEvidenceId(evidenceId);
+            String folderName = folderPath.substring(1) + ".zip";
+            BufferedInputStream bis = null;
+            BufferedOutputStream bos = null;
+
+            try {
+                // 3. 向云服务请求文件，设置url
+//                URL url = new URL("http://localhost:8090/downloadFolder?folderPath=" + folderPath);
+
+                //test
+                File f= new File("H:\\pythonProject\\ChallengeHub-Baselines-main.zip");
+                InputStream inputStream = null ;    // 准备好一个输入的对象
+                inputStream = new FileInputStream(f)  ;    // 通过对象多态性，进行实例化
+
+                // 4. 获得云服务返回的输入流 InputStream，放入至 BufferedInputStream
+//                InputStream inputStream = url.openStream();
+                bis = new BufferedInputStream(inputStream);
+
+                // 5. 设置返回给前端的信息
+                response.reset(); // 来清除首部的空白行
+                response.setContentType("application/octet-stream"); // 二进制数据类型
+                // content-disposition 响应头 控制浏览器 以下载的形式打开文件，前端收到 response 后会下载
+                response.setHeader("Content-Disposition", "attachment;filename=\"" + URLEncoder.encode(folderName, "UTF-8") + "\"");
+
+                // 6. 将输入流转成字节数组
+                byte[] bytes = StreamUtils.streamToByteArray(bis);
+
+                // 7. 获取到 response 的 OutputStream 输出流，并入 BufferedOutputStream
+                bos = new BufferedOutputStream(response.getOutputStream());
+
+                // 8. 写入文件数据
+                bos.write(bytes);
+
+            } catch (IOException e) {
+                // 异常处理
+                e.printStackTrace();
+            } finally {
+                // 关闭流
+                try {
+                    if (bos != null) {
+                        bos.close();
+                    }
+                    if (bis != null) {
+                        bis.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // 返回成功信息给前端
+            result.put("status",true);
+            result.put("message","success");
 
         }catch (Exception e){
             e.printStackTrace();
