@@ -16,7 +16,7 @@ public class NotaryEntity {
     private String email;
     private Object sex;
     private String organizationId;
-    private Object notarizationType;
+    private String notarizationType;
     private Collection<EvidenceEntity> evidencesByNotaryId;
     private OrganizationEntity organizationByOrganizationId;
     private Collection<NotaryStatisticsEntity> notaryStatisticsByNotaryId;
@@ -138,11 +138,11 @@ public class NotaryEntity {
 
     @Basic
     @Column(name = "notarizationType")
-    public Object getNotarizationType() {
+    public String getNotarizationType() {
         return notarizationType;
     }
 
-    public void setNotarizationType(Object notarizationType) {
+    public void setNotarizationType(String notarizationType) {
         this.notarizationType = notarizationType;
     }
 

@@ -23,7 +23,7 @@ public class EvidenceEntity {
     private String transactionId;
     private Timestamp notarizationStartTime;
     private String notarizationMoney;
-    private Object notarizationType;
+    private String notarizationType;
     private String notarizationInformation;
     private Timestamp notarizationEndTime;
     private String notarizationMatters;
@@ -233,11 +233,11 @@ public class EvidenceEntity {
 
     @Basic
     @Column(name = "notarizationType")
-    public Object getNotarizationType() {
+    public String getNotarizationType() {
         return notarizationType;
     }
 
-    public void setNotarizationType(Object notarizationType) {
+    public void setNotarizationType(String notarizationType) {
         this.notarizationType = notarizationType;
     }
 

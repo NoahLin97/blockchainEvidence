@@ -8,7 +8,8 @@ import javax.persistence.*;
 public class NotarizationTypeEntity {
 
     private String notarizationTypeId;
-    private String notarizationTypeName;
+    private String autManId;
+    private String notarizationType;
     private String notarizationMoney;
 
 
@@ -24,12 +25,20 @@ public class NotarizationTypeEntity {
 
 
     @Basic
-    @Column(name = "notarizationTypeName")
-    public String getNotarizationTypeName() {
-        return notarizationTypeName;
+    @Column(name = "notarizationType")
+    public String getNotarizationType() {
+        return notarizationType;
     }
 
-    public void setNotarizationTypeName(String notarizationTypeName) { this.notarizationTypeName = notarizationTypeName; }
+    public void setNotarizationType(String notarizationType) { this.notarizationType = notarizationType; }
+
+    @Basic
+    @Column(name = "autManId")
+    public String getAutManId() {
+        return autManId;
+    }
+
+    public void setAutManId(String autManId) { this.autManId = autManId; }
 
 
     @Basic

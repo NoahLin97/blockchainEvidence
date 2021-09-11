@@ -2940,8 +2940,8 @@ public class AutmanController {
      * @return
      */
     @CrossOrigin(origins = "*")
-    @PostMapping("/aut/notarTypeAdd")
-    public Object addNotarType(HttpServletRequest req){
+    @PostMapping("/aut/createType")
+    public Object createType(HttpServletRequest req){
 
         Map<String,Object> result = new HashMap<>();
 
@@ -2950,31 +2950,43 @@ public class AutmanController {
             JSONObject params = ParseRequest.parse(req);
 
             // 判断前端传来的参数是否正确
-            if(!params.containsKey("notarizationTypeName")){
+            if(!params.containsKey("newNotarizationType")){
                 result.put("status",false);
-                result.put("message","没有给出notarizationTypeName");
+                result.put("message","没有给出newNotarizationType");
                 return result;
             }
-            if(params.get("notarizationTypeName").toString().equals("none")){
+            if(params.get("newNotarizationType").toString().equals("none")){
                 result.put("status",false);
-                result.put("message","notarizationTypeName不能为空");
+                result.put("message","newNotarizationType不能为空");
                 return result;
             }
 
-            if(!params.containsKey("notarizationMoney")){
+            if(!params.containsKey("newNotarizationMoney")){
                 result.put("status",false);
-                result.put("message","没有给出notarizationMoney");
+                result.put("message","没有给出newNotarizationMoney");
                 return result;
             }
-            if(params.get("notarizationMoney").toString().equals("none")){
+            if(params.get("newNotarizationMoney").toString().equals("none")){
                 result.put("status",false);
-                result.put("message","notarizationMoney不能为空");
+                result.put("message","newNotarizationMoney不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("autManId")){
+                result.put("status",false);
+                result.put("message","没有给出autManId");
+                return result;
+            }
+            if(params.get("autManId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","autManId不能为空");
                 return result;
             }
 
             // 获取参数
-            String notarizationTypeName = params.get("notarizationTypeName").toString();
-            String notarizationMoney = params.get("notarizationMoney").toString();
+            String notarizationType = params.get("newNotarizationType").toString();
+            String notarizationMoney = params.get("newNotarizationMoney").toString();
+            String autManId = params.get("autManId").toString();
 
             // 生成notarizationTypeId
             String id = UUID.randomUUID().toString();
@@ -2991,13 +3003,16 @@ public class AutmanController {
             String snotarizationMoney = paillier.Encryption(BigInteger.valueOf(Integer.parseInt(notarizationMoney)),pk).toString();
 
             // 存入数据库
-            int flag = notarizationTypeMapper.insertNotarizationType(notarizationTypeId,notarizationTypeName,snotarizationMoney);
+            int flag = notarizationTypeMapper.insertNotarizationType(notarizationTypeId,autManId,notarizationType,snotarizationMoney);
 
 
             if(flag == 1){
                 result.put("status",true);
                 result.put("message","新增公证类型成功!");
                 result.put("notarizationTypeId",notarizationTypeId);
+                result.put("notarizationType",notarizationType);
+                result.put("notarizationMoney",notarizationMoney);
+                result.put("autManId",autManId);
             }
             else{
                 result.put("status",false);
@@ -3024,14 +3039,13 @@ public class AutmanController {
 
 
 
-
     /**
-     * 更新公证类型
+     * 修改公证类型
      * @return
      */
     @CrossOrigin(origins = "*")
-    @PostMapping("/aut/notarTypeUpdate")
-    public Object updateNotarType(HttpServletRequest req){
+    @PostMapping("/aut/updateType")
+    public Object updateType(HttpServletRequest req){
 
 
         Map<String,Object> result = new HashMap<>();
@@ -3041,60 +3055,56 @@ public class AutmanController {
             JSONObject params = ParseRequest.parse(req);
 
             // 判断前端传来的参数是否正确
-            if(!params.containsKey("notarizationTypeId")){
+            if(!params.containsKey("autManId")){
                 result.put("status",false);
-                result.put("message","没有给出notarizationTypeId");
+                result.put("message","没有给出autManId");
                 return result;
             }
-            if(params.get("notarizationTypeId").toString().equals("none")){
+            if(params.get("autManId").toString().equals("none")){
                 result.put("status",false);
-                result.put("message","notarizationTypeId不能为空");
-                return result;
-            }
-
-            if(!params.containsKey("notarizationTypeName")){
-                result.put("status",false);
-                result.put("message","没有给出notarizationTypeName");
-                return result;
-            }
-            if(params.get("notarizationTypeName").toString().equals("none")){
-                result.put("status",false);
-                result.put("message","notarizationTypeName不能为空");
+                result.put("message","autManId不能为空");
                 return result;
             }
 
-            if(!params.containsKey("notarizationMoney")){
+            if(!params.containsKey("notarizationType")){
                 result.put("status",false);
-                result.put("message","没有给出notarizationMoney");
+                result.put("message","没有给出notarizationType");
                 return result;
             }
-            if(params.get("notarizationMoney").toString().equals("none")){
+            if(params.get("notarizationType").toString().equals("none")){
                 result.put("status",false);
-                result.put("message","notarizationMoney不能为空");
+                result.put("message","notarizationType不能为空");
                 return result;
             }
+
+            if(!params.containsKey("newNotarizationType")){
+                result.put("status",false);
+                result.put("message","没有给出newNotarizationType");
+                return result;
+            }
+            if(params.get("newNotarizationType").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","newNotarizationType不能为空");
+                return result;
+            }
+
 
             // 获取参数
-            String notarizationTypeId = params.get("notarizationTypeId").toString();
-            String notarizationTypeName = params.get("notarizationTypeName").toString();
-            String notarizationMoney = params.get("notarizationMoney").toString();
+            String autManId = params.get("autManId").toString();
+            String notarizationType = params.get("notarizationType").toString();
+            String newNotarizationType = params.get("newNotarizationType").toString();
 
-            // 生成注册用户的公私钥
-            PaillierT paillier = new PaillierT(PaillierT.param);
-            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
-            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
 
-            // 加密公证金额
-            String snotarizationMoney = paillier.Encryption(BigInteger.valueOf(Integer.parseInt(notarizationMoney)),pk).toString();
-
-            int flag = notarizationTypeMapper.updateNotarizationType(notarizationTypeId,notarizationTypeName,snotarizationMoney);
+            int flag = notarizationTypeMapper.updateNotarizationType(newNotarizationType,notarizationType,autManId);
 
 
 
             if(flag == 1){
                 result.put("status",true);
                 result.put("message","更新公证类型成功!");
-                result.put("notarizationTypeId",notarizationTypeId);
+                result.put("autManId",autManId);
+                result.put("notarizationType",notarizationType);
+                result.put("newNotarizationType",newNotarizationType);
             }
             else{
                 result.put("status",false);
@@ -3120,67 +3130,103 @@ public class AutmanController {
     }
 
 
-
     /**
-     * 查找公证类型名称和公证金额
+     * 修改公证金额
+     * @param req
      * @return
      */
     @CrossOrigin(origins = "*")
-    @PostMapping("/aut/notarTypeSelect")
-    public Object selectNotarType(HttpServletRequest req) {
+    @PostMapping("/aut/updateMoney")
+    public Object updateMoney(HttpServletRequest req){
 
 
-        Map<String, Object> result = new HashMap<>();
+        Map<String,Object> result = new HashMap<>();
 
-        try {
+        try{
 
             JSONObject params = ParseRequest.parse(req);
 
             // 判断前端传来的参数是否正确
-            if (!params.containsKey("notarizationTypeId")) {
-                result.put("status", false);
-                result.put("message", "没有给出notarizationTypeId");
+            if(!params.containsKey("autManId")){
+                result.put("status",false);
+                result.put("message","没有给出autManId");
                 return result;
             }
-            if (params.get("notarizationTypeId").toString().equals("none")) {
-                result.put("status", false);
-                result.put("message", "notarizationTypeId不能为空");
+            if(params.get("autManId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","autManId不能为空");
                 return result;
             }
+
+            if(!params.containsKey("notarizationType")){
+                result.put("status",false);
+                result.put("message","没有给出notarizationType");
+                return result;
+            }
+            if(params.get("notarizationType").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notarizationType不能为空");
+                return result;
+            }
+
+            if(!params.containsKey("notarizationMoney")){
+                result.put("status",false);
+                result.put("message","没有给出notarizationMoney");
+                return result;
+            }
+            if(params.get("notarizationMoney").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","notarizationMoney不能为空");
+                return result;
+            }
+
 
             // 获取参数
-            String notarizationTypeId = params.get("notarizationTypeId").toString();
+            String autManId = params.get("autManId").toString();
+            String notarizationType = params.get("notarizationType").toString();
+            String notarizationMoney = params.get("notarizationMoney").toString();
 
-            // 数据库查找
-            NotarizationTypeEntity n1 = notarizationTypeMapper.selectNotarizationType(notarizationTypeId);
 
             // 生成注册用户的公私钥
             PaillierT paillier = new PaillierT(PaillierT.param);
             BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
             BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
 
-            // 解密公证金额
-            BigInteger mnotarizationMoney = paillier.SDecryption(new CipherPub(n1.getNotarizationMoney()));
-            System.out.println("公证金额解密后：" + mnotarizationMoney);
+            // 加密公证金额
+            String snotarizationMoney = paillier.Encryption(BigInteger.valueOf(Integer.parseInt(notarizationMoney)),pk).toString();
+
+            int flag = notarizationTypeMapper.updateNotarizationMoney(snotarizationMoney,notarizationType,autManId);
 
 
-            result.put("status", true);
-            result.put("message", "查找成功!");
-            result.put("notarizationTypeName", n1.getNotarizationTypeName());
-            result.put("notarizationMoney", mnotarizationMoney);
+            if(flag == 1){
+                result.put("status",true);
+                result.put("message","更新公证金额成功!");
+                result.put("autManId",autManId);
+                result.put("notarizationType",notarizationType);
+                result.put("NotarizationMoney",snotarizationMoney);
+            }
+            else{
+                result.put("status",false);
+                result.put("message","更新公证金额失败!");
+            }
 
 
-        } catch (Exception e) {
+
+
+        }catch (Exception e){
             e.printStackTrace();
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw, true));
             String str = sw.toString();
 
-            result.put("status", false);
-            result.put("message", str);
+            result.put("status",false);
+            result.put("message",str);
         }
 
         return result;
+
+
+
     }
 
 

@@ -1012,7 +1012,7 @@ public class UserController {
             NotarizationTypeEntity n1 = notarizationTypeMapper.selectNotarizationType(notarizationTypeId);
 
             // 把接受到的organizationId和notarizationType写入数据库
-            int flag = evidenceService.updateOrganIdAndNotarType(organizationId,n1.getNotarizationTypeName(),evidenceId);
+            int flag = evidenceService.updateOrganIdAndNotarType(organizationId,n1.getNotarizationType(),evidenceId);
 
             // 把notarizationMatters写入数据库
             int flag1 = evidenceService.updateNotarMatters(notarizationMatters,evidenceId);
