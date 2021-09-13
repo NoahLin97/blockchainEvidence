@@ -2101,6 +2101,7 @@ public class UserController {
             // 5. 返回成功信息给前端
             result.put("status",true);
             result.put("message","success");
+            result.put("evidenceBlockchainId",evidenceBlockchainId);
 
         }catch (Exception e){
             e.printStackTrace();
@@ -2131,10 +2132,10 @@ public class UserController {
 
         try {
 
-//            JSONObject params = ParseRequest.parse(req);
+            JSONObject params= ParseRequest.parse(req);
 
-            // 1. 获取参数
-            String evidenceId = req.getParameter("evidenceId");
+            //1. 获取参数
+            String evidenceId=params.get("evidenceId").toString();
 
             // 2. 从数据库中查找文件路径
             String folderPath = evidenceMapper.getfilePathByEvidenceId(evidenceId);

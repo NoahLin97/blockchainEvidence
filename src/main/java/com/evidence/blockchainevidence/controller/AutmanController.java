@@ -6,16 +6,14 @@ import com.evidence.blockchainevidence.PaillierT.CipherPub;
 import com.evidence.blockchainevidence.PaillierT.PaillierT;
 import com.evidence.blockchainevidence.entity.*;
 import com.evidence.blockchainevidence.helib.SLT;
-import com.evidence.blockchainevidence.mapper.AutmanMapper;
-import com.evidence.blockchainevidence.mapper.NotarizationTypeMapper;
-import com.evidence.blockchainevidence.mapper.NotaryStatisticsMapper;
-import com.evidence.blockchainevidence.mapper.OrganizationStatisticsMapper;
+import com.evidence.blockchainevidence.mapper.*;
 import com.evidence.blockchainevidence.subprotocols.K2C16;
 import com.evidence.blockchainevidence.subprotocols.K2C8;
 import com.evidence.blockchainevidence.subprotocols.KET;
 import com.evidence.blockchainevidence.subprotocols.SAD;
 import com.evidence.blockchainevidence.utils.ParseRequest;
 import com.evidence.blockchainevidence.utils.Sha256;
+import com.evidence.blockchainevidence.utils.StreamUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,9 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.math.BigInteger;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -3230,14 +3229,16 @@ public class AutmanController {
     }
 
 
+    @Autowired(required = false)
+    MaterialMapper materialMapper;
     /**
      * 机构管理员上传申请材料
      * @param req
      * @return
      */
     @CrossOrigin(origins = "*")
-    @PostMapping("/aut/uplaodMaterialFile")
-    public Object addEvidenceUser(HttpServletRequest req){
+    @PostMapping("/aut/uploadMaterialFile")
+    public Object uploadMaterialFile(HttpServletRequest req){
 
         Map<String,Object> result = new HashMap<>();
 
@@ -3288,12 +3289,151 @@ public class AutmanController {
 
             //4. 上传成功
             //存储信息到数据库
-
-
+            materialMapper.insertMaterial(autManId, notarizationType, folderPath, current_time);
 
             // 5. 返回成功信息给前端
             result.put("status",true);
             result.put("message","success");
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+
+        return result;
+
+    }
+
+
+    /**
+     * 用户/公证员/机构管理员/系统管理员 下载申请材料
+     * @param req
+     * @param response
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/downloadMaterialFile")
+    public Object getEvidenceFileUser(HttpServletRequest req, HttpServletResponse response){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try {
+            JSONObject params= ParseRequest.parse(req);
+
+            //1. 获取参数
+            String materialId=params.get("materialId").toString();
+
+            // 2. 从数据库中查找文件路径
+            String folderPath = materialMapper.getfilePathByMaterialId(materialId);
+            String folderName = folderPath.substring(1) + ".zip";
+            BufferedInputStream bis = null;
+            BufferedOutputStream bos = null;
+
+            try {
+                // 3. 向云服务请求文件，设置url
+//                URL url = new URL("http://localhost:8090/downloadFolder?folderPath=" + folderPath);
+
+                //test
+                File f= new File("H:\\tmp\\5_test_1631237654.zip");
+                InputStream inputStream = null ;    // 准备好一个输入的对象
+                inputStream = new FileInputStream(f)  ;    // 通过对象多态性，进行实例化
+
+                // 4. 获得云服务返回的输入流 InputStream，放入至 BufferedInputStream
+//                InputStream inputStream = url.openStream();
+                bis = new BufferedInputStream(inputStream);
+
+                // 5. 设置返回给前端的信息
+                response.reset(); // 来清除首部的空白行
+                response.setContentType("application/octet-stream"); // 二进制数据类型
+                // content-disposition 响应头 控制浏览器 以下载的形式打开文件，前端收到 response 后会下载
+                response.setHeader("Content-Disposition", "attachment;filename=\"" + URLEncoder.encode(folderName, "UTF-8") + "\"");
+
+                // 6. 将输入流转成字节数组
+                byte[] bytes = StreamUtils.streamToByteArray(bis);
+
+                // 7. 获取到 response 的 OutputStream 输出流，并入 BufferedOutputStream
+                bos = new BufferedOutputStream(response.getOutputStream());
+
+                // 8. 写入文件数据
+                bos.write(bytes);
+
+            } catch (IOException e) {
+                // 异常处理
+                e.printStackTrace();
+            } finally {
+                // 关闭流
+                try {
+                    if (bos != null) {
+                        bos.close();
+                    }
+                    if (bis != null) {
+                        bis.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // 返回成功信息给前端
+            result.put("status",true);
+            result.put("message","success");
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+
+        return result;
+
+    }
+
+
+    @Autowired(required = false)
+    OrganizationMapper organizationMapper;
+    /**
+     * 用户/公证员/机构管理员/系统管理员 查询申请材料
+     * @param req
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/notarizationMaterial")
+    public Object notarMaterialQuery(HttpServletRequest req){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try {
+            JSONObject params= ParseRequest.parse(req);
+
+            // 获取参数
+            String organizationId=params.get("organizationId").toString();
+            String notarizationType=params.get("notarizationType").toString();
+
+
+            //查询数据库
+            List<MaterialEntity> materials = materialMapper.getMaterialByoriIdAndnotarType(organizationId, notarizationType);
+
+            //遍历将机构Id替换为机构名称
+            Iterator<MaterialEntity> iterator = materials.iterator();
+            while (iterator.hasNext()) {
+                MaterialEntity s = iterator.next();
+                String oriId=s.getOrganizationId();
+                s.setOrganizationId(organizationMapper.selectByOrganizationId(oriId).getOrganizationName());
+            }
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",materials);
 
         }catch (Exception e){
             e.printStackTrace();
