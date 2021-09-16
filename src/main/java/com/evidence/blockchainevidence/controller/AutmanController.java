@@ -40,6 +40,7 @@ public class AutmanController {
     @Autowired
     NotarizationTypeMapper notarizationTypeMapper;
 
+    //查询已申请公证的证据，因此参数会涉及公证
     public static Map<String,Object> eviSelect (JSONObject params, AutmanMapper autmanMapper){
         Map<String,Object> result=new HashMap<>();
 
@@ -315,7 +316,7 @@ public class AutmanController {
                 }
                 if(s.getNotarizationType()!=null){
                     i=Integer.parseInt(s.getNotarizationType().toString());
-                    s.setNotarizationType(notarizationTypes[i]);
+//                    s.setNotarizationType(notarizationTypes[i]);
                 }
 
 
@@ -361,7 +362,7 @@ public class AutmanController {
 
     }
 
-
+//查询证据，但是不确保该证据已公证过，因此参数不会涉及公证
     public static Map<String,Object> eviSelect2 (JSONObject params, AutmanMapper autmanMapper){
         Map<String,Object> result=new HashMap<>();
 
@@ -424,7 +425,7 @@ public class AutmanController {
             }
 
             String blockchainTimeEnd="none";
-            if(params.containsKey("notarizationEndTimeEnd")){
+            if(params.containsKey("blockchainTimeEnd")){
                 blockchainTimeEnd=params.get("blockchainTimeEnd").toString();
             }
 
@@ -580,7 +581,7 @@ public class AutmanController {
                 }
                 if(s.getNotarizationType()!=null){
                     i=Integer.parseInt(s.getNotarizationType().toString());
-                    s.setNotarizationType(notarizationTypes[i]);
+//                    s.setNotarizationType(notarizationTypes[i]);
                 }
 
 
@@ -1182,7 +1183,7 @@ public class AutmanController {
                 i=Integer.parseInt(s.getSex().toString());
                 s.setSex(sexs[i]);
                 i=Integer.parseInt(s.getNotarizationType().toString());
-                s.setNotarizationType(notarizationTypes[i]);
+//                s.setNotarizationType(notarizationTypes[i]);
 
                 //如果有解密标记，还要把密文替换为明文
                         if(decryptFlag==1){
@@ -1576,6 +1577,168 @@ public class AutmanController {
 
     }
 
+    public static Map<String,Object> notaTypeSelect (JSONObject params, AutmanMapper autmanMapper){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+
+
+            //直接筛选的
+
+            String notaryId="none";
+            if(params.containsKey("notaryId")){
+                notaryId=params.get("notaryId").toString();
+            }
+
+            String organizationId="none";
+            if(params.containsKey("organizationId")){
+                organizationId=params.get("organizationId").toString();
+            }
+
+            String sex="none";
+            if(params.containsKey("sex")){
+                sex=params.get("sex").toString();
+            }
+
+            String notarizationType="none";
+            if(params.containsKey("notarizationType")){
+                notarizationType=params.get("notarizationType").toString();
+            }
+
+            //要通配的明文字符串
+
+            String notaryNameWildcard="none";
+            if(params.containsKey("notaryNameWildcard")){
+                notaryNameWildcard=params.get("notaryNameWildcard").toString();
+            }
+
+            String phoneNumberWildcard="none";
+            if(params.containsKey("phoneNumberWildcard")){
+                phoneNumberWildcard=params.get("phoneNumberWildcard").toString();
+            }
+
+            String emailWildcard="none";
+            if(params.containsKey("emailWildcard")){
+                emailWildcard=params.get("emailWildcard").toString();
+            }
+
+            String jobNumberWildcard="none";
+            if(params.containsKey("jobNumberWildcard")){
+                jobNumberWildcard=params.get("jobNumberWildcard").toString();
+            }
+            //要比大小的date
+
+
+            //要比大小的明文
+
+
+            //要比大小的密文
+
+            //要通配的密文
+
+            String idCard="none";
+            if(params.containsKey("idCard")){
+                idCard=params.get("idCard").toString();
+            }
+            //解密标识符
+//                    Integer decryptFlag =Integer.parseInt(params.get("decryptFlag").toString());
+            Integer decryptFlag=0;
+            if(params.containsKey("decryptFlag")){
+                decryptFlag =Integer.parseInt(params.get("decryptFlag").toString());
+            }
+            //查询数据库
+            List<NotaryEntity> data = autmanMapper.findNotary( notaryId ,  notaryNameWildcard,  phoneNumberWildcard,  jobNumberWildcard,
+                    emailWildcard,  sex,  organizationId,  notarizationType );
+
+
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            //在密文下匹配，剔除不合格的数据
+            Iterator<NotaryEntity> iterator = data.iterator();
+            while (iterator.hasNext()) {
+                NotaryEntity s = iterator.next();
+
+                //剔除不符合接口要求的数据，这里需要根据接口定制
+
+                //密文数值比较阶段
+
+                //密文字符通配阶段
+
+                if(!idCard.equals("none")){
+                    if(!s.getIdCard().equals("")){
+                        BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
+
+                        K2C8 k2c8 = new K2C8(idCard, pk, paillier);
+                        k2c8.StepOne();
+                        CipherPub cqw=k2c8.FIN;
+                        CipherPub ckw= new CipherPub(s.getIdCard());
+
+//                        System.out.println(paillier.SDecryption(ckw));
+
+                        KET ket = new KET(cqw,ckw,paillier);
+                        ket.StepOne();
+                        ket.StepTwo();
+                        ket.StepThree();
+                        CipherPub cans=ket.FIN;
+                        if(paillier.SDecryption(cans).intValue()!=1){
+                            iterator.remove();
+                        }
+
+                    }else{
+                        iterator.remove();
+                    }
+                }
+//                if (true) {//如果不匹配
+//                    iterator.remove();//使用迭代器的删除方法删除
+//                }
+
+            }
+//            System.out.println(data.size());
+
+
+            //遍历替换enum类型的返回值
+            iterator = data.iterator();
+            while (iterator.hasNext()) {
+                NotaryEntity s = iterator.next();
+
+                Integer i;
+                i=Integer.parseInt(s.getSex().toString());
+                s.setSex(sexs[i]);
+                i=Integer.parseInt(s.getNotarizationType().toString());
+//                s.setNotarizationType(notarizationTypes[i]);
+
+                //如果有解密标记，还要把密文替换为明文
+                if(decryptFlag==1){
+                    //解密字符
+
+                    if(!s.getIdCard().equals("")){
+                        s.setIdCard(K2C8.parseString(paillier.SDecryption(new CipherPub(s.getIdCard())),paillier));
+                    }
+                }
+            }
+
+
+
+
+
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
+
 
 
 
@@ -1819,42 +1982,42 @@ public class AutmanController {
     /**
      * 查询所有公证类型
      */
-    @CrossOrigin(origins ="*")
-    @PostMapping("/noTypeQuery")
-    public Object noTypeQuery (HttpServletRequest req){
-        Map<String,Object> result=new HashMap<>();
-
-        try{
-            JSONObject params= ParseRequest.parse(req);
-
-            int l=notarizationTypes.length;
-
-            List<JSONObject> data = new Vector<>();
-            for(Integer i=0;i<l;i++){
-                JSONObject s=new JSONObject();
-                s.put("notarizationType",i.toString());
-                s.put("notarizationTypeName",notarizationTypes[i]);
-                data.add(s);
-            }
-
-
-            //填充返回值
-            result.put("status",true);
-            result.put("message","success");
-            result.put("data",data);
-
-        }catch (Exception e){
-            e.printStackTrace();
-            StringWriter sw = new StringWriter();
-            e.printStackTrace(new PrintWriter(sw, true));
-            String str = sw.toString();
-
-            result.put("status",false);
-            result.put("message",str);
-        }
-        return result;
-
-    }
+//    @CrossOrigin(origins ="*")
+//    @PostMapping("/noTypeQuery")
+//    public Object noTypeQuery (HttpServletRequest req){
+//        Map<String,Object> result=new HashMap<>();
+//
+//        try{
+//            JSONObject params= ParseRequest.parse(req);
+//
+//            int l=notarizationTypes.length;
+//
+//            List<JSONObject> data = new Vector<>();
+//            for(Integer i=0;i<l;i++){
+//                JSONObject s=new JSONObject();
+//                s.put("notarizationType",i.toString());
+//                s.put("notarizationTypeName",notarizationTypes[i]);
+//                data.add(s);
+//            }
+//
+//
+//            //填充返回值
+//            result.put("status",true);
+//            result.put("message","success");
+//            result.put("data",data);
+//
+//        }catch (Exception e){
+//            e.printStackTrace();
+//            StringWriter sw = new StringWriter();
+//            e.printStackTrace(new PrintWriter(sw, true));
+//            String str = sw.toString();
+//
+//            result.put("status",false);
+//            result.put("message",str);
+//        }
+//        return result;
+//
+//    }
 
 
 
@@ -1949,23 +2112,23 @@ public class AutmanController {
 
         try{
             JSONObject params= ParseRequest.parse(req);
+            List<NotarizationTypeEntity> data = notarizationTypeMapper.selectNotarizationTypeAll();
 
-            int l=notarizationMoneys.length;
 
-            List<JSONObject> data = new Vector<>();
-            for(Integer i=0;i<l;i++){
-                JSONObject s=new JSONObject();
-                s.put("notarizationType",i.toString());
-                s.put("notarizationTypeName",notarizationTypes[i]);
-                s.put("notarizationMoney",notarizationMoneys[i]);
-                data.add(s);
+            //在密文下匹配，剔除不合格的数据
+            Iterator<NotarizationTypeEntity> iterator = data.iterator();
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            while (iterator.hasNext()) {
+                NotarizationTypeEntity s = iterator.next();
+                if(!s.getNotarizationMoney().equals("")){
+                    s.setNotarizationMoney(paillier.SDecryption(new CipherPub(s.getNotarizationMoney())).intValue()+"");
+                }
+
+
             }
 
 
-            //填充返回值
-            result.put("status",true);
-            result.put("message","success");
-            result.put("data",data);
+            return data;
 
         }catch (Exception e){
             e.printStackTrace();
@@ -2119,7 +2282,7 @@ public class AutmanController {
             while (iterator.hasNext()) {
                 NotaryStatisticsEntity s = iterator.next();
                 Integer i=Integer.parseInt(s.getNotarizationType().toString());
-                s.setNotarizationType(notarizationTypes[i]);
+//                s.setNotarizationType(notarizationTypes[i]);
 //                        Integer i=Integer.parseInt(s.getTransactionStatus().toString());
 //                        s.setTransactionStatus(transactionStatuses[i]);
 
@@ -2304,7 +2467,7 @@ public class AutmanController {
             while (iterator.hasNext()) {
                 NotaryStatisticsEntity s = iterator.next();
                 Integer i=Integer.parseInt(s.getNotarizationType().toString());
-                s.setNotarizationType(notarizationTypes[i]);
+//                s.setNotarizationType(notarizationTypes[i]);
 //                        Integer i=Integer.parseInt(s.getTransactionStatus().toString());
 //                        s.setTransactionStatus(transactionStatuses[i]);
 

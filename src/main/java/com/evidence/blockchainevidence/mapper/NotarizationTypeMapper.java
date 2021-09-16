@@ -5,6 +5,8 @@ import com.evidence.blockchainevidence.entity.NotarizationTypeEntity;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Mapper
 @Component
 public interface NotarizationTypeMapper {
@@ -26,5 +28,6 @@ public interface NotarizationTypeMapper {
     @Select("select * from notarization_type where notarizationTypeId = #{notarizationTypeId}")
     NotarizationTypeEntity selectNotarizationType(@Param("notarizationTypeId") String notarizationTypeId);
 
-
+    @Select("select * from notarization_type")
+    List<NotarizationTypeEntity> selectNotarizationTypeAll();
 }

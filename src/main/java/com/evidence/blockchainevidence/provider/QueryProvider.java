@@ -9,7 +9,7 @@ public class QueryProvider {
                                  String evidenceNameWildcard, String usernameWildcard, String notarizationStartTimeStart,
                                  String notarizationStartTimeEnd, String notarizationEndTimeStart,
                                  String notarizationEndTimeEnd) {
-        String sql = "select evidenceId,evidenceName,evidence.userId,evidence.notaryId,notaryName,evidence.organizationId,organizationName," +
+        String sql = "select evidenceId,evidenceName,evidence.userId, username, evidence.notaryId,notaryName,evidence.organizationId,organizationName," +
                 "blockchainTime,evidenceBlockchainId,evidenceTime,evidenceType,fileHash,filePath,fileSize," +
                 "notarizationBlockchainIdEnd,notarizationBlockchainIdStart," +
                 "notarizationEndTime,notarizationInformation,notarizationMatters,notarizationMoney,notarizationStartTime,notarizationStatus,evidence.notarizationType,transactionId, transactionStatus" +
@@ -101,7 +101,7 @@ public class QueryProvider {
                                  String evidenceNameWildcard, String evidenceTimeStart,
                                  String evidenceTimeEnd, String blockchainTimeStart,
                                  String blockchainTimeEnd) {
-        String sql = "select evidenceId,evidenceName,evidence.userId,evidence.notaryId,notaryName,evidence.organizationId,organizationName," +
+        String sql = "select evidenceId,evidenceName,evidence.userId,username,evidence.notaryId,notaryName,evidence.organizationId,organizationName," +
                 "blockchainTime,evidenceBlockchainId,evidenceTime,evidenceType,fileHash,filePath,fileSize," +
                 "notarizationBlockchainIdEnd,notarizationBlockchainIdStart," +
                 "notarizationEndTime,notarizationInformation,notarizationMatters,notarizationMoney,notarizationStartTime,notarizationStatus,evidence.notarizationType,transactionId, transactionStatus" +
@@ -313,7 +313,7 @@ public class QueryProvider {
 
     public String selectNotary(String notaryId , String notaryNameWildcard, String phoneNumberWildcard, String jobNumberWildcard,
                                      String emailWildcard, String sex, String organizationId, String notarizationType ) {
-        String sql = "select notaryId, notaryName, jobNumber, phoneNumber, idCard, email, sex, notary.organizationId, notarizationType, organizationName" +
+        String sql = "select notaryId, notaryName, jobNumber, notary.phoneNumber, idCard, notary.email, sex, notary.organizationId, notarizationType, organizationName" +
                 " from notary,organization " +
                 "where notary.organizationId = organization.organizationId ";
 
