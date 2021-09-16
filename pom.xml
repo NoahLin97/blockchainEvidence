@@ -110,6 +110,11 @@
             <version>2.6</version>
         </dependency>
         <!-- /http所需包 -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>3.6.0</version>
+        </dependency>
 
 
     </dependencies>

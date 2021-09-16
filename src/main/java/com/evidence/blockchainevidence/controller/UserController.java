@@ -14,6 +14,7 @@ import com.evidence.blockchainevidence.service.UserService;
 import com.evidence.blockchainevidence.subprotocols.K2C16;
 import com.evidence.blockchainevidence.subprotocols.K2C8;
 import com.evidence.blockchainevidence.subprotocols.KMP;
+import com.evidence.blockchainevidence.utils.HttpUtils;
 import com.evidence.blockchainevidence.utils.ParseRequest;
 import com.evidence.blockchainevidence.utils.Sha256;
 import com.evidence.blockchainevidence.utils.StreamUtils;
@@ -2049,65 +2050,60 @@ public class UserController {
             String folderPath = "/"+userId+"_"+evidenceName+"_"+timestamp;
 
             //文件保存到本地（仅测试）
-            for(int i = 0; i < files.size(); i++){
-                MultipartFile filecontent = files.get(i);
-                OutputStream os = null;
-                InputStream inputStream = null;
-                String fileName = null;
-                try {
-                    inputStream = filecontent.getInputStream();
-                    fileName = filecontent.getOriginalFilename();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    String path = "D:\\tmp\\";    //本地保存路径
-                    // 保存到临时文件
-                    // 1K的数据缓冲
-                    byte[] bs = new byte[1024];
-                    // 读取到的数据长度
-                    int len;
-                    // 输出的文件流保存到本地文件
-                    File tempFile = new File(path);
-                    if (!tempFile.exists()) {
-                        tempFile.mkdirs();
-                    }
-                    os = new FileOutputStream(tempFile.getPath() + File.separator + fileName);
-                    // 开始读取
-                    while ((len = inputStream.read(bs)) != -1) {
-                        os.write(bs, 0, len);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    // 完毕，关闭所有链接
-                    try {
-                        os.close();
-                        inputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
+//            for(int i = 0; i < files.size(); i++){
+//                MultipartFile filecontent = files.get(i);
+//                OutputStream os = null;
+//                InputStream inputStream = null;
+//                String fileName = null;
+//                try {
+//                    inputStream = filecontent.getInputStream();
+//                    fileName = filecontent.getOriginalFilename();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                try {
+//                    String path = "D:\\tmp\\";    //本地保存路径
+//                    // 保存到临时文件
+//                    // 1K的数据缓冲
+//                    byte[] bs = new byte[1024];
+//                    // 读取到的数据长度
+//                    int len;
+//                    // 输出的文件流保存到本地文件
+//                    File tempFile = new File(path);
+//                    if (!tempFile.exists()) {
+//                        tempFile.mkdirs();
+//                    }
+//                    os = new FileOutputStream(tempFile.getPath() + File.separator + fileName);
+//                    // 开始读取
+//                    while ((len = inputStream.read(bs)) != -1) {
+//                        os.write(bs, 0, len);
+//                    }
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                } finally {
+//                    // 完毕，关闭所有链接
+//                    try {
+//                        os.close();
+//                        inputStream.close();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
 
             // 2. 转发数据给 云 的 后端 （还未测试，不一定可以发送成功）
             Map<String, Object> map = new HashMap<>();
             map.put("file",files);
             map.put("FolderPath",folderPath);
 //            String s = HttpUtils.doPost("http://localhost:8090/uploadFiles", map);
+            Boolean status = HttpUtils.doPostFormData("http://localhost:8032/uploadFiles", files);
 
-            // 云发回来的数据是一个map，里面存放{"status":false/ture,"message":"xxxx"/success,"data":null/"xxxx"}
-            // 可以根据status值来判断是否上传成功
             // 3. 根据返回信息判断是否上传成功，上传不成功，返回失败信息给前端
-            Map<String, Object> resInfo = new HashMap<>();
-            resInfo.put("status",true);
-            resInfo.put("message","xxxxxx");
-            Boolean statusInfo = (boolean)resInfo.get("status");
-            if(statusInfo == false){
+            if(status == false){
                 result.put("status",false);
-                result.put("message",resInfo.get("message"));
+                result.put("message","Uploading to the cloud failed");
                 return result;
             }
 

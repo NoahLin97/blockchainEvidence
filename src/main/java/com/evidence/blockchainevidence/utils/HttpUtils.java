@@ -1,8 +1,9 @@
 package com.evidence.blockchainevidence.utils;
 
+
+import okhttp3.*;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
+import org.apache.http.*;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -13,7 +14,11 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -149,4 +154,54 @@ public class HttpUtils {
     }
 
 
+    /**
+     * 以post方式调用第三方接口,以form-data形式  发送 MultipartFile文件数据
+     *
+     * @param url  post请求url
+     * @param files  文件
+     * @return
+     */
+    public static Boolean doPostFormData(String url, List<MultipartFile> files){
+        Boolean context= false;
+        try {
+            // 获取OkHttpClient对象
+            OkHttpClient client = new OkHttpClient();
+            // 以form形式封装参数
+            MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+
+            for (int i = 0; i < files.size(); i++) {
+                String filename = files.get(i).getOriginalFilename();
+                //把MultipartFile转为File形式
+                File sendfile = new File("D:\\tmp\\tmp-" + filename);
+                files.get(i).transferTo(sendfile);
+                builder.addFormDataPart("file", filename, RequestBody.create(MediaType.parse("application/octet-stream"), sendfile));
+            }
+
+            RequestBody requestBody = builder.build();
+
+            // 3 封装 request
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .build();
+
+            /// 4 异步回调
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+
+                }
+            });
+            context = true;
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return context;
+
+    }
 }
