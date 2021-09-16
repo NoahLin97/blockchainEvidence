@@ -30,4 +30,7 @@ public interface NotarizationTypeMapper {
 
     @Select("select * from notarization_type")
     List<NotarizationTypeEntity> selectNotarizationTypeAll();
+
+    @Select("select notarizationType from notarization_type")
+    List<String> selectNotarizationTypes();
 }

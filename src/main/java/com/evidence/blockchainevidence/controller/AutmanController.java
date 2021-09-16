@@ -1982,42 +1982,43 @@ public class AutmanController {
     /**
      * 查询所有公证类型
      */
-//    @CrossOrigin(origins ="*")
-//    @PostMapping("/noTypeQuery")
-//    public Object noTypeQuery (HttpServletRequest req){
-//        Map<String,Object> result=new HashMap<>();
-//
-//        try{
-//            JSONObject params= ParseRequest.parse(req);
-//
-//            int l=notarizationTypes.length;
-//
-//            List<JSONObject> data = new Vector<>();
-//            for(Integer i=0;i<l;i++){
-//                JSONObject s=new JSONObject();
-//                s.put("notarizationType",i.toString());
-//                s.put("notarizationTypeName",notarizationTypes[i]);
-//                data.add(s);
-//            }
-//
-//
-//            //填充返回值
-//            result.put("status",true);
-//            result.put("message","success");
-//            result.put("data",data);
-//
-//        }catch (Exception e){
-//            e.printStackTrace();
-//            StringWriter sw = new StringWriter();
-//            e.printStackTrace(new PrintWriter(sw, true));
-//            String str = sw.toString();
-//
-//            result.put("status",false);
-//            result.put("message",str);
-//        }
-//        return result;
-//
-//    }
+    @CrossOrigin(origins ="*")
+    @PostMapping("/noTypeQuery")
+    public Object noTypeQuery (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
+
+        try{
+            JSONObject params= ParseRequest.parse(req);
+            List<NotarizationTypeEntity> data = notarizationTypeMapper.selectNotarizationTypeAll();
+
+
+            //在密文下匹配，剔除不合格的数据
+            Iterator<NotarizationTypeEntity> iterator = data.iterator();
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            while (iterator.hasNext()) {
+                NotarizationTypeEntity s = iterator.next();
+                if(!s.getNotarizationMoney().equals("")){
+                    s.setNotarizationMoney(paillier.SDecryption(new CipherPub(s.getNotarizationMoney())).intValue()+"");
+                }
+
+
+            }
+
+
+            return data;
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
 
 
 
