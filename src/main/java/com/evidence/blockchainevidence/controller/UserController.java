@@ -2048,6 +2048,50 @@ public class UserController {
             // 1. 文件存放路径 ："/用户id/"
             String folderPath = "/"+userId+"_"+evidenceName+"_"+timestamp;
 
+            //文件保存到本地（仅测试）
+            for(int i = 0; i < files.size(); i++){
+                MultipartFile filecontent = files.get(i);
+                OutputStream os = null;
+                InputStream inputStream = null;
+                String fileName = null;
+                try {
+                    inputStream = filecontent.getInputStream();
+                    fileName = filecontent.getOriginalFilename();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    String path = "D:\\tmp\\";    //本地保存路径
+                    // 保存到临时文件
+                    // 1K的数据缓冲
+                    byte[] bs = new byte[1024];
+                    // 读取到的数据长度
+                    int len;
+                    // 输出的文件流保存到本地文件
+                    File tempFile = new File(path);
+                    if (!tempFile.exists()) {
+                        tempFile.mkdirs();
+                    }
+                    os = new FileOutputStream(tempFile.getPath() + File.separator + fileName);
+                    // 开始读取
+                    while ((len = inputStream.read(bs)) != -1) {
+                        os.write(bs, 0, len);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    // 完毕，关闭所有链接
+                    try {
+                        os.close();
+                        inputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             // 2. 转发数据给 云 的 后端 （还未测试，不一定可以发送成功）
             Map<String, Object> map = new HashMap<>();
             map.put("file",files);
