@@ -25,8 +25,8 @@ public interface NotarizationTypeMapper {
     int updateNotarizationMoney(@Param("notarizationMoney") String notarizationMoney,@Param("notarizationType") String notarizationType,@Param("autManId") String autManId);
 
 
-    @Select("select * from notarization_type where notarizationTypeId = #{notarizationTypeId}")
-    NotarizationTypeEntity selectNotarizationType(@Param("notarizationTypeId") String notarizationTypeId);
+    @Select("select * from notarization_type where notarizationType = #{notarizationType}")
+    NotarizationTypeEntity selectNotarizationType(@Param("notarizationType") String notarizationType);
 
     @Select("select * from notarization_type")
     List<NotarizationTypeEntity> selectNotarizationTypeAll();

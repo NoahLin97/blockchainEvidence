@@ -43,7 +43,7 @@ public class NotaryController {
     EvidenceService evidenceService;
 
     //区块链服务端地址
-    public static String blockchain_url = "http://127.0.0.1:8090/";
+    public static String blockchain_url = "http://192.168.31.245:8090/";
 
     /**
      * 查询申请公证的记录

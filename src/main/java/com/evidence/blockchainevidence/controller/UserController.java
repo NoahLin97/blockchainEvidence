@@ -244,15 +244,29 @@ public class UserController {
         JSONObject json=JSONObject.parseObject(wholeStr);
         String txID = json.getString("txID");
         String type = json.getString("type");
-        String time= json.getString("timestamp");
+        String t = json.getString("timestamp");
+
+        System.out.println("timestamp:" + t);
+
+        Date time = new Date(t);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String Time = sdf.format(time);
+
+        System.out.println("Time:" + Time);
+
+        System.out.println("txID:" + txID);
+        System.out.println("type:" + type);
+
         JSONObject value = json.getJSONObject("value");
+
+
         if (type.equals("evidence"))
         {
             String evidenceId = json.getString("key");
             //存证区块链交易id
             evidenceService.updateEvidenceBlockchainId(txID,evidenceId);
             //上链时间
-            evidenceService.updateBlockchainTime(time,evidenceId);
+            evidenceService.updateBlockchainTime(Time,evidenceId);
         }
         else if(type.equals("notarizationApply"))
         {
@@ -269,8 +283,9 @@ public class UserController {
         else if(type.equals("transaction"))
         {
             String transactionId = json.getString("key");
+            System.out.println("transactionId:" + transactionId);
             //上链时间
-            transactionService.updateBlockchainTime(time,transactionId);
+            transactionService.updateBlockchainTime(Time,transactionId);
             //支付交易区块链交易id
             transactionService.updateTranBlockchainId(txID,transactionId);
         }
@@ -980,14 +995,14 @@ public class UserController {
                 return result;
             }
 
-            if(!params.containsKey("notarizationTypeId")){
+            if(!params.containsKey("notarizationType")){
                 result.put("status",false);
-                result.put("message","没有给出notarizationTypeId");
+                result.put("message","没有给出notarizationType");
                 return result;
             }
-            if(params.get("notarizationTypeId").toString().equals("none")){
+            if(params.get("notarizationType").toString().equals("none")){
                 result.put("status",false);
-                result.put("message","notarizationTypeId不能为空");
+                result.put("message","notarizationType不能为空");
                 return result;
             }
 
@@ -1006,11 +1021,11 @@ public class UserController {
             String userId = params.get("userId").toString();
             String evidenceId = params.get("evidenceId").toString();
             String organizationId = params.get("organizationId").toString();
-            String notarizationTypeId = params.get("notarizationTypeId").toString();
+            String notarizationType = params.get("notarizationType").toString();
             String notarizationMatters = params.get("notarizationMatters").toString();
 
-            // 从数据库查找公证类型名称和公证金额
-            NotarizationTypeEntity n1 = notarizationTypeMapper.selectNotarizationType(notarizationTypeId);
+            // 从数据库查找公证金额
+            NotarizationTypeEntity n1 = notarizationTypeMapper.selectNotarizationType(notarizationType);
 
             // 把接受到的organizationId和notarizationType写入数据库
             int flag = evidenceService.updateOrganIdAndNotarType(organizationId,n1.getNotarizationType(),evidenceId);
@@ -1265,7 +1280,8 @@ public class UserController {
 
 
             // 与区块链交互
-            Map<String,Object> blockchain = new HashMap<>();
+            Map<String,Object> blockchain1 = new HashMap<>();
+            Map<String,Object> blockchain2 = new HashMap<>();
             JSONObject jsonObject = new JSONObject();
 
             // evidence表
@@ -1293,12 +1309,17 @@ public class UserController {
             jsonObject.put("transactionStatus",tran1.getTransactionStatus());
 
 
-            blockchain.put("key",evidenceId);
-            blockchain.put("value",jsonObject);
+            blockchain1.put("key",evidenceId);
+            blockchain1.put("value",jsonObject);
 
-//            String str= HttpUtils.doPost("http://192.168.31.218:8090/writeNotarizationApply",blockchain);
-//            System.out.println("区块链Id为：" + str);
+            String str1 = HttpUtils.doPost("http://192.168.31.245:8090/writeNotarizationApply",blockchain1);
+            System.out.println("公证申请区块链Id为：" + str1);
 
+            blockchain2.put("key",transactionId);
+            System.out.println("transactionId:" + transactionId);
+            blockchain2.put("value",jsonObject);
+            String str2 = HttpUtils.doPost("http://192.168.31.245:8090/writeNotarPay",blockchain2);
+            System.out.println("公证缴费区块链Id为：" + str2);
 
             // 返回
             result.put("status",true);
@@ -1440,8 +1461,8 @@ public class UserController {
             blockchain.put("key",transactionId);
             blockchain.put("value",jsonObject);
 
-//            String str= HttpUtils.doPost("http://192.168.31.218:8090/writeCharge",blockchain);
-//            System.out.println("区块链Id为：" + str);
+            String str= HttpUtils.doPost("http://192.168.31.245:8090/writeCharge",blockchain);
+            System.out.println("充值区块链Id为：" + str);
 
 
             // 返回
@@ -1638,8 +1659,8 @@ public class UserController {
                 blockchain.put("key",transactionId);
                 blockchain.put("value",jsonObject);
 
-//                String str= HttpUtils.doPost("http://192.168.31.218:8090/writeGive",blockchain);
-//                System.out.println("区块链Id为：" + str);
+                String str= HttpUtils.doPost("http://192.168.31.245:8090/writeGive",blockchain);
+                System.out.println("转赠区块链Id为：" + str);
 
 
                 // 返回
@@ -1793,8 +1814,8 @@ public class UserController {
                 blockchain.put("key",transactionId);
                 blockchain.put("value",jsonObject);
 
-//                String str= HttpUtils.doPost("http://192.168.31.218:8090/writeWithdraw",blockchain);
-//                System.out.println("区块链Id为：" + str);
+                String str= HttpUtils.doPost("http://192.168.31.245:8090/writeWithdraw",blockchain);
+                System.out.println("提现区块链Id为：" + str);
 
 
                 // 返回
@@ -1974,8 +1995,8 @@ public class UserController {
                 blockchain.put("key",transactionId);
                 blockchain.put("value",jsonObject);
 
-//                String str= HttpUtils.doPost("http://192.168.31.218:8090/writeMemPay",blockchain);
-//                System.out.println("区块链Id为：" + str);
+                String str= HttpUtils.doPost("http://192.168.31.245:8090/writeMemPay",blockchain);
+                System.out.println("购买存储空间区块链Id为：" + str);
 
 
                 // 返回
@@ -2024,12 +2045,17 @@ public class UserController {
 
         try {
 
-//            JSONObject params = ParseRequest.parse(req);
+            JSONObject params = ParseRequest.parse(req);
+            String userId = params.get("userId").toString();
+            String evidenceType = params.get("evidenceType").toString();
+            String evidenceName = params.get("evidenceName").toString();
+
 
             // 获取参数
-            String userId = req.getParameter("userId");
-            String evidenceType = req.getParameter("evidenceType");
-            String evidenceName = req.getParameter("evidenceName");
+//            String userId = req.getParameter("userId");
+//            String evidenceType = req.getParameter("evidenceType");
+//            String evidenceName = req.getParameter("evidenceName");
+
 
             MultipartHttpServletRequest multipartReq = (MultipartHttpServletRequest) req;
             List<MultipartFile> files = multipartReq.getFiles("file");
@@ -2107,11 +2133,20 @@ public class UserController {
                 return result;
             }
 
+
+            // 生成evidenceId
+            String id = UUID.randomUUID().toString();
+            // 将UUID中的“-”去掉
+            String evidenceId = id.replace("-" , "");
+            System.out.println("evidenceId为：" + evidenceId);
+
             //4. 上传成功
             //4.1 与区块链交互，返回存证区块链交易id和上链时间(待修改)
-            String evidenceBlockchainId = "123456789";
-            Date tmp_time = new Date(System.currentTimeMillis());
-            String blockchain_time = sdf.format(tmp_time);
+//            String evidenceBlockchainId = "123456789";
+//            Date tmp_time = new Date(System.currentTimeMillis());
+//            String blockchain_time = sdf.format(tmp_time);
+
+
 
             //4.2 存储信息到数据库
             //计算文件总大小
@@ -2135,13 +2170,44 @@ public class UserController {
             CipherPub tmp = k2c16.FIN;
             String evidenceName_cipher = tmp.toString();
 
-            evidenceMapper.insertEvi(userId, evidenceType, evidenceName_cipher, folderPath, filesize_cipher, evidenceBlockchainId,
-                    blockchain_time, current_time);
+//            String evidenceName_cipher = "111";
+//            String filesize_cipher = "111";
+
+            evidenceMapper.insertEvi(evidenceId,userId, evidenceType, evidenceName_cipher, folderPath, filesize_cipher,current_time);
+
+
+            // 与区块链交互
+            Map<String,Object> blockchain = new HashMap<>();
+            JSONObject jsonObject = new JSONObject();
+
+            // 通过evidenceId找到数据库中的那一行
+            EvidenceEntity evi1 = null;
+            evi1 = evidenceService.selectByEvidenceId(evidenceId);
+
+            // 传到区块链的数据
+            // evidence表
+            jsonObject.put("evidenceId",evidenceId);
+            jsonObject.put("evidenceType",evi1.getEvidenceType());
+            jsonObject.put("evidenceName",evi1.getEvidenceName());
+            jsonObject.put("filePath",evi1.getFilePath());
+            jsonObject.put("fileSize",evi1.getFileSize());
+            jsonObject.put("fileHash",evi1.getFileHash());
+            jsonObject.put("organizationId",evi1.getOrganizationId());
+
+            blockchain.put("key",evidenceId);
+            blockchain.put("value",jsonObject);
+
+            String str= HttpUtils.doPost("http://192.168.31.245:8090/writeEvidence",blockchain);
+            System.out.println("上传证据区块链Id为：" + str);
+
+
+            
+
 
             // 5. 返回成功信息给前端
             result.put("status",true);
             result.put("message","success");
-            result.put("evidenceBlockchainId",evidenceBlockchainId);
+            result.put("evidenceBlockchainId",str);
 
         }catch (Exception e){
             e.printStackTrace();
