@@ -2090,8 +2090,26 @@ public class UserController {
                 filesize += filesize_tmp.intValue();
             }
 
+            //4.1 存储信息到数据库
 
-            //4.1 与区块链交互，返回存证区块链交易id和上链时间(待修改)
+            //加密字段
+
+            //Paillier初始化
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            //为新用户生成公私钥
+            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+            //加密存证名称和文件大小,得到string形式的密文，这个是用来存数据库的
+            String filesize_cipher = paillier.Encryption(BigInteger.valueOf(filesize),pk).toString();
+            K2C16 k2c16 = new K2C16(evidenceName, pk, paillier);
+            k2c16.StepOne();
+            CipherPub tmp = k2c16.FIN;
+            String evidenceName_cipher = tmp.toString();
+
+            evidenceMapper.insertEvi(evidenceId, userId, evidenceType, evidenceName_cipher, folderPath, filesize_cipher, current_time);
+
+
+            //4.2 与区块链交互，返回存证区块链交易id和上链时间
             Map<String,Object> blockchain = new HashMap<>();
             JSONObject jsonObject = new JSONObject();
 
@@ -2115,25 +2133,7 @@ public class UserController {
             Date tmp_time = new Date(System.currentTimeMillis());
             String blockchain_time = sdf.format(tmp_time);
 
-
-            //4.2 存储信息到数据库
-
-            //加密字段
-
-            //Paillier初始化
-            PaillierT paillier = new PaillierT(PaillierT.param);
-            //为新用户生成公私钥
-            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
-            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
-            //加密存证名称和文件大小,得到string形式的密文，这个是用来存数据库的
-            String filesize_cipher = paillier.Encryption(BigInteger.valueOf(filesize),pk).toString();
-            K2C16 k2c16 = new K2C16(evidenceName, pk, paillier);
-            k2c16.StepOne();
-            CipherPub tmp = k2c16.FIN;
-            String evidenceName_cipher = tmp.toString();
-
-            evidenceMapper.insertEvi(evidenceId, userId, evidenceType, evidenceName_cipher, folderPath, filesize_cipher, evidenceBlockchainId,
-                    blockchain_time, current_time);
+            evidenceMapper.updateEviBCIdAndBCTime(evidenceBlockchainId, blockchain_time, evidenceId);
 
             // 5. 返回成功信息给前端
             result.put("status",true);
