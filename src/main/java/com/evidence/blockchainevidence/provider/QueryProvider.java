@@ -13,8 +13,7 @@ public class QueryProvider {
                 "blockchainTime,evidenceBlockchainId,evidenceTime,evidenceType,fileHash,filePath,fileSize," +
                 "notarizationBlockchainIdEnd,notarizationBlockchainIdStart," +
                 "notarizationEndTime,notarizationInformation,notarizationMatters,notarizationMoney,notarizationStartTime,notarizationStatus,evidence.notarizationType,transactionId, transactionStatus" +
-                " from evidence, user, notary, organization " +
-            "where evidence.userId=user.userId and evidence.notaryId=notary.notaryId and evidence.organizationId=organization.organizationId";
+                " from evidence left join user on evidence.userId=user.userId  left join notary on evidence.notaryId=notary.notaryId left join organization on evidence.organizationId=organization.organizationId where 1=1";
 //        if (orgId != null) {
 //            sql += " and ORG_ID=#{orgId}";
 //        }
@@ -86,12 +85,7 @@ public class QueryProvider {
         //要比大小的明文
 
 
-
-
-
-
-
-
+        System.out.println(sql);
         return sql;
     }
     //按存证所需参数查询
@@ -105,8 +99,7 @@ public class QueryProvider {
                 "blockchainTime,evidenceBlockchainId,evidenceTime,evidenceType,fileHash,filePath,fileSize," +
                 "notarizationBlockchainIdEnd,notarizationBlockchainIdStart," +
                 "notarizationEndTime,notarizationInformation,notarizationMatters,notarizationMoney,notarizationStartTime,notarizationStatus,evidence.notarizationType,transactionId, transactionStatus" +
-                " from evidence, user, notary, organization " +
-                "where evidence.userId=user.userId and evidence.notaryId=notary.notaryId and evidence.organizationId=organization.organizationId";
+                " from evidence left join user on evidence.userId=user.userId  left join notary on evidence.notaryId=notary.notaryId left join organization on evidence.organizationId=organization.organizationId where 1=1";
 //        if (orgId != null) {
 //            sql += " and ORG_ID=#{orgId}";
 //        }
@@ -170,11 +163,7 @@ public class QueryProvider {
         //要比大小的明文
 
 
-
-
-
-
-
+        System.out.println(sql);
 
         return sql;
     }
@@ -184,8 +173,9 @@ public class QueryProvider {
                                  String transactionTimeEnd) {
         String sql = "select transactionId,transaction.userId,userRemains,transactionMoney,transactionPeople,transactionType,storageSize," +
                 "transactionTime,transactionBlockchainId,blockchainTime,user.username" +
-                " from transaction, user " +
-                "where transaction.userId = user.userId ";
+                " from transaction left join user on transaction.userId = user.userId where 1=1";
+
+
 
 
         //直接筛选的

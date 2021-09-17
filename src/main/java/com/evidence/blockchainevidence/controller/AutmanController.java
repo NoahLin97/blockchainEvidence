@@ -48,6 +48,24 @@ public class AutmanController {
 
 
             //直接筛选的
+
+            String evidenceId="none";
+            if(params.containsKey("evidenceId")){
+                evidenceId=params.get("evidenceId").toString();
+            }
+
+            String userId="none";
+            if(params.containsKey("userId")){
+                userId=params.get("userId").toString();
+            }
+
+            String notaryId="none";
+            if(params.containsKey("notaryId")){
+                notaryId=params.get("notaryId").toString();
+            }
+
+
+
             String notarizationStatus="none";
             if(params.containsKey("notarizationStatus")){
                 notarizationStatus=params.get("notarizationStatus").toString();
@@ -87,21 +105,29 @@ public class AutmanController {
             String notarizationStartTimeStart="none";
             if(params.containsKey("notarizationStartTimeStart")){
                 notarizationStartTimeStart=params.get("notarizationStartTimeStart").toString();
+                if(!notarizationStartTimeStart.equals("none"))
+                notarizationStartTimeStart=(new java.sql.Date(Long.parseLong(notarizationStartTimeStart))).toString();
             }
 
             String notarizationStartTimeEnd="none";
             if(params.containsKey("notarizationStartTimeEnd")){
                 notarizationStartTimeEnd=params.get("notarizationStartTimeEnd").toString();
+                if(!notarizationStartTimeEnd.equals("none"))
+                notarizationStartTimeEnd=(new java.sql.Date(Long.parseLong(notarizationStartTimeEnd))).toString();
             }
 
             String notarizationEndTimeStart="none";
             if(params.containsKey("notarizationEndTimeStart")){
                 notarizationEndTimeStart=params.get("notarizationEndTimeStart").toString();
+                if(!notarizationEndTimeStart.equals("none"))
+                notarizationEndTimeStart=(new java.sql.Date(Long.parseLong(notarizationEndTimeStart))).toString();
             }
 
             String notarizationEndTimeEnd="none";
             if(params.containsKey("notarizationEndTimeEnd")){
                 notarizationEndTimeEnd=params.get("notarizationEndTimeEnd").toString();
+                if(!notarizationEndTimeEnd.equals("none"))
+                notarizationEndTimeEnd=(new java.sql.Date(Long.parseLong(notarizationEndTimeEnd))).toString();
             }
 
             //要比大小的明文
@@ -145,7 +171,7 @@ public class AutmanController {
 
 
             //查询数据库
-            List<EvidenceEntity> data = autmanMapper.findEvidence("none","none","none",
+            List<EvidenceEntity> data = autmanMapper.findEvidence(evidenceId,userId,notaryId,
                     notarizationStatus, notarizationType,
                     paymentStatus, evidenceType, organizationId,
                     evidenceName, usernameWildcard, notarizationStartTimeStart,
@@ -171,7 +197,7 @@ public class AutmanController {
                 //密文数值比较阶段
 
                 if(notarizationMoneyFloor!=-1){
-                    if(!s.getNotarizationMoney().equals("")){
+                    if(s.getNotarizationMoney()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
                         CipherPub cqw=paillier.Encryption(BigInteger.valueOf(notarizationMoneyFloor),pk);
                         CipherPub ckw= new CipherPub(s.getNotarizationMoney());
@@ -193,7 +219,7 @@ public class AutmanController {
                     }
                 }
                 if(notarizationMoneyUpper!=-1){
-                    if(!s.getNotarizationMoney().equals("")){
+                    if(s.getNotarizationMoney()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
                         CipherPub cqw=paillier.Encryption(BigInteger.valueOf(notarizationMoneyUpper),pk);
                         CipherPub ckw= new CipherPub(s.getNotarizationMoney());
@@ -219,7 +245,7 @@ public class AutmanController {
 
 
                 if(fileSizeFloor!=-1){
-                    if(!s.getFileSize().equals("")){
+                    if(s.getFileSize()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
                         CipherPub cqw=paillier.Encryption(BigInteger.valueOf(fileSizeFloor),pk);
                         CipherPub ckw= new CipherPub(s.getFileSize());
@@ -241,7 +267,7 @@ public class AutmanController {
                     }
                 }
                 if(fileSizeUpper!=-1){
-                    if(!s.getFileSize().equals("")){
+                    if(s.getFileSize()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
                         CipherPub cqw=paillier.Encryption(BigInteger.valueOf(fileSizeUpper),pk);
                         CipherPub ckw= new CipherPub(s.getFileSize());
@@ -264,7 +290,7 @@ public class AutmanController {
                 }
                 //密文字符通配阶段
                 if(!evidenceName.equals("none")){
-                    if(!s.getEvidenceName().equals("")){
+                    if(s.getEvidenceName()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
 
                         K2C16 k2c16 = new K2C16(evidenceName, pk, paillier);
@@ -325,15 +351,15 @@ public class AutmanController {
                 if(decryptFlag==1){
                     //解密数字
 
-                    if(!s.getFileSize().equals("")){
+                    if(s.getFileSize()!=null){
                         s.setFileSize(paillier.SDecryption(new CipherPub(s.getFileSize())).intValue()+"");
                     }
-                    if(!s.getNotarizationMoney().equals("")){
+                    if(s.getNotarizationMoney()!=null){
                         s.setNotarizationMoney(paillier.SDecryption(new CipherPub(s.getNotarizationMoney())).intValue()+"");
                     }
 
                     //解密字符
-                    if(!s.getEvidenceName().equals("")){
+                    if(s.getEvidenceName()!=null){
                         s.setEvidenceName(K2C16.parseString(paillier.SDecryption(new CipherPub(s.getEvidenceName())),paillier));
                     }
                 }
@@ -412,21 +438,38 @@ public class AutmanController {
             String evidenceTimeStart="none";
             if(params.containsKey("evidenceTimeStart")){
                 evidenceTimeStart=params.get("evidenceTimeStart").toString();
+
+//                System.out.println(evidenceTimeStart);
+//                Long time = Long.parseLong(evidenceTimeStart);
+//                java.sql.Date d =new java.sql.Date(time);
+//                System.out.println(d);
+//                evidenceTimeStart=(new java.sql.Date(Long.parseLong(evidenceTimeStart))).toString();
+                if(!evidenceTimeStart.equals("none"))
+                evidenceTimeStart=(new java.sql.Date(Long.parseLong(evidenceTimeStart))).toString();
+
+
             }
 
             String evidenceTimeEnd="none";
             if(params.containsKey("evidenceTimeEnd")){
                 evidenceTimeEnd=params.get("evidenceTimeEnd").toString();
+                if(!evidenceTimeEnd.equals("none"))
+                evidenceTimeEnd=(new java.sql.Date(Long.parseLong(evidenceTimeEnd))).toString();
             }
 
             String blockchainTimeStart="none";
             if(params.containsKey("blockchainTimeStart")){
                 blockchainTimeStart=params.get("blockchainTimeStart").toString();
+                if(!blockchainTimeStart.equals("none"))
+                    blockchainTimeStart=(new java.sql.Date(Long.parseLong(blockchainTimeStart))).toString();
+
             }
 
             String blockchainTimeEnd="none";
             if(params.containsKey("blockchainTimeEnd")){
                 blockchainTimeEnd=params.get("blockchainTimeEnd").toString();
+                if(!blockchainTimeEnd.equals("none"))
+                    blockchainTimeEnd=(new java.sql.Date(Long.parseLong(blockchainTimeEnd))).toString();
             }
 
             //要比大小的明文
@@ -475,16 +518,16 @@ public class AutmanController {
 
                 //剔除不符合接口要求的数据，这里需要根据接口定制
                 //notarizationStatus为"0"的数据不返回
-                if(s.getNotarizationStatus().toString().equals("0")){
-                    iterator.remove();
-                    continue;
-                }
+//                if(s.getNotarizationStatus().toString().equals("0")){
+//                    iterator.remove();
+//                    continue;
+//                }
 
 
                 //密文数值比较阶段
 
                 if(fileSizeFloor!=-1){
-                    if(!s.getFileSize().equals("")){
+                    if(s.getFileSize()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
                         CipherPub cqw=paillier.Encryption(BigInteger.valueOf(fileSizeFloor),pk);
                         CipherPub ckw= new CipherPub(s.getFileSize());
@@ -506,7 +549,7 @@ public class AutmanController {
                     }
                 }
                 if(fileSizeUpper!=-1){
-                    if(!s.getFileSize().equals("")){
+                    if(s.getFileSize()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
                         CipherPub cqw=paillier.Encryption(BigInteger.valueOf(fileSizeUpper),pk);
                         CipherPub ckw= new CipherPub(s.getFileSize());
@@ -529,7 +572,7 @@ public class AutmanController {
                 }
                 //密文字符通配阶段
                 if(!evidenceName.equals("none")){
-                    if(!s.getEvidenceName().equals("")){
+                    if(s.getEvidenceName()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
 
                         K2C16 k2c16 = new K2C16(evidenceName, pk, paillier);
@@ -590,15 +633,15 @@ public class AutmanController {
                 if(decryptFlag==1){
 //解密数字
 
-                    if(!s.getFileSize().equals("")){
+                    if(s.getFileSize()!=null){
                         s.setFileSize(paillier.SDecryption(new CipherPub(s.getFileSize())).intValue()+"");
                     }
-                    if(!s.getNotarizationMoney().equals("")){
+                    if(s.getNotarizationMoney()!=null){
                         s.setNotarizationMoney(paillier.SDecryption(new CipherPub(s.getNotarizationMoney())).intValue()+"");
                     }
 
                     //解密字符
-                    if(!s.getEvidenceName().equals("")){
+                    if(s.getEvidenceName()!=null){
                         s.setEvidenceName(K2C16.parseString(paillier.SDecryption(new CipherPub(s.getEvidenceName())),paillier));
                     }
                 }
@@ -734,7 +777,7 @@ public class AutmanController {
                 //密文数值比较阶段
 
                 if(remainsFloor!=-1){
-                    if(!s.getRemains().equals("")){
+                    if(s.getRemains()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
                         CipherPub cqw=paillier.Encryption(BigInteger.valueOf(remainsFloor),pk);
                         CipherPub ckw= new CipherPub(s.getRemains());
@@ -757,7 +800,7 @@ public class AutmanController {
 
                 }
                 if(remainsUpper!=-1){
-                    if(!s.getRemains().equals("")){
+                    if(s.getRemains()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
                         CipherPub cqw=paillier.Encryption(BigInteger.valueOf(remainsUpper),pk);
                         CipherPub ckw= new CipherPub(s.getRemains());
@@ -779,7 +822,7 @@ public class AutmanController {
                     }
                 }
                 if(storageSpaceFloor!=-1){
-                    if(!s.getStorageSpace().equals("")){
+                    if(s.getStorageSpace()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
                         CipherPub cqw=paillier.Encryption(BigInteger.valueOf(storageSpaceFloor),pk);
                         CipherPub ckw= new CipherPub(s.getStorageSpace());
@@ -801,7 +844,7 @@ public class AutmanController {
                     }
                 }
                 if(storageSpaceUpper!=-1){
-                    if(!s.getStorageSpace().equals("")){
+                    if(s.getStorageSpace()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
                         CipherPub cqw=paillier.Encryption(BigInteger.valueOf(storageSpaceUpper),pk);
                         CipherPub ckw= new CipherPub(s.getStorageSpace());
@@ -824,7 +867,7 @@ public class AutmanController {
                 }
 
                 if(hasUsedStorageFloor!=-1){
-                    if(!s.getHasUsedStorage().equals("")){
+                    if(s.getHasUsedStorage()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
                         CipherPub cqw=paillier.Encryption(BigInteger.valueOf(hasUsedStorageFloor),pk);
                         CipherPub ckw= new CipherPub(s.getHasUsedStorage());
@@ -846,7 +889,7 @@ public class AutmanController {
                     }
                 }
                 if(hasUsedStorageUpper!=-1){
-                    if(!s.getHasUsedStorage().equals("")){
+                    if(s.getHasUsedStorage()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
                         CipherPub cqw=paillier.Encryption(BigInteger.valueOf(hasUsedStorageUpper),pk);
                         CipherPub ckw= new CipherPub(s.getHasUsedStorage());
@@ -872,7 +915,7 @@ public class AutmanController {
 
                 //密文字符通配阶段
                 if(!idCard.equals("none")){
-                    if(!s.getIdCard().equals("")){
+                    if(s.getIdCard()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
 
                         K2C8 k2c8 = new K2C8(idCard, pk, paillier);
@@ -919,19 +962,19 @@ public class AutmanController {
 
                     //解密数字
 
-                    if(!s.getRemains().equals("")){
+                    if(s.getRemains()!=null){
                         s.setRemains(paillier.SDecryption(new CipherPub(s.getRemains())).intValue()+"");
                     }
-                    if(!s.getStorageSpace().equals("")){
+                    if(s.getStorageSpace()!=null){
                         s.setStorageSpace(paillier.SDecryption(new CipherPub(s.getStorageSpace())).intValue()+"");
                     }
-                    if(!s.getHasUsedStorage().equals("")){
+                    if(s.getHasUsedStorage()!=null){
                         s.setHasUsedStorage(paillier.SDecryption(new CipherPub(s.getHasUsedStorage())).intValue()+"");
                     }
 
                     //解密字符
 
-                    if(!s.getIdCard().equals("")){
+                    if(s.getIdCard()!=null){
                         s.setIdCard(K2C8.parseString(paillier.SDecryption(new CipherPub(s.getIdCard())),paillier));
                     }
 
@@ -1143,7 +1186,7 @@ public class AutmanController {
                 //密文字符通配阶段
 
                 if(!idCard.equals("none")){
-                    if(!s.getIdCard().equals("")){
+                    if(s.getIdCard()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
 
                         K2C8 k2c8 = new K2C8(idCard, pk, paillier);
@@ -1189,7 +1232,7 @@ public class AutmanController {
                         if(decryptFlag==1){
                             //解密字符
 
-                            if(!s.getIdCard().equals("")){
+                            if(s.getIdCard()!=null){
                                 s.setIdCard(K2C8.parseString(paillier.SDecryption(new CipherPub(s.getIdCard())),paillier));
                             }
                         }
@@ -1261,6 +1304,11 @@ public class AutmanController {
             if(params.containsKey("jobNumberWildcard")){
                 jobNumberWildcard=params.get("jobNumberWildcard").toString();
             }
+
+            String userId="none";
+            if(params.containsKey("userId")){
+                userId=params.get("userId").toString();
+            }
             //要比大小的date
 
 
@@ -1299,7 +1347,7 @@ public class AutmanController {
 
                 //密文字符通配阶段
                 if(!idCard.equals("none")){
-                    if(!s.getIdCard().equals("")){
+                    if(s.getIdCard()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
 
                         K2C8 k2c8 = new K2C8(idCard, pk, paillier);
@@ -1342,7 +1390,7 @@ public class AutmanController {
                         if(decryptFlag==1){
                             //解密字符
 
-                            if(!s.getIdCard().equals("")){
+                            if(s.getIdCard()!=null){
                                 s.setIdCard(K2C8.parseString(paillier.SDecryption(new CipherPub(s.getIdCard())),paillier));
                             }
                         }
@@ -1378,6 +1426,11 @@ public class AutmanController {
         try{
 
             //直接筛选的
+            String userId="none";
+            if(params.containsKey("userId")){
+                userId=params.get("userId").toString();
+            }
+
             String transactionType="none";
             if(params.containsKey("transactionType")){
                 transactionType=params.get("transactionType").toString();
@@ -1391,11 +1444,15 @@ public class AutmanController {
             String transactionTimeStart="none";
             if(params.containsKey("transactionTimeStart")){
                 transactionTimeStart=params.get("transactionTimeStart").toString();
+                if(!transactionTimeStart.equals("none"))
+                transactionTimeStart=(new java.sql.Date(Long.parseLong(transactionTimeStart))).toString();
             }
 
             String transactionTimeEnd="none";
             if(params.containsKey("transactionTimeEnd")){
                 transactionTimeEnd=params.get("transactionTimeEnd").toString();
+                if(!transactionTimeEnd.equals("none"))
+                transactionTimeEnd=(new java.sql.Date(Long.parseLong(transactionTimeEnd))).toString();
             }
             //要比大小的明文
 
@@ -1426,7 +1483,7 @@ public class AutmanController {
 
 
             //查询数据库
-            List<TransactionEntity> data = autmanMapper.findTransaction("none",
+            List<TransactionEntity> data = autmanMapper.findTransaction(userId,
                     transactionType,  usernameWildcard,  transactionTimeStart,
                     transactionTimeEnd);
 
@@ -1445,7 +1502,7 @@ public class AutmanController {
                 //密文数值比较阶段
 
                 if(transactionMoneyFloor!=-1){
-                    if(!s.getTransactionMoney().equals("")){
+                    if(s.getTransactionMoney()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
                         CipherPub cqw=paillier.Encryption(BigInteger.valueOf(transactionMoneyFloor),pk);
                         CipherPub ckw= new CipherPub(s.getTransactionMoney());
@@ -1468,7 +1525,7 @@ public class AutmanController {
 
                 }
                 if(transactionMoneyUpper!=-1){
-                    if(!s.getTransactionMoney().equals("")){
+                    if(s.getTransactionMoney()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
                         CipherPub cqw=paillier.Encryption(BigInteger.valueOf(transactionMoneyUpper),pk);
                         CipherPub ckw= new CipherPub(s.getTransactionMoney());
@@ -1493,7 +1550,7 @@ public class AutmanController {
 
                 //密文字符通配阶段
                 if(!transactionPeople.equals("none")){
-                    if(!s.getTransactionPeople().equals("")){
+                    if(s.getTransactionPeople()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
 
                         K2C8 k2c8 = new K2C8(transactionPeople, pk, paillier);
@@ -1537,17 +1594,17 @@ public class AutmanController {
 
                 //如果有解密标记，还要把密文替换为明文
                 if(decryptFlag==1){
-                    if(!s.getTransactionMoney().equals("")){
+                    if(s.getTransactionMoney()!=null){
                         s.setTransactionMoney(paillier.SDecryption(new CipherPub(s.getTransactionMoney())).intValue()+"");
                     }
-                    if(!s.getUserRemains().equals("")){
+                    if(s.getUserRemains()!=null){
                         s.setUserRemains(paillier.SDecryption(new CipherPub(s.getUserRemains())).intValue()+"");
                     }
-                    if(!s.getStorageSize().equals("")){
+                    if(s.getStorageSize()!=null){
                         s.setStorageSize(paillier.SDecryption(new CipherPub(s.getStorageSize())).intValue()+"");
                     }
 
-                    if(!s.getTransactionPeople().equals("")){
+                    if(s.getTransactionPeople()!=null){
                         s.setTransactionPeople(K2C8.parseString(paillier.SDecryption(new CipherPub(s.getTransactionPeople())),paillier));
                     }
 
@@ -1664,7 +1721,7 @@ public class AutmanController {
                 //密文字符通配阶段
 
                 if(!idCard.equals("none")){
-                    if(!s.getIdCard().equals("")){
+                    if(s.getIdCard()!=null){
                         BigInteger pk = paillier.g.modPow(new BigInteger(1024 - 12, 64, new Random()), paillier.nsquare);
 
                         K2C8 k2c8 = new K2C8(idCard, pk, paillier);
@@ -1710,7 +1767,7 @@ public class AutmanController {
                 if(decryptFlag==1){
                     //解密字符
 
-                    if(!s.getIdCard().equals("")){
+                    if(s.getIdCard()!=null){
                         s.setIdCard(K2C8.parseString(paillier.SDecryption(new CipherPub(s.getIdCard())),paillier));
                     }
                 }
@@ -1997,7 +2054,7 @@ public class AutmanController {
             PaillierT paillier = new PaillierT(PaillierT.param);
             while (iterator.hasNext()) {
                 NotarizationTypeEntity s = iterator.next();
-                if(!s.getNotarizationMoney().equals("")){
+                if(s.getNotarizationMoney()!=null){
                     s.setNotarizationMoney(paillier.SDecryption(new CipherPub(s.getNotarizationMoney())).intValue()+"");
                 }
 
@@ -2121,7 +2178,7 @@ public class AutmanController {
             PaillierT paillier = new PaillierT(PaillierT.param);
             while (iterator.hasNext()) {
                 NotarizationTypeEntity s = iterator.next();
-                if(!s.getNotarizationMoney().equals("")){
+                if(s.getNotarizationMoney()!=null){
                     s.setNotarizationMoney(paillier.SDecryption(new CipherPub(s.getNotarizationMoney())).intValue()+"");
                 }
 
@@ -3516,6 +3573,7 @@ public class AutmanController {
         return result;
 
     }
+
 
 
     /**
