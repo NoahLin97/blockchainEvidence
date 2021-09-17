@@ -2049,7 +2049,7 @@ public class AutmanController {
             List<NotarizationTypeEntity> data = notarizationTypeMapper.selectNotarizationTypeAll();
 
 
-            //在密文下匹配，剔除不合格的数据
+            //解密公证金额
             Iterator<NotarizationTypeEntity> iterator = data.iterator();
             PaillierT paillier = new PaillierT(PaillierT.param);
             while (iterator.hasNext()) {
@@ -2061,8 +2061,11 @@ public class AutmanController {
 
             }
 
-
-            return data;
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+            return result;
 
         }catch (Exception e){
             e.printStackTrace();
@@ -2077,7 +2080,37 @@ public class AutmanController {
 
     }
 
+    /**
+     * 查询公证类型及其对应的成功数
+     */
+    @CrossOrigin(origins ="*")
+    @PostMapping("/notarTypeAndNum")
+    public Object notarTypeAndNum (HttpServletRequest req){
+        Map<String,Object> result=new HashMap<>();
 
+        try{
+            JSONObject params= ParseRequest.parse(req);
+            List<Map<String,Object>> data = autmanMapper.totalTypeSuccess();
+
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+            return result;
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+        return result;
+
+    }
 
 
     /**
@@ -2173,7 +2206,7 @@ public class AutmanController {
             List<NotarizationTypeEntity> data = notarizationTypeMapper.selectNotarizationTypeAll();
 
 
-            //在密文下匹配，剔除不合格的数据
+            //解密公证金额
             Iterator<NotarizationTypeEntity> iterator = data.iterator();
             PaillierT paillier = new PaillierT(PaillierT.param);
             while (iterator.hasNext()) {
@@ -2186,7 +2219,11 @@ public class AutmanController {
             }
 
 
-            return data;
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",data);
+            return result;
 
         }catch (Exception e){
             e.printStackTrace();

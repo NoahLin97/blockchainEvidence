@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 @Component
@@ -77,4 +78,8 @@ public interface AutmanMapper {
     //总不成功数
     @Select("SELECT count(*) as a FROM `evidence` where notarizationStatus=\"4\"")
     int totalNotSuccess();
+
+    //分组成功数成功数
+    @Select("SELECT notarizationType, count(case when notarizationStatus='3' then 1 end) as successNum, count(case when notarizationStatus='4' then 1 end) as failedNum , count(case when notarizationStatus='3' or notarizationStatus='4' then 1 end) as totalNum FROM `evidence` group by notarizationType")
+    List<Map<String,Object>> totalTypeSuccess();
 }
