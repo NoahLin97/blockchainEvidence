@@ -55,10 +55,13 @@ public interface EvidenceMapper {
     int updateNotaryId(@Param("notaryId") String notaryId,@Param("evidenceId") String evidenceId);
 
 
-    @Insert("insert evidence(evidenceId,userId,evidenceType,evidenceName,filePath,fileSize,evidenceTime) " +
-            "values(#{evidenceId},#{userId},#{evidenceType},#{evidenceName},#{filePath},#{fileSize},#{evidenceTime})")
-    void insertEvi(@Param("evidenceId") String evidenceId,@Param("userId") String userId, @Param("evidenceType") String evidenceType, @Param("evidenceName") String evidenceName,
-                   @Param("filePath") String filePath, @Param("fileSize") String fileSize, @Param("evidenceTime") String evidenceTime);
+    @Insert("insert into evidence(evidenceId, userId, evidenceType, evidenceName, filePath, fileSize, evidenceBlockchainId, blockchainTime, evidenceTime)\n" +
+            "select #{evidenceId} as evidenceId, #{userId} as userId, #{evidenceType} as evidenceType, #{evidenceName} as evidenceName, " +
+            "#{filePath} as filePath, #{fileSize} as fileSize, #{evidenceBlockchainId} as evidenceBlockchainId, #{blockchainTime} as blockchainTime," +
+            "#{evidenceTime} as evidenceTime;")
+    void insertEvi(@Param("evidenceId") String evidenceId, @Param("userId") String userId, @Param("evidenceType") String evidenceType, @Param("evidenceName") String evidenceName,
+                   @Param("filePath") String filePath, @Param("fileSize") String fileSize, @Param("evidenceBlockchainId") String evidenceBlockchainId,
+                   @Param("blockchainTime") String blockchainTime, @Param("evidenceTime") String evidenceTime);
 
     @Select("select filePath from evidence where evidenceId = #{evidenceId};")
     String getfilePathByEvidenceId(@Param("evidenceId") String evidenceId);

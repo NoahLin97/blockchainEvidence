@@ -11,11 +11,13 @@ import com.evidence.blockchainevidence.subprotocols.K2C16;
 import com.evidence.blockchainevidence.subprotocols.K2C8;
 import com.evidence.blockchainevidence.subprotocols.KET;
 import com.evidence.blockchainevidence.subprotocols.SAD;
+import com.evidence.blockchainevidence.utils.HttpUtils;
 import com.evidence.blockchainevidence.utils.ParseRequest;
 import com.evidence.blockchainevidence.utils.Sha256;
 import com.evidence.blockchainevidence.utils.StreamUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.math.BigInteger;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -3496,13 +3499,11 @@ public class AutmanController {
      */
     @CrossOrigin(origins = "*")
     @PostMapping("/aut/uploadMaterialFile")
-    public Object uploadMaterialFile(HttpServletRequest req){
+    public Object uploadMaterialFileAut(HttpServletRequest req){
 
         Map<String,Object> result = new HashMap<>();
 
         try {
-
-//            JSONObject params = ParseRequest.parse(req);
 
             // 获取参数
             String autManId = req.getParameter("autManId");
@@ -3518,80 +3519,31 @@ public class AutmanController {
             SimpleDateFormat sdf_stamp = new SimpleDateFormat("yyyyMMddHHmmss");
             String timestamp = sdf_stamp.format(time);
 
-
-//            String userId = params.get("userId").toString();
-//            String evidenceType = params.get("evidenceType").toString();
-//            String evidenceName = params.get("evidenceName").toString();
-
             // 1. 文件存放路径 ："/用户id/"
-            String folderPath = "/"+autManId+"_"+notarizationType+"_"+timestamp;
+            String folderPath = "/"+autManId+"/"+notarizationType+"_"+timestamp;
 
-            //文件保存到本地（仅测试）
-            for(int i = 0; i < files.size(); i++){
-                MultipartFile filecontent = files.get(i);
-                OutputStream os = null;
-                InputStream inputStream = null;
-                String fileName = null;
-                try {
-                    inputStream = filecontent.getInputStream();
-                    fileName = filecontent.getOriginalFilename();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    String path = "D:\\tmp\\";    //本地保存路径
-                    // 保存到临时文件
-                    // 1K的数据缓冲
-                    byte[] bs = new byte[1024];
-                    // 读取到的数据长度
-                    int len;
-                    // 输出的文件流保存到本地文件
-                    File tempFile = new File(path);
-                    if (!tempFile.exists()) {
-                        tempFile.mkdirs();
-                    }
-                    os = new FileOutputStream(tempFile.getPath() + File.separator + fileName);
-                    // 开始读取
-                    while ((len = inputStream.read(bs)) != -1) {
-                        os.write(bs, 0, len);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    // 完毕，关闭所有链接
-                    try {
-                        os.close();
-                        inputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
+            // 2. 转发数据给云后端
+            Boolean status = HttpUtils.doPostFormData("http://localhost:8090/uploadFiles?folderPath="+folderPath, files);
 
-            // 2. 转发数据给 云 的 后端 （还未测试，不一定可以发送成功）
-            Map<String, Object> map = new HashMap<>();
-            map.put("file",files);
-            map.put("FolderPath",folderPath);
-//            String s = HttpUtils.doPost("http://localhost:8090/uploadFiles", map);
-
-            // 云发回来的数据是一个map，里面存放{"status":false/ture,"message":"xxxx"/success,"data":null/"xxxx"}
-            // 可以根据status值来判断是否上传成功
             // 3. 根据返回信息判断是否上传成功，上传不成功，返回失败信息给前端
-            Map<String, Object> resInfo = new HashMap<>();
-            resInfo.put("status",true);
-            resInfo.put("message","xxxxxx");
-            Boolean statusInfo = (boolean)resInfo.get("status");
-            if(statusInfo == false){
+            if(status == false){
                 result.put("status",false);
-                result.put("message",resInfo.get("message"));
+                result.put("message","Uploading to the cloud failed");
                 return result;
             }
 
             //4. 上传成功
             //存储信息到数据库
-            materialMapper.insertMaterial(autManId, notarizationType, folderPath, current_time);
+            AutManagerEntity aut = autmanMapper.selectByAutManId(autManId);
+            String organizationId = aut.getOrganizationId();
+            MaterialEntity mat = materialMapper.getMaterialByOriIdAndNotarType(organizationId, notarizationType);
+            if(mat == null) {
+                materialMapper.insertMaterial(autManId, notarizationType, folderPath, current_time);
+            }
+            else {
+                materialMapper.updateMaterial(mat.getMaterialId(), folderPath, current_time);
+            }
+
 
             // 5. 返回成功信息给前端
             result.put("status",true);
@@ -3620,34 +3572,33 @@ public class AutmanController {
      * @return
      */
     @CrossOrigin(origins = "*")
-    @PostMapping("/downloadMaterialFile")
-    public Object getEvidenceFileUser(HttpServletRequest req, HttpServletResponse response){
+    @GetMapping("/downloadMaterialFile")
+    public void getMaterialFile(HttpServletRequest req, HttpServletResponse response){
 
         Map<String,Object> result = new HashMap<>();
 
         try {
-            JSONObject params= ParseRequest.parse(req);
 
             //1. 获取参数
-            String materialId=params.get("materialId").toString();
+            String materialId=req.getParameter("materialId");
 
             // 2. 从数据库中查找文件路径
             String folderPath = materialMapper.getfilePathByMaterialId(materialId);
-            String folderName = folderPath.substring(1) + ".zip";
+            String folderName = folderPath.split("/")[2] + ".zip";
             BufferedInputStream bis = null;
             BufferedOutputStream bos = null;
 
             try {
                 // 3. 向云服务请求文件，设置url
-//                URL url = new URL("http://localhost:8090/downloadFolder?folderPath=" + folderPath);
+                URL url = new URL("http://localhost:8090/downloadFolder?folderPath=" + folderPath);
 
                 //test
-                File f= new File("H:\\tmp\\5_test_1631237654.zip");
-                InputStream inputStream = null ;    // 准备好一个输入的对象
-                inputStream = new FileInputStream(f)  ;    // 通过对象多态性，进行实例化
+//                File f= new File("D:\\tmp\\打印报表.zip");
+//                InputStream inputStream = null ;    // 准备好一个输入的对象
+//                inputStream = new FileInputStream(f)  ;    // 通过对象多态性，进行实例化
 
                 // 4. 获得云服务返回的输入流 InputStream，放入至 BufferedInputStream
-//                InputStream inputStream = url.openStream();
+                InputStream inputStream = url.openStream();
                 bis = new BufferedInputStream(inputStream);
 
                 // 5. 设置返回给前端的信息
@@ -3682,22 +3633,11 @@ public class AutmanController {
                 }
             }
 
-            // 返回成功信息给前端
-            result.put("status",true);
-            result.put("message","success");
-
         }catch (Exception e){
             e.printStackTrace();
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw, true));
-            String str = sw.toString();
-
-            result.put("status",false);
-            result.put("message",str);
         }
-
-        return result;
-
     }
 
 
@@ -3719,19 +3659,10 @@ public class AutmanController {
 
             // 获取参数
             String organizationId=params.get("organizationId").toString();
-            String notarizationType=params.get("notarizationType").toString();
-
 
             //查询数据库
-            List<MaterialEntity> materials = materialMapper.getMaterialByoriIdAndnotarType(organizationId, notarizationType);
+            List<MaterialEntity> materials = materialMapper.getMaterialByOriId(organizationId);
 
-            //遍历将机构Id替换为机构名称
-            Iterator<MaterialEntity> iterator = materials.iterator();
-            while (iterator.hasNext()) {
-                MaterialEntity s = iterator.next();
-                String oriId=s.getOrganizationId();
-                s.setOrganizationId(organizationMapper.selectByOrganizationId(oriId).getOrganizationName());
-            }
 
             //填充返回值
             result.put("status",true);

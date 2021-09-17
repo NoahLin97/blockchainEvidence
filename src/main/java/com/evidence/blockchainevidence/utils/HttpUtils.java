@@ -1,6 +1,8 @@
 package com.evidence.blockchainevidence.utils;
 
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import okhttp3.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.*;
@@ -162,7 +164,7 @@ public class HttpUtils {
      * @return
      */
     public static Boolean doPostFormData(String url, List<MultipartFile> files){
-        Boolean context= false;
+        Boolean context = false;
         try {
             // 获取OkHttpClient对象
             OkHttpClient client = new OkHttpClient();
@@ -185,23 +187,30 @@ public class HttpUtils {
                     .post(requestBody)
                     .build();
 
-            /// 4 异步回调
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    e.printStackTrace();
-                }
+            // 4 请求
+            Response response = client.newCall(request).execute();
+            // 其中Response对象就是服务器返回的数据，将数据转换成字符串
+            JSONObject responseData = JSON.parseObject(response.body().string());
+            if((Boolean) responseData.get("status") == true)
+                context = true;
 
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-
-                }
-            });
-            context = true;
+            // 4 异步回调
+//            client.newCall(request).enqueue(new Callback() {
+//                @Override
+//                //网络请求失败
+//                public void onFailure(Call call, IOException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                //网络请求成功
+//                @Override
+//                public void onResponse(Call call, Response response) throws IOException {
+//                    String test = "true";
+//                }
+//            });
         }catch (Exception e) {
             e.printStackTrace();
         }
         return context;
-
     }
 }

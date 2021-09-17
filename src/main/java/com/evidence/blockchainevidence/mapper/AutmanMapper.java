@@ -82,4 +82,7 @@ public interface AutmanMapper {
     //分组成功数成功数
     @Select("SELECT notarizationType, count(case when notarizationStatus='3' then 1 end) as successNum, count(case when notarizationStatus='4' then 1 end) as failedNum , count(case when notarizationStatus='3' or notarizationStatus='4' then 1 end) as totalNum FROM `evidence` group by notarizationType")
     List<Map<String,Object>> totalTypeSuccess();
+
+    @Select("select * from aut_manager where autManId= #{autManId}")
+    AutManagerEntity selectByAutManId(@Param("autManId") String autManId);
 }
