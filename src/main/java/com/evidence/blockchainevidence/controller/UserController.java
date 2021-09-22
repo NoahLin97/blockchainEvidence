@@ -1203,9 +1203,9 @@ public class UserController {
             TransactionEntity tran =null;
             tran = transactionService.selectByTransactionId(transactionId);
 
-//            // 通过userId找到数据库中的那一行
-//            UserEntity u1 = null;
-//            u1 = userService.selectByUserId(userId);
+            // 通过userId找到数据库中的那一行
+            UserEntity u1 = null;
+            u1 = userService.selectByUserId(userId);
 
 //            // 获取用户余额，并写入交易表中
 //            String userRemains = u1.getRemains();
@@ -1218,7 +1218,7 @@ public class UserController {
             BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
 
             // 解密userRemains和notarizationMoney
-            BigInteger muserRemains = paillier.SDecryption(new CipherPub(tran.getUserRemains()));
+            BigInteger muserRemains = paillier.SDecryption(new CipherPub(u1.getRemains()));
             System.out.println("余额解密后：" + muserRemains);
 
             BigInteger mnotarizationMoney = paillier.SDecryption(new CipherPub(tran.getTransactionMoney()));
