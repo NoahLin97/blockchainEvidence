@@ -1,6 +1,7 @@
 package com.evidence.blockchainevidence.service;
 
 
+import com.evidence.blockchainevidence.entity.OrganizationEntity;
 import com.evidence.blockchainevidence.mapper.OrganizationMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ public class OrganizationService {
         return organizationMapper.insertOrganization(organizationId,organizationName,address,phoneNumber,email,legalPeople);
     }
 
-
+    public OrganizationEntity selectByOrganizationId(String organizationId){
+        return organizationMapper.selectByOrganizationId(organizationId);
+    }
 
 }

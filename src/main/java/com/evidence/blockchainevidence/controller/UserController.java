@@ -1240,8 +1240,12 @@ public class UserController {
 
                 // 更新transactionPeople的余额，加上公证金额，并写入数据库
                 // 获取transactionPeople那一行
+
+                // transactionPeople传进来的是organizationId，通过organizationId找到legalPeople，向legalPeople汇款
+                OrganizationEntity o1 = organizationService.selectByOrganizationId(transactionPeople);
                 UserEntity u2 = null;
-                u2 = userService.selectByUserId(transactionPeople);
+                u2 = userService.selectByUserId(o1.getLegalPeople());
+
 
                 // 解密余额
                 System.out.println(u2.getRemains());
