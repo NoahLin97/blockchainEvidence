@@ -55,9 +55,9 @@ public interface EvidenceMapper {
     int updateNotaryId(@Param("notaryId") String notaryId,@Param("evidenceId") String evidenceId);
 
 
-    @Insert("insert into evidence(evidenceId, userId, evidenceType, evidenceName, filePath, fileSize, evidenceTime)\n" +
+    @Insert("insert into evidence(evidenceId, userId, evidenceType, evidenceName, filePath, fileSize, evidenceTime, notarizationStatus)\n" +
             "select #{evidenceId} as evidenceId, #{userId} as userId, #{evidenceType} as evidenceType, #{evidenceName} as evidenceName, " +
-            "#{filePath} as filePath, #{fileSize} as fileSize, #{evidenceTime} as evidenceTime;")
+            "#{filePath} as filePath, #{fileSize} as fileSize, #{evidenceTime} as evidenceTime, '0' as notarizationStatus;")
     void insertEvi(@Param("evidenceId") String evidenceId, @Param("userId") String userId, @Param("evidenceType") String evidenceType, @Param("evidenceName") String evidenceName,
                    @Param("filePath") String filePath, @Param("fileSize") String fileSize, @Param("evidenceTime") String evidenceTime);
 
