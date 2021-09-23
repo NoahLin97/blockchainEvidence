@@ -43,10 +43,10 @@ public class QueryProvider {
 
 
         if(!notarizationStatus.equals("none")){
-            sql+=" and notarizationStatus=#{notarizationStatus}";
+            sql+=" and evidence.notarizationStatus=#{notarizationStatus}";
         }
         if(!notarizationType.equals("none")){
-            sql+=" and notarizationType=#{notarizationType}";
+            sql+=" and evidence.notarizationType=#{notarizationType}";
         }
         if(!paymentStatus.equals("none")){
             sql+=" and paymentStatus=#{paymentStatus}";
@@ -55,7 +55,7 @@ public class QueryProvider {
             sql+=" and evidenceType=#{evidenceType}";
         }
         if(!organizationId.equals("none")){
-            sql+=" and organizationId=#{organizationId}";
+            sql+=" and evidence.organizationId=#{organizationId}";
         }
         //要通配的字符串
 //        if(!evidenceNameWildcard.equals("none")){
@@ -274,22 +274,22 @@ public class QueryProvider {
 
         //要通配的字符串
         if(!organizationIdNameWildcard.equals("none")){
-            sql+=" and organizationIdName '%"+organizationIdNameWildcard+"%'";
+            sql+=" and organizationIdName like  '%"+organizationIdNameWildcard+"%'";
         }
 
         if(!addressWildcard.equals("none")){
-            sql+=" and address '%"+addressWildcard+"%'";
+            sql+=" and address like  '%"+addressWildcard+"%'";
         }
 
         if(!phoneNumberWildcard.equals("none")){
-            sql+=" and phoneNumber '%"+phoneNumberWildcard+"%'";
+            sql+=" and phoneNumber like  '%"+phoneNumberWildcard+"%'";
         }
         if(!legalPeopleWildcard.equals("none")){
-            sql+=" and legalPeople '%"+legalPeopleWildcard+"%'";
+            sql+=" and legalPeople like  '%"+legalPeopleWildcard+"%'";
         }
 
         if(!emailWildcard.equals("none")){
-            sql+=" and email '%"+emailWildcard+"%'";
+            sql+=" and email like  '%"+emailWildcard+"%'";
         }
 
         //要比大小的date
@@ -314,34 +314,34 @@ public class QueryProvider {
             sql+=" and notaryId=#{notaryId}";
         }
         if(!organizationId.equals("none")){
-            sql+=" and organizationId=#{organizationId}";
+            sql+=" and notary.organizationId=#{organizationId}";
         }
 
         if(!sex.equals("none")){
             sql+=" and sex=#{sex}";
         }
         if(!notarizationType.equals("none")){
-            sql+=" and notarizationType=#{notarizationType}";
+            sql+=" and notary.notarizationType=#{notarizationType}";
         }
 
         //要通配的字符串
         if(!notaryNameWildcard.equals("none")){
-            sql+=" and notaryName '%"+notaryNameWildcard+"%'";
+            sql+=" and notaryName like  '%"+notaryNameWildcard+"%'";
         }
 
         if(!jobNumberWildcard.equals("none")){
-            sql+=" and jobNumber '%"+jobNumberWildcard+"%'";
+            sql+=" and jobNumber like  '%"+jobNumberWildcard+"%'";
         }
 
         if(!phoneNumberWildcard.equals("none")){
-            sql+=" and phoneNumber '%"+phoneNumberWildcard+"%'";
+            sql+=" and phoneNumber like  '%"+phoneNumberWildcard+"%'";
         }
         if(!jobNumberWildcard.equals("none")){
-            sql+=" and jobNumber '%"+jobNumberWildcard+"%'";
+            sql+=" and jobNumber like  '%"+jobNumberWildcard+"%'";
         }
 
         if(!emailWildcard.equals("none")){
-            sql+=" and email '%"+emailWildcard+"%'";
+            sql+=" and email like  '%"+emailWildcard+"%'";
         }
 
         //要比大小的date
@@ -355,7 +355,7 @@ public class QueryProvider {
 
     public String selectAutman(String autManId , String autNameWildcard, String phoneNumberWildcard, String jobNumberWildcard,
                                String emailWildcard, String sex, String organizationId ) {
-        String sql = "select notaryId, notaryName, jobNumber, phoneNumber, idCard, email, sex, aut_manager.organizationId, organizationName" +
+        String sql = "select autManId, autName,  phoneNumber, idCard, email, sex, aut_manager.organizationId, organizationName" +
                 " from aut_manager,organization " +
                 "where aut_manager.organizationId = organization.organizationId ";
 
@@ -366,7 +366,7 @@ public class QueryProvider {
             sql+=" and autManId=#{autManId}";
         }
         if(!organizationId.equals("none")){
-            sql+=" and organizationId=#{organizationId}";
+            sql+=" and aut_manager.organizationId=#{organizationId}";
         }
 
         if(!sex.equals("none")){
@@ -375,22 +375,22 @@ public class QueryProvider {
 
         //要通配的字符串
         if(!autNameWildcard.equals("none")){
-            sql+=" and autName '%"+autNameWildcard+"%'";
+            sql+=" and autName like  '%"+autNameWildcard+"%'";
         }
 
         if(!jobNumberWildcard.equals("none")){
-            sql+=" and jobNumber '%"+jobNumberWildcard+"%'";
+            sql+=" and jobNumber like  '%"+jobNumberWildcard+"%'";
         }
 
         if(!phoneNumberWildcard.equals("none")){
-            sql+=" and phoneNumber '%"+phoneNumberWildcard+"%'";
+            sql+=" and phoneNumber like  '%"+phoneNumberWildcard+"%'";
         }
         if(!jobNumberWildcard.equals("none")){
-            sql+=" and jobNumber '%"+jobNumberWildcard+"%'";
+            sql+=" and jobNumber like  '%"+jobNumberWildcard+"%'";
         }
 
         if(!emailWildcard.equals("none")){
-            sql+=" and email '%"+emailWildcard+"%'";
+            sql+=" and email like  '%"+emailWildcard+"%'";
         }
 
         //要比大小的date

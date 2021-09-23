@@ -104,33 +104,34 @@ public class AutmanController {
             }
 
             //要比大小的date
+            SimpleDateFormat simpleDateFormat =new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
 
             String notarizationStartTimeStart="none";
             if(params.containsKey("notarizationStartTimeStart")){
                 notarizationStartTimeStart=params.get("notarizationStartTimeStart").toString();
                 if(!notarizationStartTimeStart.equals("none"))
-                notarizationStartTimeStart=(new java.sql.Date(Long.parseLong(notarizationStartTimeStart))).toString();
+                notarizationStartTimeStart=simpleDateFormat.format(new java.util.Date(Long.parseLong(notarizationStartTimeStart)));
             }
 
             String notarizationStartTimeEnd="none";
             if(params.containsKey("notarizationStartTimeEnd")){
                 notarizationStartTimeEnd=params.get("notarizationStartTimeEnd").toString();
                 if(!notarizationStartTimeEnd.equals("none"))
-                notarizationStartTimeEnd=(new java.sql.Date(Long.parseLong(notarizationStartTimeEnd))).toString();
+                notarizationStartTimeEnd=simpleDateFormat.format(new java.util.Date(Long.parseLong(notarizationStartTimeEnd)));
             }
 
             String notarizationEndTimeStart="none";
             if(params.containsKey("notarizationEndTimeStart")){
                 notarizationEndTimeStart=params.get("notarizationEndTimeStart").toString();
                 if(!notarizationEndTimeStart.equals("none"))
-                notarizationEndTimeStart=(new java.sql.Date(Long.parseLong(notarizationEndTimeStart))).toString();
+                notarizationEndTimeStart=simpleDateFormat.format(new java.util.Date(Long.parseLong(notarizationEndTimeStart)));
             }
 
             String notarizationEndTimeEnd="none";
             if(params.containsKey("notarizationEndTimeEnd")){
                 notarizationEndTimeEnd=params.get("notarizationEndTimeEnd").toString();
                 if(!notarizationEndTimeEnd.equals("none"))
-                notarizationEndTimeEnd=(new java.sql.Date(Long.parseLong(notarizationEndTimeEnd))).toString();
+                notarizationEndTimeEnd=simpleDateFormat.format(new java.util.Date(Long.parseLong(notarizationEndTimeEnd)));
             }
 
             //要比大小的明文
@@ -437,7 +438,7 @@ public class AutmanController {
             }
 
             //要比大小的date
-
+            SimpleDateFormat simpleDateFormat =new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
             String evidenceTimeStart="none";
             if(params.containsKey("evidenceTimeStart")){
                 evidenceTimeStart=params.get("evidenceTimeStart").toString();
@@ -446,9 +447,9 @@ public class AutmanController {
 //                Long time = Long.parseLong(evidenceTimeStart);
 //                java.sql.Date d =new java.sql.Date(time);
 //                System.out.println(d);
-//                evidenceTimeStart=(new java.sql.Date(Long.parseLong(evidenceTimeStart))).toString();
+//                evidenceTimeStart=simpleDateFormat.format(new java.util.Date(Long.parseLong(evidenceTimeStart)));
                 if(!evidenceTimeStart.equals("none"))
-                evidenceTimeStart=(new java.sql.Date(Long.parseLong(evidenceTimeStart))).toString();
+                evidenceTimeStart=simpleDateFormat.format(new java.util.Date(Long.parseLong(evidenceTimeStart)));
 
 
             }
@@ -457,14 +458,14 @@ public class AutmanController {
             if(params.containsKey("evidenceTimeEnd")){
                 evidenceTimeEnd=params.get("evidenceTimeEnd").toString();
                 if(!evidenceTimeEnd.equals("none"))
-                evidenceTimeEnd=(new java.sql.Date(Long.parseLong(evidenceTimeEnd))).toString();
+                evidenceTimeEnd=simpleDateFormat.format(new java.util.Date(Long.parseLong(evidenceTimeEnd)));
             }
 
             String blockchainTimeStart="none";
             if(params.containsKey("blockchainTimeStart")){
                 blockchainTimeStart=params.get("blockchainTimeStart").toString();
                 if(!blockchainTimeStart.equals("none"))
-                    blockchainTimeStart=(new java.sql.Date(Long.parseLong(blockchainTimeStart))).toString();
+                    blockchainTimeStart=simpleDateFormat.format(new java.util.Date(Long.parseLong(blockchainTimeStart)));
 
             }
 
@@ -472,7 +473,7 @@ public class AutmanController {
             if(params.containsKey("blockchainTimeEnd")){
                 blockchainTimeEnd=params.get("blockchainTimeEnd").toString();
                 if(!blockchainTimeEnd.equals("none"))
-                    blockchainTimeEnd=(new java.sql.Date(Long.parseLong(blockchainTimeEnd))).toString();
+                    blockchainTimeEnd=simpleDateFormat.format(new java.util.Date(Long.parseLong(blockchainTimeEnd)));
             }
 
             //要比大小的明文
@@ -1444,18 +1445,20 @@ public class AutmanController {
                 usernameWildcard=params.get("usernameWildcard").toString();
             }
             //要比大小的date
+            SimpleDateFormat simpleDateFormat =new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
+
             String transactionTimeStart="none";
             if(params.containsKey("transactionTimeStart")){
                 transactionTimeStart=params.get("transactionTimeStart").toString();
                 if(!transactionTimeStart.equals("none"))
-                transactionTimeStart=(new java.sql.Date(Long.parseLong(transactionTimeStart))).toString();
+                transactionTimeStart=simpleDateFormat.format(new java.util.Date(Long.parseLong(transactionTimeStart)));
             }
 
             String transactionTimeEnd="none";
             if(params.containsKey("transactionTimeEnd")){
                 transactionTimeEnd=params.get("transactionTimeEnd").toString();
                 if(!transactionTimeEnd.equals("none"))
-                transactionTimeEnd=(new java.sql.Date(Long.parseLong(transactionTimeEnd))).toString();
+                transactionTimeEnd=simpleDateFormat.format(new java.util.Date(Long.parseLong(transactionTimeEnd)));
             }
             //要比大小的明文
 
