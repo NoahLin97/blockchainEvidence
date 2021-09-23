@@ -344,10 +344,10 @@ public class AutmanController {
                     i=Integer.parseInt(s.getTransactionStatus().toString());
                     s.setTransactionStatus(transactionStatuses[i]);
                 }
-                if(s.getNotarizationType()!=null){
-                    i=Integer.parseInt(s.getNotarizationType().toString());
-//                    s.setNotarizationType(notarizationTypes[i]);
-                }
+//                if(s.getNotarizationType()!=null){
+//                    i=Integer.parseInt(s.getNotarizationType().toString());
+////                    s.setNotarizationType(notarizationTypes[i]);
+//                }
 
 
 
@@ -2280,7 +2280,7 @@ public class AutmanController {
 
 
     /**
-     * 公证员统计时间查询
+     * 公证机构统计时间查询
      */
     @CrossOrigin(origins ="*")
     @PostMapping("/orgStaTimeQuery ")
