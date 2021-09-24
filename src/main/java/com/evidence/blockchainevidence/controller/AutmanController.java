@@ -2283,7 +2283,7 @@ public class AutmanController {
      * 公证机构统计时间查询
      */
     @CrossOrigin(origins ="*")
-    @PostMapping("/orgStaTimeQuery ")
+    @PostMapping("/orgStaTimeQuery")
     public Object orgStaTimeQuery  (HttpServletRequest req){
         Map<String,Object> result=new HashMap<>();
 
@@ -2382,7 +2382,7 @@ public class AutmanController {
             iterator = data.iterator();
             while (iterator.hasNext()) {
                 NotaryStatisticsEntity s = iterator.next();
-                Integer i=Integer.parseInt(s.getNotarizationType().toString());
+//                Integer i=Integer.parseInt(s.getNotarizationType().toString());
 //                s.setNotarizationType(notarizationTypes[i]);
 //                        Integer i=Integer.parseInt(s.getTransactionStatus().toString());
 //                        s.setTransactionStatus(transactionStatuses[i]);
@@ -2567,7 +2567,7 @@ public class AutmanController {
             iterator = data.iterator();
             while (iterator.hasNext()) {
                 NotaryStatisticsEntity s = iterator.next();
-                Integer i=Integer.parseInt(s.getNotarizationType().toString());
+//                Integer i=Integer.parseInt(s.getNotarizationType().toString());
 //                s.setNotarizationType(notarizationTypes[i]);
 //                        Integer i=Integer.parseInt(s.getTransactionStatus().toString());
 //                        s.setTransactionStatus(transactionStatuses[i]);
