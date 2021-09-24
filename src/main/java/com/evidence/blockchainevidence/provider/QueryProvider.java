@@ -355,7 +355,7 @@ public class QueryProvider {
 
     public String selectAutman(String autManId , String autNameWildcard, String phoneNumberWildcard, String jobNumberWildcard,
                                String emailWildcard, String sex, String organizationId ) {
-        String sql = "select autManId, autName,  phoneNumber, idCard, email, sex, aut_manager.organizationId, organizationName" +
+        String sql = "select autManId, autName,  aut_manager.phoneNumber, idCard, aut_manager.email, sex, aut_manager.organizationId, organizationName" +
                 " from aut_manager,organization " +
                 "where aut_manager.organizationId = organization.organizationId ";
 
