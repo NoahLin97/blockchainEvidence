@@ -1440,6 +1440,7 @@ public class AutmanController {
             if(params.containsKey("transactionType")){
                 transactionType=params.get("transactionType").toString();
             }
+
             //要通配的明文字符串
             String usernameWildcard="none";
             if(params.containsKey("usernameWildcard")){

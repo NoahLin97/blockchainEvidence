@@ -1272,6 +1272,22 @@ public class UserController {
                 int flag4 = transactionService.updateTranStatus("1",transactionId);
 
                 // 还要把transactionPeople写进transaction表中
+                // 加密transactionPeople
+
+                System.out.println("transactionPeople为：" + transactionPeople);
+                K2C8 SK0 = new K2C8(transactionPeople,pk,paillier);
+                System.out.println("K2C8转换后的大整数为：" + SK0.getB());
+                SK0.StepOne();
+                String stransactionPeople = SK0.FIN.toString();
+                System.out.println("K2C8加密后的大整数为：" + stransactionPeople);
+
+                // transactionPeople解密测试
+                BigInteger mtransactionPeople = paillier.SDecryption(SK0.FIN);
+                System.out.println("解密后的大整数值为：" + mtransactionPeople);
+
+                String temp = SK0.parseString(mtransactionPeople,paillier);
+                System.out.println("大整数转化为字符串：" + temp);
+
                 int flag5 = transactionService.updateTranPeople(transactionPeople,transactionId);
             }
 
