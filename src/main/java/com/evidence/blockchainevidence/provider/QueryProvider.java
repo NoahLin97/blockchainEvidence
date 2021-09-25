@@ -5,7 +5,7 @@ public class QueryProvider {
     //按公证所需参数查询
     public String selectEvidence(String evidenceId, String userId, String notaryId,
                                  String notarizationStatus, String notarizationType,
-                                 String paymentStatus, String evidenceType, String organizationId,
+                                 String transactionStatus, String evidenceType, String organizationId,
                                  String evidenceNameWildcard, String usernameWildcard, String notarizationStartTimeStart,
                                  String notarizationStartTimeEnd, String notarizationEndTimeStart,
                                  String notarizationEndTimeEnd) {
@@ -48,7 +48,7 @@ public class QueryProvider {
         if(!notarizationType.equals("none")){
             sql+=" and evidence.notarizationType=#{notarizationType}";
         }
-        if(!paymentStatus.equals("none")){
+        if(!transactionStatus.equals("none")){
             sql+=" and paymentStatus=#{paymentStatus}";
         }
         if(!evidenceType.equals("none")){
@@ -194,7 +194,7 @@ public class QueryProvider {
 
         //要通配的字符串
         if(!usernameWildcard.equals("none")){
-            sql+=" and username '%"+usernameWildcard+"%'";
+            sql+=" and username like '%"+usernameWildcard+"%'";
         }
 
         //要比大小的date
@@ -303,7 +303,7 @@ public class QueryProvider {
 
     public String selectNotary(String notaryId , String notaryNameWildcard, String phoneNumberWildcard, String jobNumberWildcard,
                                      String emailWildcard, String sex, String organizationId, String notarizationType ) {
-        String sql = "select notaryId, notaryName, jobNumber, notary.phoneNumber, idCard, notary.email, sex, notary.organizationId, notarizationType, organizationName" +
+        String sql = "select password,position,workYear, notaryId, notaryName, jobNumber, notary.phoneNumber, idCard, notary.email, sex, notary.organizationId, notarizationType, organizationName" +
                 " from notary,organization " +
                 "where notary.organizationId = organization.organizationId ";
 
@@ -334,14 +334,12 @@ public class QueryProvider {
         }
 
         if(!phoneNumberWildcard.equals("none")){
-            sql+=" and phoneNumber like  '%"+phoneNumberWildcard+"%'";
-        }
-        if(!jobNumberWildcard.equals("none")){
-            sql+=" and jobNumber like  '%"+jobNumberWildcard+"%'";
+            sql+=" and notary.phoneNumber like  '%"+phoneNumberWildcard+"%'";
         }
 
+
         if(!emailWildcard.equals("none")){
-            sql+=" and email like  '%"+emailWildcard+"%'";
+            sql+=" and notary.email like  '%"+emailWildcard+"%'";
         }
 
         //要比大小的date
@@ -355,7 +353,7 @@ public class QueryProvider {
 
     public String selectAutman(String autManId , String autNameWildcard, String phoneNumberWildcard, String jobNumberWildcard,
                                String emailWildcard, String sex, String organizationId ) {
-        String sql = "select autManId, autName,  aut_manager.phoneNumber, idCard, aut_manager.email, sex, aut_manager.organizationId, organizationName" +
+        String sql = "select aut_manager.*, organizationName" +
                 " from aut_manager,organization " +
                 "where aut_manager.organizationId = organization.organizationId ";
 
@@ -383,14 +381,11 @@ public class QueryProvider {
         }
 
         if(!phoneNumberWildcard.equals("none")){
-            sql+=" and phoneNumber like  '%"+phoneNumberWildcard+"%'";
-        }
-        if(!jobNumberWildcard.equals("none")){
-            sql+=" and jobNumber like  '%"+jobNumberWildcard+"%'";
+            sql+=" and aut_manager.phoneNumber like  '%"+phoneNumberWildcard+"%'";
         }
 
         if(!emailWildcard.equals("none")){
-            sql+=" and email like  '%"+emailWildcard+"%'";
+            sql+=" and aut_manager.email like  '%"+emailWildcard+"%'";
         }
 
         //要比大小的date

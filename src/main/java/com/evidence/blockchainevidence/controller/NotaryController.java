@@ -69,10 +69,10 @@ public class NotaryController {
             if(params.containsKey("notarizationStatus")){
                 params.remove("notarizationStatus ");
             }
-            if(params.containsKey("paymentStatus")){
-                params.remove("paymentStatus ");
+            if(params.containsKey("transactionStatus")){
+                params.remove("transactionStatus ");
             }
-            params.put("paymentStatus","1");
+            params.put("transactionStatus","1");
             if(!params.containsKey("dealType")){
                 result.put("status",false);
                 result.put("message","给出没有dealType！");

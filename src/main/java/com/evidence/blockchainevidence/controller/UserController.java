@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -2185,7 +2186,18 @@ public class UserController {
 
             try {
                 // 3. 向云服务请求文件，设置url
-                URL url = new URL("http://localhost:8090/downloadFolder?folderPath=" + folderPath);
+//                URL url = new URL("http://localhost:8090/downloadFolder?folderPath=" + folderPath);
+
+                URL url = new URL("http://localhost:8090/downloadFolder");
+                HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+                connection.setDoOutput(true);
+                OutputStream outputStream = connection.getOutputStream(); // 输出流
+                String str = "folderPath="+folderPath;
+                outputStream.write(str.getBytes()); // 参数写入到输出流中
+                outputStream.flush();
+                outputStream.close();
+                InputStream inputStream = connection.getInputStream();
+
 
                 //test
 //                File f= new File("D:\\tmp\\打印报表.zip");
@@ -2193,7 +2205,7 @@ public class UserController {
 //                inputStream = new FileInputStream(f)  ;    // 通过对象多态性，进行实例化
 
                 // 4. 获得云服务返回的输入流 InputStream，放入至 BufferedInputStream
-                InputStream inputStream = url.openStream();
+//                InputStream inputStream = url.openStream();
                 bis = new BufferedInputStream(inputStream);
 
                 // 5. 设置返回给前端的信息

@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -626,10 +627,10 @@ public class AutmanController {
                     i=Integer.parseInt(s.getTransactionStatus().toString());
                     s.setTransactionStatus(transactionStatuses[i]);
                 }
-                if(s.getNotarizationType()!=null){
-                    i=Integer.parseInt(s.getNotarizationType().toString());
-//                    s.setNotarizationType(notarizationTypes[i]);
-                }
+//                if(s.getNotarizationType()!=null){
+//                    i=Integer.parseInt(s.getNotarizationType().toString());
+////                    s.setNotarizationType(notarizationTypes[i]);
+//                }
 
 
 
@@ -1229,7 +1230,7 @@ public class AutmanController {
                 Integer i;
                 i=Integer.parseInt(s.getSex().toString());
                 s.setSex(sexs[i]);
-                i=Integer.parseInt(s.getNotarizationType().toString());
+//                i=Integer.parseInt(s.getNotarizationType().toString());
 //                s.setNotarizationType(notarizationTypes[i]);
 
                 //如果有解密标记，还要把密文替换为明文
@@ -1610,9 +1611,9 @@ public class AutmanController {
                         s.setStorageSize(paillier.SDecryption(new CipherPub(s.getStorageSize())).intValue()+"");
                     }
 
-                    if(s.getTransactionPeople()!=null){
-                        s.setTransactionPeople(K2C8.parseString(paillier.SDecryption(new CipherPub(s.getTransactionPeople())),paillier));
-                    }
+//                    if(s.getTransactionPeople()!=null){
+//                        s.setTransactionPeople(K2C8.parseString(paillier.SDecryption(new CipherPub(s.getTransactionPeople())),paillier));
+//                    }
 
                 }
             }
@@ -2845,6 +2846,7 @@ public class AutmanController {
                 result.put("message","登录成功!");
                 // 登录成功返回autManId
                 result.put("autManId",u1.getAutManId());
+                result.put("organizationId",u1.getOrganizationId());
             }
             else{
                 result.put("status",false);
@@ -3593,7 +3595,19 @@ public class AutmanController {
 
             try {
                 // 3. 向云服务请求文件，设置url
-                URL url = new URL("http://localhost:8090/downloadFolder?folderPath=" + folderPath);
+//                URL url = new URL("http://localhost:8090/downloadFolder?folderPath=" + folderPath);
+
+                URL url = new URL("http://localhost:8090/downloadFolder");
+                HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+
+                connection.setDoOutput(true);
+                OutputStream outputStream = connection.getOutputStream(); // 输出流
+                String str = "folderPath="+folderPath;
+                outputStream.write(str.getBytes()); // 参数写入到输出流中
+                outputStream.flush();
+                outputStream.close();
+
+                InputStream inputStream = connection.getInputStream();
 
                 //test
 //                File f= new File("D:\\tmp\\打印报表.zip");
@@ -3601,7 +3615,7 @@ public class AutmanController {
 //                inputStream = new FileInputStream(f)  ;    // 通过对象多态性，进行实例化
 
                 // 4. 获得云服务返回的输入流 InputStream，放入至 BufferedInputStream
-                InputStream inputStream = url.openStream();
+//                InputStream inputStream = url.openStream();
                 bis = new BufferedInputStream(inputStream);
 
                 // 5. 设置返回给前端的信息

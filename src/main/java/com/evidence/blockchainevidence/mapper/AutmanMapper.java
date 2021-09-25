@@ -17,7 +17,7 @@ public interface AutmanMapper {
 //            "#{sqlparam}")
     @SelectProvider(method = "selectEvidence", type = QueryProvider.class)
     List<EvidenceEntity> findEvidence(@Param("evidenceId")String evidenceId,@Param("userId")String userId,@Param("notaryId")String notaryId,@Param("notarizationStatus")String notarizationStatus,@Param("notarizationType")String notarizationType,
-                              @Param("paymentStatus")String paymentStatus,@Param("evidenceType")String evidenceType,@Param("organizationId")String organizationId,
+                              @Param("transactionStatus")String transactionStatus,@Param("evidenceType")String evidenceType,@Param("organizationId")String organizationId,
                               @Param("evidenceNameWildcard")String evidenceNameWildcard,@Param("usernameWildcard")String usernameWildcard,@Param("notarizationStartTimeStart")String notarizationStartTimeStart,
                               @Param("notarizationStartTimeEnd")String notarizationStartTimeEnd,@Param("notarizationEndTimeStart")String notarizationEndTimeStart,
                               @Param("notarizationEndTimeEnd")String notarizationEndTimeEnd);
