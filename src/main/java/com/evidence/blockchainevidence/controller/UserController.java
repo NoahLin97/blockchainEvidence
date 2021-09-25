@@ -39,6 +39,7 @@ import java.util.*;
 import static com.evidence.blockchainevidence.controller.AutmanController.*;
 
 
+@SuppressWarnings({"all"})
 @RestController
 public class UserController {
 
@@ -1288,7 +1289,7 @@ public class UserController {
                 String temp = SK0.parseString(mtransactionPeople,paillier);
                 System.out.println("大整数转化为字符串：" + temp);
 
-                int flag5 = transactionService.updateTranPeople(transactionPeople,transactionId);
+                int flag5 = transactionService.updateTranPeople(stransactionPeople,transactionId);
             }
 
 
@@ -1581,7 +1582,9 @@ public class UserController {
 
             // 通过transactionPeople找到数据库中的那一行
             UserEntity u2 = null;
-            u2 = userService.selectByUserId(transactionPeople);
+//            u2 = userService.selectByUserId(transactionPeople);
+            u2 = userService.selectByUserName(transactionPeople);
+
 
             // 解密user和transactionPeople的余额
             // 生成注册用户的公私钥
@@ -1619,7 +1622,7 @@ public class UserController {
                 String si =  paillier.Encryption(BigInteger.valueOf(i),pk).toString();
                 String sj = paillier.Encryption(BigInteger.valueOf(j),pk).toString();
                 int flag = userService.updateRemains(si,userId);
-                int flag1 = userService.updateRemains(sj,transactionPeople);
+                int flag1 = userService.updateRemains(sj,u2.getUserId());
 
                 // 加密transactionPeople和transactionMoney
 //                String stransactionPeople = paillier.Encryption(BigInteger.valueOf(Integer.parseInt(transactionPeople)),pk).toString();

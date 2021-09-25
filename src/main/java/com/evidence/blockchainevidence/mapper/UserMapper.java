@@ -40,4 +40,6 @@ public interface UserMapper {
     @Update("update user set storageSpace = #{storageSpace} where userId = #{userId}")
     int updateStorageSpace(@Param("storageSpace") String storageSpace,@Param("userId") String userId);
 
+    @Select("select * from user where username = #{userName}")
+    UserEntity selectByUserName(String userName);
 }

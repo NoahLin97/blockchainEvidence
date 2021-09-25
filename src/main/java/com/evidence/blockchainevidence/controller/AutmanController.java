@@ -1612,9 +1612,9 @@ public class AutmanController {
                         s.setStorageSize(paillier.SDecryption(new CipherPub(s.getStorageSize())).intValue()+"");
                     }
 
-//                    if(s.getTransactionPeople()!=null){
-//                        s.setTransactionPeople(K2C8.parseString(paillier.SDecryption(new CipherPub(s.getTransactionPeople())),paillier));
-//                    }
+                    if(s.getTransactionPeople()!=null){
+                        s.setTransactionPeople(K2C8.parseString(paillier.SDecryption(new CipherPub(s.getTransactionPeople())),paillier));
+                    }
 
                 }
             }

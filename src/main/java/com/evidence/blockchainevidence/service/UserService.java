@@ -42,6 +42,7 @@ public class UserService {
     }
 
 
-
-
+    public UserEntity selectByUserName(String userName) {
+        return userMapper.selectByUserName(userName);
+    }
 }

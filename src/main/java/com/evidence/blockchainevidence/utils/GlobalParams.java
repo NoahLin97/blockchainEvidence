@@ -20,8 +20,8 @@ public class GlobalParams {
     public static String[] orgtype={"type1","type2","type3"};
     public static String[] notarizationTypes={"房产证公证","驾驶证公证","学历公证"};
     public static Integer[] notarizationMoneys={100,200,300};
-    public static String[] transactionTypes={"充值","转赠","提现","购买存储空间","申请司法公证"};
-    public static String[] evidenceTypes={"网页取证","录音取证","视频取证","书面取证"};
+    public static String[] transactionTypes={"充值","转账","提现","购买存储空间","申请司法公证"};
+    public static String[] evidenceTypes={"网页存证","录音存证","视频存证","书面存证","合同存证","电子数据存证"};
 
     public static String[] sexs={"男","女"};
     public static String[] transactionStatuses={"未支付","已支付"};
