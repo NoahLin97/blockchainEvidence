@@ -2268,6 +2268,86 @@ public class UserController {
     }
 
 
+    /**
+     * 用户/公证员/机构管理员/系统管理员 下载公证证书文件
+     * @param req
+     * @param response
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @GetMapping("/downloadCertificateFile")
+    public void downloadCertificateFile(HttpServletRequest req, HttpServletResponse response){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try {
+            //1. 获取参数
+            String evidenceId = req.getParameter("evidenceId");
+
+            // 2. 获取文件类型
+            EvidenceEntity evidenceEntity = evidenceMapper.selectByEvidenceId(evidenceId);
+            String notarizationType = evidenceEntity.getNotarizationType();
+            BufferedInputStream bis = null;
+            BufferedOutputStream bos = null;
+
+            try {
+                // 3. 向云服务请求文件，设置url
+                URL url = new URL("http://localhost:8090/downloadFolder");
+                HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+                connection.setDoOutput(true);
+                OutputStream outputStream = connection.getOutputStream(); // 输出流
+                String str = "folderPath=" + "/"+notarizationType + "/"+notarizationType+".pdf"; // 下载路径
+                outputStream.write(str.getBytes()); // 参数写入到输出流中
+                outputStream.flush();
+                outputStream.close();
+                InputStream inputStream = connection.getInputStream();
+
+
+                // 4. 获得云服务返回的输入流 InputStream，放入至 BufferedInputStream
+//                InputStream inputStream = url.openStream();
+                bis = new BufferedInputStream(inputStream);
+
+                // 5. 设置返回给前端的信息
+                response.reset(); // 来清除首部的空白行
+                response.setContentType("application/octet-stream"); // 二进制数据类型
+                // content-disposition 响应头 控制浏览器 以下载的形式打开文件，前端收到 response 后会下载
+                response.setHeader("Content-Disposition", "attachment;filename=\"" + URLEncoder.encode(notarizationType + ".zip", "UTF-8") + "\"");
+
+                // 6. 将输入流转成字节数组
+                byte[] bytes = StreamUtils.streamToByteArray(bis);
+
+                // 7. 获取到 response 的 OutputStream 输出流，并入 BufferedOutputStream
+                bos = new BufferedOutputStream(response.getOutputStream());
+
+                // 8. 写入文件数据
+                bos.write(bytes);
+
+            } catch (IOException e) {
+                // 异常处理
+                e.printStackTrace();
+            } finally {
+                // 关闭流
+                try {
+                    if (bos != null) {
+                        bos.close();
+                    }
+                    if (bis != null) {
+                        bis.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+        }
+
+    }
+
+
 
 
 
