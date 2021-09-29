@@ -1517,7 +1517,7 @@ public class UserController {
 
 
     /**
-     * 积分商店转赠
+     * 积分商店转账
      * @param req
      * @return
      */
@@ -1597,26 +1597,25 @@ public class UserController {
             System.out.println("u1余额解密后：" + mu1Remains);
             System.out.println("u2余额解密后：" + mu2Remains);
             System.out.println("transactionMoney为：" + transactionMoney);
-
-            // 获取用户余额减去转赠金额，判断余额是否充足
+            // 获取用户余额减去转账金额，判断余额是否充足
 //            Integer userRemains =Integer.parseInt(u1.getRemains());
             System.out.println(mu1Remains.intValue());
             System.out.println(Integer.parseInt(transactionMoney));
             if(mu1Remains.intValue() - Integer.parseInt(transactionMoney) < 0){
                 result.put("status",false);
-                result.put("message","余额不足，无法转赠");
+                result.put("message","余额不足，无法转账");
 
                 return result;
             }
             else{
                 int i = mu1Remains.intValue() - Integer.parseInt(transactionMoney);
-                System.out.println("转赠后u1余额为：" + i);
+                System.out.println("转账后u1余额为：" + i);
 
-                // 获取转赠用户的余额，加上转赠的金额
+                // 获取转账用户的余额，加上转账的金额
 //                Integer u2Remains = Integer.parseInt(u2.getRemains());
 //                u2Remains += Integer.parseInt(transactionMoney);
                 int j = mu2Remains.intValue() + Integer.parseInt(transactionMoney);
-                System.out.println("转赠后u2的余额为：" + j);
+                System.out.println("转账后u2的余额为：" + j);
 
                 // 分别将两个用户的余额更新至数据库
                 String si =  paillier.Encryption(BigInteger.valueOf(i),pk).toString();
@@ -1643,7 +1642,7 @@ public class UserController {
 
                 String stransactionMoney = paillier.Encryption(BigInteger.valueOf(Integer.parseInt(transactionMoney)),pk).toString();
 
-                // 设置交易类型为转赠1
+                // 设置交易类型为转账1
                 String transactionType = "1";
 
                 // 将以上信息统一写入transaction表中
@@ -1685,13 +1684,13 @@ public class UserController {
                 blockchain.put("key",transactionId);
                 blockchain.put("value",jsonObject);
 
-                String str= HttpUtils.doPost("http://192.168.31.245:8090/writeGive",blockchain);
-                System.out.println("转赠区块链Id为：" + str);
+//                String str= HttpUtils.doPost("http://192.168.31.245:8090/writeGive",blockchain);
+//                System.out.println("转账区块链Id为：" + str);
 
 
                 // 返回
                 result.put("status",true);
-                result.put("message","转赠成功");
+                result.put("message","转账成功");
                 result.put("transactionId",transactionId);
                 result.put("userRemains",tran1.getUserRemains());
                 result.put("transactionMoney",tran1.getTransactionMoney());
