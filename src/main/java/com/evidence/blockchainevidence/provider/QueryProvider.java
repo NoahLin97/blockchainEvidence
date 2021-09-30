@@ -274,7 +274,7 @@ public class QueryProvider {
 
         //要通配的字符串
         if(!organizationIdNameWildcard.equals("none")){
-            sql+=" and organizationName like  '%"+organizationIdNameWildcard+"%'";
+            sql+=" and organizationIdName like  '%"+organizationIdNameWildcard+"%'";
         }
 
         if(!addressWildcard.equals("none")){
