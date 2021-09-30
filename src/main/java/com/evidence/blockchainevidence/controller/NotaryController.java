@@ -284,6 +284,16 @@ public class NotaryController {
             // System.out.println("公钥为：" + pk);
             System.out.println("公钥为：" + publicKey);
 
+            // 身份证加密
+            System.out.println("身份证为：" + idCard);
+            K2C8 SK0 = new K2C8(idCard,pk,paillier);
+            System.out.println("K2C8转换后的大整数为：" + SK0.getB());
+            SK0.StepOne();
+            String sidCard = SK0.FIN.toString();
+            System.out.println("K2C8加密后的大整数为：" + sidCard);
+            // 将密文赋值给idCard,数据库id_card字段长度也要设置大一点，不然放不下
+            idCard = sidCard;
+
             // 存入数据库
             int flag = notaryService.insertNotary(notaryId, notaryName, jobNumber, password, phoneNumber, idCard, email, sex, organizationId, notarizationType, publicKey, workYear, position);
 
