@@ -379,7 +379,7 @@ public class UserController {
             if(params.containsKey("transactionPeopleCipher    ")){
                 params.remove("transactionPeopleCipher ");
             }
-            return transSelect(params,autmanMapper);
+            return transSelect(params,autmanMapper,organizationService);
 
         }catch (Exception e){
             e.printStackTrace();
@@ -455,20 +455,10 @@ public class UserController {
                 result.put("message","没有给出organizationName");
                 return result;
             }
-            if(params.get("organizationName").toString().equals("none")){
-                result.put("status",false);
-                result.put("message","organizationName不能为空");
-                return result;
-            }
 
             if(!params.containsKey("address")){
                 result.put("status",false);
                 result.put("message","没有给出address");
-                return result;
-            }
-            if(params.get("address").toString().equals("none")){
-                result.put("status",false);
-                result.put("message","address不能为空");
                 return result;
             }
 
@@ -477,31 +467,16 @@ public class UserController {
                 result.put("message","没有给出phoneNumber");
                 return result;
             }
-            if(params.get("phoneNumber").toString().equals("none")){
-                result.put("status",false);
-                result.put("message","phoneNumber不能为空");
-                return result;
-            }
 
             if(!params.containsKey("email")){
                 result.put("status",false);
                 result.put("message","没有给出email");
                 return result;
             }
-            if(params.get("email").toString().equals("none")){
-                result.put("status",false);
-                result.put("message","email不能为空");
-                return result;
-            }
 
             if(!params.containsKey("legalPeople")){
                 result.put("status",false);
                 result.put("message","没有给出legalPeople");
-                return result;
-            }
-            if(params.get("legalPeople").toString().equals("none")){
-                result.put("status",false);
-                result.put("message","legalPeople不能为空");
                 return result;
             }
 
@@ -511,6 +486,7 @@ public class UserController {
             String phoneNumber = params.get("phoneNumber").toString();
             String email = params.get("email").toString();
             String legalPeople = params.get("legalPeople").toString();
+            legalPeople = userService.selectByUserName(legalPeople).getUserId(); // 名字转为id
 
             // 生成organizationId
             String id = UUID.randomUUID().toString();
@@ -1338,14 +1314,14 @@ public class UserController {
             blockchain1.put("key",evidenceId);
             blockchain1.put("value",jsonObject);
 
-            String str1 = HttpUtils.doPost("http://192.168.31.245:8090/writeNotarizationApply",blockchain1);
-            System.out.println("公证申请区块链Id为：" + str1);
+//            String str1 = HttpUtils.doPost("http://192.168.31.245:8090/writeNotarizationApply",blockchain1);
+//            System.out.println("公证申请区块链Id为：" + str1);
 
             blockchain2.put("key",transactionId);
             System.out.println("transactionId:" + transactionId);
             blockchain2.put("value",jsonObject);
-            String str2 = HttpUtils.doPost("http://192.168.31.245:8090/writeNotarPay",blockchain2);
-            System.out.println("公证缴费区块链Id为：" + str2);
+//            String str2 = HttpUtils.doPost("http://192.168.31.245:8090/writeNotarPay",blockchain2);
+//            System.out.println("公证缴费区块链Id为：" + str2);
 
             // 返回
             result.put("status",true);
@@ -1487,8 +1463,8 @@ public class UserController {
             blockchain.put("key",transactionId);
             blockchain.put("value",jsonObject);
 
-            String str= HttpUtils.doPost("http://192.168.31.245:8090/writeCharge",blockchain);
-            System.out.println("充值区块链Id为：" + str);
+//            String str= HttpUtils.doPost("http://192.168.31.245:8090/writeCharge",blockchain);
+//            System.out.println("充值区块链Id为：" + str);
 
 
             // 返回
@@ -1841,8 +1817,8 @@ public class UserController {
                 blockchain.put("key",transactionId);
                 blockchain.put("value",jsonObject);
 
-                String str= HttpUtils.doPost("http://192.168.31.245:8090/writeWithdraw",blockchain);
-                System.out.println("提现区块链Id为：" + str);
+//                String str= HttpUtils.doPost("http://192.168.31.245:8090/writeWithdraw",blockchain);
+//                System.out.println("提现区块链Id为：" + str);
 
 
                 // 返回
@@ -2000,6 +1976,11 @@ public class UserController {
                 String transactionStatus = "1";
                 int flag4 = transactionService.updateTranStatus(transactionStatus,transactionId);
 
+                // 存储购买存储空间大小
+                // 加密
+                String storageSizeEncrpt =  paillier.Encryption(BigInteger.valueOf(Integer.parseInt(storageSize)),pk).toString();
+                int flag5 = transactionService.updateStorageSize(storageSizeEncrpt,transactionId);
+
 
                 // 与区块链交互
                 Map<String,Object> blockchain = new HashMap<>();
@@ -2022,8 +2003,8 @@ public class UserController {
                 blockchain.put("key",transactionId);
                 blockchain.put("value",jsonObject);
 
-                String str= HttpUtils.doPost("http://192.168.31.245:8090/writeMemPay",blockchain);
-                System.out.println("购买存储空间区块链Id为：" + str);
+//                String str= HttpUtils.doPost("http://192.168.31.245:8090/writeMemPay",blockchain);
+//                System.out.println("购买存储空间区块链Id为：" + str);
 
 
                 // 返回
@@ -2151,8 +2132,8 @@ public class UserController {
             }
 
             // 3 . 转发数据给云后端
-//            Boolean status = HttpUtils.doPostFormData("http://localhost:8090/uploadFiles?folderPath="+folderPath, files);
-            Boolean status = true;
+            Boolean status = HttpUtils.doPostFormData("http://localhost:8090/uploadFiles?folderPath="+folderPath, files);
+//            Boolean status = true;
 
             // 4. 根据返回信息判断是否上传成功，上传不成功，返回失败信息给前端
             if(status == false){
@@ -2198,7 +2179,7 @@ public class UserController {
 
             blockchain.put("key",evidenceId);
             blockchain.put("value",jsonObject);
-
+//
 //            String str= HttpUtils.doPost("http://192.168.31.245:8090/writeEvidence",blockchain);
             String str = "123456";
             System.out.println("上传证据区块链Id为：" + str);
