@@ -651,12 +651,12 @@ public class UserController {
             String userId = id.replace("-" , "");
             System.out.println("userId为：" + userId);
 
-            // 假定初始存储空间为100,已用为0
-            int storageSpace = 100;
+            // 假定初始存储空间为100GB,已用为0
+            int storageSpace = 100*1024*1024;
             int hasUsedStorage = 0;
 
             // 初始余额为500
-            int remains = 500;
+            int remains = 0;
 
             // 生成注册用户的公私钥
             PaillierT paillier = new PaillierT(PaillierT.param);
