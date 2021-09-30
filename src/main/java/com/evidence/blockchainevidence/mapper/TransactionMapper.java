@@ -34,4 +34,7 @@ public interface TransactionMapper {
 
     @Update("update transaction set blockchainTime = #{blockchainTime} where transactionId = #{transactionId}")
     int updateBlockchainTime(@Param("blockchainTime") String blockchainTime,@Param("transactionId") String transactionId);
+
+    @Update("update transaction set storageSize = #{storageSize} where transactionId = #{transactionId}")
+    int updateStorageSize(String storageSize, String transactionId);
 }

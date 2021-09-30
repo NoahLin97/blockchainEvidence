@@ -44,4 +44,7 @@ public class TransactionService {
         return transactionMapper.updateBlockchainTime(blockchainTime, transactionId);
     }
 
+    public int updateStorageSize(String storageSize, String transactionId) {
+        return transactionMapper.updateStorageSize(storageSize,transactionId);
+    }
 }

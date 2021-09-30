@@ -7,6 +7,8 @@ import com.evidence.blockchainevidence.PaillierT.PaillierT;
 import com.evidence.blockchainevidence.entity.*;
 import com.evidence.blockchainevidence.helib.SLT;
 import com.evidence.blockchainevidence.mapper.*;
+import com.evidence.blockchainevidence.service.OrganizationService;
+import com.evidence.blockchainevidence.service.UserService;
 import com.evidence.blockchainevidence.subprotocols.K2C16;
 import com.evidence.blockchainevidence.subprotocols.K2C8;
 import com.evidence.blockchainevidence.subprotocols.KET;
@@ -43,6 +45,12 @@ public class AutmanController {
 
     @Autowired
     NotarizationTypeMapper notarizationTypeMapper;
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    OrganizationService organizationService;
 
     //查询已申请公证的证据，因此参数会涉及公证
     public static Map<String,Object> eviSelect (JSONObject params, AutmanMapper autmanMapper){
@@ -1011,7 +1019,7 @@ public class AutmanController {
     }
 
 
-    public static Map<String,Object> orgSelect (JSONObject params, AutmanMapper autmanMapper){
+    public static Map<String,Object> orgSelect (JSONObject params, AutmanMapper autmanMapper, UserService userService){
         Map<String,Object> result=new HashMap<>();
 
         try{
@@ -1070,9 +1078,8 @@ public class AutmanController {
             iterator = data.iterator();
             while (iterator.hasNext()) {
                 OrganizationEntity s = iterator.next();
+                s.setLegalPeople(userService.selectByUserId(s.getLegalPeople()).getUsername());
 
-//                        Integer i=Integer.parseInt(s.getTransactionStatus().toString());
-//                        s.setTransactionStatus(transactionStatuses[i]);
 
                 //如果有解密标记，还要把密文替换为明文
 //                        if(decryptFlag==1){
@@ -1425,7 +1432,7 @@ public class AutmanController {
     }
 
 
-    public static Map<String,Object> transSelect (JSONObject params, AutmanMapper autmanMapper){
+    public static Map<String,Object> transSelect (JSONObject params, AutmanMapper autmanMapper,OrganizationService organizationService){
         Map<String,Object> result=new HashMap<>();
         PaillierT paillier = new PaillierT(PaillierT.param);
         try{
@@ -1614,6 +1621,11 @@ public class AutmanController {
 
                     if(s.getTransactionPeople()!=null){
                         s.setTransactionPeople(K2C8.parseString(paillier.SDecryption(new CipherPub(s.getTransactionPeople())),paillier));
+                        if (s.getTransactionType()=="申请司法公证"){
+                            // 公证交易
+                            // 将id转为名字
+                            s.setTransactionPeople(organizationService.selectByOrganizationId(s.getTransactionPeople()).getOrganizationName());
+                        }
                     }
 
                 }
@@ -1856,7 +1868,7 @@ public class AutmanController {
 
         try{
             JSONObject params= ParseRequest.parse(req);
-            return transSelect(params,autmanMapper);
+            return transSelect(params,autmanMapper,organizationService);
 
         }catch (Exception e){
             e.printStackTrace();
@@ -1960,7 +1972,7 @@ public class AutmanController {
 
         try{
             JSONObject params= ParseRequest.parse(req);
-            return orgSelect(params,autmanMapper);
+            return orgSelect(params,autmanMapper,userService);
 
         }catch (Exception e){
             e.printStackTrace();
