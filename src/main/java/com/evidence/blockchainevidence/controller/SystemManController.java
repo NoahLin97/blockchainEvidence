@@ -2,6 +2,7 @@ package com.evidence.blockchainevidence.controller;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.evidence.blockchainevidence.PaillierT.CipherPub;
 import com.evidence.blockchainevidence.PaillierT.PaillierT;
 import com.evidence.blockchainevidence.entity.ManagerEntity;
 import com.evidence.blockchainevidence.mapper.SystemManMapper;
@@ -396,6 +397,71 @@ public class SystemManController {
                 result.put("message","更新失败!");
             }
 
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw, true));
+            String str = sw.toString();
+
+            result.put("status",false);
+            result.put("message",str);
+        }
+
+        return result;
+
+    }
+
+    /**
+     * 系统理员信息查询
+     * @param req
+     * @return
+     */
+    @CrossOrigin(origins = "*")
+    @PostMapping("/sys/query")
+    public Object querySys(HttpServletRequest req){
+
+        Map<String,Object> result = new HashMap<>();
+
+        try{
+
+            JSONObject params = ParseRequest.parse(req);
+
+            // 判断前端传来的参数是否正确
+            if(!params.containsKey("manId")){
+                result.put("status",false);
+                result.put("message","没有给出manId");
+                return result;
+            }
+            if(params.get("manId").toString().equals("none")){
+                result.put("status",false);
+                result.put("message","manId不能为空");
+                return result;
+            }
+
+
+            // 获取参数
+            String manId = params.get("manId").toString();
+            ManagerEntity manager = systemManMapper.selectByManId(manId);
+
+            // 生成公私钥
+            PaillierT paillier = new PaillierT(PaillierT.param);
+            BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
+            BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
+
+            CipherPub idCard_cipher = new CipherPub(manager.getIdCard());
+
+            // 身份证解密测试
+            BigInteger idCard = paillier.SDecryption(idCard_cipher);
+            System.out.println("解密后的身份证号为：" + idCard);
+
+            manager.setIdCard(idCard.toString());
+
+            //填充返回值
+            result.put("status",true);
+            result.put("message","success");
+            result.put("data",manager);
 
 
         }catch (Exception e){

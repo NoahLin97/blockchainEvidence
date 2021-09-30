@@ -5,6 +5,7 @@ import com.evidence.blockchainevidence.PaillierT.CipherPub;
 import com.evidence.blockchainevidence.PaillierT.PaillierT;
 import com.evidence.blockchainevidence.entity.*;
 import com.evidence.blockchainevidence.helib.SEA;
+import com.evidence.blockchainevidence.helib.SET;
 import com.evidence.blockchainevidence.helib.SLT;
 import com.evidence.blockchainevidence.mapper.*;
 import com.evidence.blockchainevidence.service.EvidenceService;
@@ -14,6 +15,7 @@ import com.evidence.blockchainevidence.service.UserService;
 import com.evidence.blockchainevidence.subprotocols.K2C16;
 import com.evidence.blockchainevidence.subprotocols.K2C8;
 import com.evidence.blockchainevidence.subprotocols.KMP;
+import com.evidence.blockchainevidence.subprotocols.SAD;
 import com.evidence.blockchainevidence.utils.HttpUtils;
 import com.evidence.blockchainevidence.utils.ParseRequest;
 import com.evidence.blockchainevidence.utils.Sha256;
@@ -2089,23 +2091,7 @@ public class UserController {
             // 1. 文件存放路径 ："/用户id/"
             String folderPath = "/"+userId+"/"+evidenceName+"_"+timestamp;
 
-            // 2. 转发数据给云后端
-            Boolean status = HttpUtils.doPostFormData("http://localhost:8090/uploadFiles?folderPath="+folderPath, files);
-
-            // 3. 根据返回信息判断是否上传成功，上传不成功，返回失败信息给前端
-            if(status == false){
-                result.put("status",false);
-                result.put("message","Uploading to the cloud failed");
-                return result;
-            }
-
-            //4. 上传成功
-
-            // 生成evidenceId，写入evidence表
-            String id = UUID.randomUUID().toString();
-            // 将UUID中的“-”去掉
-            String evidenceId = id.replace("-" , "");
-
+            // 2. 判断是否超过存储空间
             //计算文件总大小
             Integer filesize = 0;
             for(int i = 0; i < files.size(); i++) {
@@ -2113,17 +2099,80 @@ public class UserController {
                 filesize += filesize_tmp.intValue();
             }
 
-            //4.1 存储信息到数据库
-
-            //加密字段
-
             //Paillier初始化
             PaillierT paillier = new PaillierT(PaillierT.param);
             //为新用户生成公私钥
             BigInteger sk = new BigInteger(1024 - 12, 64, new Random());
             BigInteger pk = paillier.g.modPow(sk, paillier.nsquare);
-            //加密存证名称和文件大小,得到string形式的密文，这个是用来存数据库的
+            //加密文件大小,得到string形式的密文，这个是用来存数据库的
             String filesize_cipher = paillier.Encryption(BigInteger.valueOf(filesize),pk).toString();
+
+            // 通过userId找到数据库中的那一行
+            UserEntity user = userMapper.selectByUserId(userId);
+
+            //从数据库读取密文后，转成CipherPub进行同态计算
+            CipherPub curStorageSpace_cipher= new CipherPub(user.getStorageSpace()); //当前总存储空间
+            CipherPub oriHasUsedStorage_cipher = new CipherPub(user.getHasUsedStorage());
+
+            //Test
+            BigInteger curStorageSpace=paillier.SDecryption(curStorageSpace_cipher);
+            System.out.println("curStorageSpace="+curStorageSpace);
+
+            BigInteger oriHasUsedStorage=paillier.SDecryption(oriHasUsedStorage_cipher);
+            System.out.println("oriHasUsedStorage="+oriHasUsedStorage);
+
+            BigInteger curHasUsedStorage = oriHasUsedStorage.add(BigInteger.valueOf(filesize));
+            System.out.println("curHasUsedStorage="+curHasUsedStorage);
+
+            CipherPub curHasUsedStorage_cipher=paillier.Encryption(curHasUsedStorage,pk);
+
+            //判断curHasUsedStorage_cipher<curStorageSpace_cipher是否成立
+            SLT SK1 = new SLT(curHasUsedStorage_cipher,curStorageSpace_cipher,paillier);
+            SK1.StepOne();
+            SK1.StepTwo();
+            SK1.StepThree();
+            CipherPub cans_l=SK1.FIN;
+            //解密数字
+            BigInteger ans_l=paillier.SDecryption(cans_l);
+
+            //判断curHasUsedStorage_cipher=curStorageSpace_cipher是否成立
+            SET SE1 = new SET(curHasUsedStorage_cipher,curStorageSpace_cipher,paillier);
+            SE1.StepOne();
+            SE1.StepTwo();
+            SE1.StepThree();
+            CipherPub cans_e=SE1.FIN;
+            //解密数字
+            BigInteger ans_e=paillier.SDecryption(cans_e);
+
+            if(ans_l.equals(BigInteger.ZERO) && ans_e.equals(BigInteger.ZERO)) { //说明curHasUsedStorage_cipher>curStorageSpace_cipher
+                result.put("status",false);
+                result.put("message","Insufficient storage space");
+                return result;
+            }
+
+            // 3 . 转发数据给云后端
+//            Boolean status = HttpUtils.doPostFormData("http://localhost:8090/uploadFiles?folderPath="+folderPath, files);
+            Boolean status = true;
+
+            // 4. 根据返回信息判断是否上传成功，上传不成功，返回失败信息给前端
+            if(status == false){
+                result.put("status",false);
+                result.put("message","Uploading to the cloud failed");
+                return result;
+            }
+
+            //5. 上传成功
+
+            // 生成evidenceId，写入evidence表
+            String id = UUID.randomUUID().toString();
+            // 将UUID中的“-”去掉
+            String evidenceId = id.replace("-" , "");
+
+
+
+            //4.1 存储信息到数据库
+
+            //加密存证名称,得到string形式的密文，这个是用来存数据库的
             K2C16 k2c16 = new K2C16(evidenceName, pk, paillier);
             k2c16.StepOne();
             CipherPub tmp = k2c16.FIN;
@@ -2131,6 +2180,8 @@ public class UserController {
 
             evidenceMapper.insertEvi(evidenceId, userId, evidenceType, evidenceName_cipher, folderPath, filesize_cipher, current_time);
 
+            // 更新用户的已用存储空间
+            userMapper.updateHasUsedStorage(curHasUsedStorage_cipher.toString(), userId);
 
             //4.2 与区块链交互，返回存证区块链交易id和上链时间
             Map<String,Object> blockchain = new HashMap<>();
@@ -2148,7 +2199,8 @@ public class UserController {
             blockchain.put("key",evidenceId);
             blockchain.put("value",jsonObject);
 
-            String str= HttpUtils.doPost("http://192.168.31.245:8090/writeEvidence",blockchain);
+//            String str= HttpUtils.doPost("http://192.168.31.245:8090/writeEvidence",blockchain);
+            String str = "123456";
             System.out.println("上传证据区块链Id为：" + str);
 
 //            String str = "123456789";  //测试用

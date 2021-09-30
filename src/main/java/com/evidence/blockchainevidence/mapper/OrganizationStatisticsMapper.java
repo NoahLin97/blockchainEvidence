@@ -18,8 +18,8 @@ public interface OrganizationStatisticsMapper {
     List<OrganizationStatisticsEntity> selectBytimeFlag(@Param("timeFlag") String timeFlag);
 
     //公证机构统计生成
-    @Insert("insert into organization_statistics(organizationStatisticsId ,organizationId, organizationName, notarizationCount, notarizationSuccessCount, notarizationTotalMoney, notstyCount, timeFlag)\n" +
-            "select uuid() as organizationStatisticsId, tmp1.organizationId, organizationName, notarizationCount, notarizationSuccessCount, notarizationTotalMoney, notaryCount, #{timeFlag} as timeFlag from\n" +
+    @Insert("insert into organization_statistics(organizationStatisticsId ,organizationId, organizationName, notarizationCount, notarizationFailCount, notarizationSuccessCount, notarizationTotalMoney, notstyCount, timeFlag)\n" +
+            "select uuid() as organizationStatisticsId, tmp1.organizationId, organizationName, notarizationCount, notarizationFailCount, notarizationSuccessCount, notarizationTotalMoney, notaryCount, #{timeFlag} as timeFlag from\n" +
             "(select organizationId, organizationName, count(notaryId) as notaryCount from (\n" +
             "SELECT notary.notaryId, notary.notaryName, organization.organizationId, organization.organizationName \n" +
             "FROM \n" +
@@ -45,7 +45,16 @@ public interface OrganizationStatisticsMapper {
             "right join organization\n" +
             "on evidence.organizationId=organization.organizationId) as tmp\n" +
             "where notarizationStatus='3' group by organizationId) as tmp3\n" +
-            "on tmp2.organizationId=tmp3.organizationId;")
+            "on tmp2.organizationId=tmp3.organizationId\n" +
+            "left join\n" +
+            "(select organizationId, count(*) as notarizationFailCount from\n" +
+            "(SELECT organization.organizationId,evidence.notarizationStatus " +
+            "FROM \n" +
+            "evidence\n" +
+            "right join organization\n" +
+            "on evidence.organizationId=organization.organizationId) as tmp\n" +
+            "where notarizationStatus='4' group by organizationId) as tmp4\n" +
+            "on tmp2.organizationId=tmp4.organizationId;")
     void OrganizationStatisticsGen(@Param("timeFlag") String timeFlag);
 
     //公证金额获取

@@ -4,6 +4,8 @@ import com.evidence.blockchainevidence.entity.ManagerEntity;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Mapper
 @Component
 public interface SystemManMapper {
@@ -21,5 +23,9 @@ public interface SystemManMapper {
     @Update("update manager set password = #{newPassword},phoneNumber = #{phoneNumber},idCard = #{idCard},email = #{email},sex = #{sex} where manId = #{manId} ")
     int updateSystemMan(@Param("manId") String manId,@Param("newPassword") String newPassword,@Param("phoneNumber") String phoneNumber,
                    @Param("idCard") String idCard,@Param("email") String email,@Param("sex") String sex);
+
+
+    @Select("select * from manager where manId= #{manId}")
+    ManagerEntity selectByManId(@Param("manId") String manId);
 
 }

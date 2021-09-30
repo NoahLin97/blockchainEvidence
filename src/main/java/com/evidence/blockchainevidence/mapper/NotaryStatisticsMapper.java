@@ -19,8 +19,8 @@ public interface NotaryStatisticsMapper {
     List<NotaryStatisticsEntity> selectBytimeFlag(@Param("timeFlag") String timeFlag);
 
     //公证员统计生成
-    @Insert("insert into notary_statistics(notaryStatisticsId ,notstyId, notaryName, organizationName, notarizationCount, notarizationSuccessCount, notarizationTotalMoney, notarizationType, timeFlag)\n" +
-            "select uuid() as notaryStatisticsId, tmp1.notaryId, notaryName, organizationName, notarizationCount, notarizationSuccessCount, notarizationTotalMoney, notarizationType, #{timeFlag} as timeFlag from\n" +
+    @Insert("insert into notary_statistics(notaryStatisticsId ,notstyId, notaryName, organizationName, notarizationCount, notarizationFailCount, notarizationSuccessCount, notarizationTotalMoney, notarizationType, timeFlag)\n" +
+            "select uuid() as notaryStatisticsId, tmp1.notaryId, notaryName, organizationName, notarizationCount, notarizationFailCount, notarizationSuccessCount, notarizationTotalMoney, notarizationType, #{timeFlag} as timeFlag from\n" +
             "(SELECT notaryId, notaryName, organization.organizationName, notarizationType from\n" +
             "notary\n" +
             "left join organization\n" +
@@ -42,7 +42,16 @@ public interface NotaryStatisticsMapper {
             "on notary.notaryId = evidence.notaryId) as tmp\n" +
             "where notarizationStatus='3'\n" +
             "group by notaryId) as tmp3\n" +
-            "on tmp2.notaryId = tmp3.notaryId;")
+            "on tmp2.notaryId = tmp3.notaryId\n" +
+            "left join\n" +
+            "(select notaryId, count(*) as notarizationFailCount from\n" +
+            "(SELECT notary.notaryId,evidence.notarizationStatus FROM \n" +
+            "notary\n" +
+            "left join evidence\n" +
+            "on notary.notaryId = evidence.notaryId) as tmp\n" +
+            "where notarizationStatus='4'\n" +
+            "group by notaryId) as tmp4\n" +
+            "on tmp2.notaryId = tmp4.notaryId;")
     void notayStatisticsGen(@Param("timeFlag") String timeFlag);
 
     //公证员排名生成

@@ -16,6 +16,7 @@ public class OrganizationStatisticsEntity {
     private Integer notstyCount;
     private Timestamp timeFlag;
     private OrganizationEntity organizationByOrganizationId;
+    private Integer notarizationFailCount;
 
     @Id
     @Column(name = "organizationStatisticsId")
@@ -125,5 +126,15 @@ public class OrganizationStatisticsEntity {
 
     public void setOrganizationByOrganizationId(OrganizationEntity organizationByOrganizationId) {
         this.organizationByOrganizationId = organizationByOrganizationId;
+    }
+
+    @Basic
+    @Column(name = "notarizationFailCount")
+    public Integer getNotarizationFailCount() {
+        return notarizationFailCount;
+    }
+
+    public void setNotarizationFailCount(Integer notarizationFailCount) {
+        this.notarizationFailCount = notarizationFailCount;
     }
 }

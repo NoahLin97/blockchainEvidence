@@ -17,16 +17,7 @@ public class NotaryStatisticsEntity {
     private Object notarizationType;
     private Timestamp timeFlag;
     private NotaryEntity notaryByNotstyId;
-
-
-
-
-
-
-
-
-
-
+    private Integer notarizationFailCount;
 
     @Id
     @Column(name = "notaryStatisticsId")
@@ -104,6 +95,10 @@ public class NotaryStatisticsEntity {
         return notarizationType;
     }
 
+    public void setNotarizationType(String notarizationType) {
+        this.notarizationType = notarizationType;
+    }
+
     public void setNotarizationType(Object notarizationType) {
         this.notarizationType = notarizationType;
     }
@@ -147,5 +142,15 @@ public class NotaryStatisticsEntity {
 
     public void setNotaryByNotstyId(NotaryEntity notaryByNotstyId) {
         this.notaryByNotstyId = notaryByNotstyId;
+    }
+
+    @Basic
+    @Column(name = "notarizationFailCount")
+    public Integer getNotarizationFailCount() {
+        return notarizationFailCount;
+    }
+
+    public void setNotarizationFailCount(Integer notarizationFailCount) {
+        this.notarizationFailCount = notarizationFailCount;
     }
 }
