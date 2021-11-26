@@ -28,7 +28,7 @@ public class SEA0 {
 	public int num;
 	public int numchar;
 	public int FIN;			
-	//标识符，FIN=0表示字符串中无*号；FIN=1表示字符串中有*号
+	//???????FIN=0????????????*???FIN=1????????????*??
 	
 	public long timeCP = 0; 
 	public long timeCSP = 0; 
@@ -45,7 +45,7 @@ public class SEA0 {
 	int i;
 	long t1, t2, t3, t4;
 	
-	int NUM = 3;		//系统默认的*可以取代的字符个数
+	int NUM = 3;		//??????*????????????????
 
 	public SEA0(String _S, int _num, BigInteger _pub, PaillierT _paillier) {
 		S = _S;
@@ -79,7 +79,7 @@ public class SEA0 {
 		
 		EZERO = paillier.Encryption(BigInteger.ZERO, pub);
 		
-		//字符串中无*号
+		//?????????*??
 		if (S.indexOf("*")==-1){
 			FIN = 0;	
 			
@@ -91,7 +91,7 @@ public class SEA0 {
 			num = -1;
 			numchar = -1;
 		}	
-		//字符串中*号在最前面
+		//???????*?????????
 		else if(S.indexOf("*")==0){
 			FIN = 1;
 			
@@ -104,7 +104,7 @@ public class SEA0 {
 			Y2 = EZERO;
 			numchar = -1;
 		}
-		//字符串中*号在最后面
+		//???????*?????????
 		else if(S.indexOf("*")==S.length()-1){
 			FIN = 1;
 			
@@ -118,7 +118,7 @@ public class SEA0 {
 			num = -1;
 			numchar = S.length()-1;
 		}
-		//字符串中*号在中间
+		//???????*?????屑?
 		else{
 			FIN = 1;
 			

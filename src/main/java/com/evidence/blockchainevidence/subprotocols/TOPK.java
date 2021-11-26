@@ -54,7 +54,7 @@ public class TOPK {
 	int SBsize;
 
 
-	//第二个参数是k
+	//???????????k
 	public TOPK(CipherPub2 []  _VA, int _I, PaillierT _paillier) {
 	    TT  =  _VA;
 	    KK = _I;
@@ -64,7 +64,7 @@ public class TOPK {
     
     public void StepOne (){ 
     	
-		//TMAX初始化
+		//TMAX?????
     	TMAX = new CipherPub2[KK];
     	for(i=0; i<KK; i++){
     		TMAX[i] = new CipherPub2();
@@ -73,7 +73,7 @@ public class TOPK {
     		TMAX[i].EK = new CipherPub();
     	}
     	
-		//V,A初始化
+		//V,A?????
     	A = new CipherPub[TT.length];
     	V = new CipherPub[TT.length];
     	DO_V = new Ciphertext1[TT.length];
@@ -86,7 +86,7 @@ public class TOPK {
     	}
     	
 		SBsize = TT.length;   		
-		//SB初始化
+		//SB?????
     	SB = new CipherPub2[SBsize];
     	for(i=0; i<SBsize; i++){
     		SB[i] = new CipherPub2();
@@ -95,7 +95,7 @@ public class TOPK {
     		SB[i].EK = new CipherPub();
     	}
     	
-    	//SB赋初始值
+    	//SB??????
     	for(i=0; i<SBsize; i++){
     		SB[i].EI = TT[i].EI;
     		SB[i].EID = TT[i].EID;
@@ -103,7 +103,7 @@ public class TOPK {
     	}
     	
     	
-    	//开始for大循环，找最大值
+    	//???for?????????????
     	for(i=1; i<=KK; i++){
     		SK1 = new MAXN(SB, paillier);
     		SK1.StepOne();

@@ -1,0 +1,3 @@
+cd blockchainEvidence_jar
+
+java -jar blockchainEvidence.jar

@@ -35,7 +35,7 @@ public class SEA {
 	public int numchar1;
 	public int numchar2;
 	
-	public int flag;			//flag = 0,1,2 ±íÊ¾*¸öÊı
+	public int flag;			//flag = 0,1,2 ???*????
 	
 	public long timeCP = 0; 
 	public long timeCSP = 0; 
@@ -52,11 +52,11 @@ public class SEA {
 	int i;
 	long t1, t2, t3, t4;
 	
-	int count = 0;			//×Ö·û´®ÖĞº¬ÓĞ*µÄ¸öÊı
+	int count = 0;			//??????Ğº???*?????
 	
 	
-	int NUM1 = 3;		//ÏµÍ³Ä¬ÈÏµÄ*¿ÉÒÔÈ¡´úµÄ×Ö·û¸öÊı
-	int NUM2 = 3;		//ÏµÍ³Ä¬ÈÏµÄ*¿ÉÒÔÈ¡´úµÄ×Ö·û¸öÊı
+	int NUM1 = 3;		//??????*????????????????
+	int NUM2 = 3;		//??????*????????????????
 
 	public SEA(String _S, int _num1, int _num2, BigInteger _pub, PaillierT _paillier) {
 		S = _S;
@@ -94,7 +94,7 @@ public class SEA {
 		
 		EZERO = paillier.Encryption(BigInteger.ZERO, pub);
 		
-		int index[] = new int[S.length()];		//´æ´¢*ÔÚ×Ö·û´®ÖĞµÄÏÂ±ê
+		int index[] = new int[S.length()];		//?æ´¢*????????Ğµ??Â±?
 		
 		for(int i=0;i<S.length();i++){
 			if (S.charAt(i) =='*'){
@@ -103,7 +103,7 @@ public class SEA {
 			}
 		}
 		
-		//×Ö·û´®ÖĞÎŞ*ºÅ
+		//?????????*??
 		if (count==0){
 			
 			flag =0;
@@ -123,14 +123,14 @@ public class SEA {
 			Y3 = EZERO;
 
 		}	
-		//×Ö·û´®ÖĞÓĞ1¸ö*ºÅ
+		//?????????1??*??
 		else if (count==1){
 			
 			flag =1;
 			
 			System.out.print("SEA: One *. \n");
 			
-			//×Ö·û´®ÖĞ*ºÅÔÚ×îÇ°Ãæ
+			//???????*?????????
 			if(S.indexOf("*")==0){
 				
 				System.out.print("SEA: Front. \n");
@@ -148,7 +148,7 @@ public class SEA {
 				Y2 = EZERO;
 				Y3 = EZERO;
 			}
-			//×Ö·û´®ÖĞ*ºÅÔÚ×îºóÃæ
+			//???????*?????????
 			else if(S.indexOf("*")==S.length()-1){
 				
 				System.out.print("SEA: Back. \n");
@@ -167,7 +167,7 @@ public class SEA {
 				Y2 = EZERO;
 				Y3 = EZERO;
 			}
-			//×Ö·û´®ÖĞ*ºÅÔÚÖĞ¼ä
+			//???????*?????Ğ¼?
 			else{
 				
 				System.out.print("SEA: Middle. \n");
@@ -190,7 +190,7 @@ public class SEA {
 				
 			}
 		}
-		//×Ö·û´®ÖĞÓĞ2¸ö*ºÅ
+		//?????????2??*??
 		else if (count==2){
 			
 			flag =2;
