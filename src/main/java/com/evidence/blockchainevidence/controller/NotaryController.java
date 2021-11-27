@@ -13,6 +13,7 @@ import com.evidence.blockchainevidence.utils.HttpUtils;
 import com.evidence.blockchainevidence.utils.ParseRequest;
 import com.evidence.blockchainevidence.utils.Sha256;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,7 +44,8 @@ public class NotaryController {
     EvidenceService evidenceService;
 
     //区块链服务端地址
-    public static String blockchain_url = "http://192.168.31.245:8090/";
+    @Value("${spring.blockchain.url}")
+    public static String blockchain_url;
 
     /**
      * 查询申请公证的记录

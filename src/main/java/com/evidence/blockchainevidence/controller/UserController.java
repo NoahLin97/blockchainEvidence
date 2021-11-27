@@ -15,12 +15,12 @@ import com.evidence.blockchainevidence.service.UserService;
 import com.evidence.blockchainevidence.subprotocols.K2C16;
 import com.evidence.blockchainevidence.subprotocols.K2C8;
 import com.evidence.blockchainevidence.subprotocols.KMP;
-import com.evidence.blockchainevidence.subprotocols.SAD;
 import com.evidence.blockchainevidence.utils.HttpUtils;
 import com.evidence.blockchainevidence.utils.ParseRequest;
 import com.evidence.blockchainevidence.utils.Sha256;
 import com.evidence.blockchainevidence.utils.StreamUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,6 +61,11 @@ public class UserController {
     TransactionService transactionService;
     @Autowired
     NotarizationTypeMapper notarizationTypeMapper;
+
+
+    @Value("${spring.blockchain.url}")
+    String blockchainHost;
+
 
     /**
      * 数据库查询测试
@@ -1314,14 +1319,23 @@ public class UserController {
             blockchain1.put("key",evidenceId);
             blockchain1.put("value",jsonObject);
 
-//            String str1 = HttpUtils.doPost("http://192.168.31.245:8090/writeNotarizationApply",blockchain1);
-//            System.out.println("公证申请区块链Id为：" + str1);
+
+            String str1 = HttpUtils.doPost(blockchainHost+"/writeNotarizationApply",blockchain1);
+            System.out.println("公证申请区块链Id为：" + str1);
+
 
             blockchain2.put("key",transactionId);
             System.out.println("transactionId:" + transactionId);
             blockchain2.put("value",jsonObject);
-//            String str2 = HttpUtils.doPost("http://192.168.31.245:8090/writeNotarPay",blockchain2);
-//            System.out.println("公证缴费区块链Id为：" + str2);
+            String str2 = HttpUtils.doPost(blockchainHost+"/writeNotarPay",blockchain2);
+            System.out.println("公证缴费区块链Id为：" + str2);
+
+
+            Date time = new Date(System.currentTimeMillis());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String blockchainTime = sdf.format(time);
+            transactionService.updateTranTime(blockchainTime,transactionId);
+
 
             // 返回
             result.put("status",true);
@@ -1463,8 +1477,13 @@ public class UserController {
             blockchain.put("key",transactionId);
             blockchain.put("value",jsonObject);
 
-//            String str= HttpUtils.doPost("http://192.168.31.245:8090/writeCharge",blockchain);
-//            System.out.println("充值区块链Id为：" + str);
+            String str= HttpUtils.doPost(blockchainHost+"/writeCharge",blockchain);
+            System.out.println("充值区块链Id为：" + str);
+
+            Date t = new Date(System.currentTimeMillis());
+            SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String blockchainTime = s.format(t);
+            transactionService.updateTranTime(blockchainTime,transactionId);
 
 
             // 返回
@@ -1662,8 +1681,13 @@ public class UserController {
                 blockchain.put("key",transactionId);
                 blockchain.put("value",jsonObject);
 
-//                String str= HttpUtils.doPost("http://192.168.31.245:8090/writeGive",blockchain);
-//                System.out.println("转账区块链Id为：" + str);
+                String str= HttpUtils.doPost(blockchainHost+"/writeGive",blockchain);
+                System.out.println("转账区块链Id为：" + str);
+
+                Date t = new Date(System.currentTimeMillis());
+                SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String blockchainTime = s.format(t);
+                transactionService.updateTranTime(blockchainTime,transactionId);
 
 
                 // 返回
@@ -1817,8 +1841,13 @@ public class UserController {
                 blockchain.put("key",transactionId);
                 blockchain.put("value",jsonObject);
 
-//                String str= HttpUtils.doPost("http://192.168.31.245:8090/writeWithdraw",blockchain);
-//                System.out.println("提现区块链Id为：" + str);
+                String str= HttpUtils.doPost(blockchainHost+"/writeWithdraw",blockchain);
+                System.out.println("提现区块链Id为：" + str);
+
+                Date t = new Date(System.currentTimeMillis());
+                SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String blockchainTime = s.format(t);
+                transactionService.updateTranTime(blockchainTime,transactionId);
 
 
                 // 返回
@@ -2003,8 +2032,13 @@ public class UserController {
                 blockchain.put("key",transactionId);
                 blockchain.put("value",jsonObject);
 
-//                String str= HttpUtils.doPost("http://192.168.31.245:8090/writeMemPay",blockchain);
-//                System.out.println("购买存储空间区块链Id为：" + str);
+                String str= HttpUtils.doPost(blockchainHost+"/writeMemPay",blockchain);
+                System.out.println("购买存储空间区块链Id为：" + str);
+
+                Date t = new Date(System.currentTimeMillis());
+                SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String blockchainTime = s.format(t);
+                transactionService.updateTranTime(blockchainTime,transactionId);
 
 
                 // 返回
@@ -2180,9 +2214,14 @@ public class UserController {
             blockchain.put("key",evidenceId);
             blockchain.put("value",jsonObject);
 //
-//            String str= HttpUtils.doPost("http://192.168.31.245:8090/writeEvidence",blockchain);
-            String str = "123456";
+            String str= HttpUtils.doPost(blockchainHost+"/writeEvidence",blockchain);
+//            String str = "123456";
             System.out.println("上传证据区块链Id为：" + str);
+
+            Date t = new Date(System.currentTimeMillis());
+            SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String blockchainTime = s.format(t);
+            evidenceService.updateBlockchainTime(blockchainTime,evidenceId);
 
 //            String str = "123456789";  //测试用
             String evidenceBlockchainId = str;
