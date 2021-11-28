@@ -1457,33 +1457,33 @@ public class UserController {
 
 
             // 与区块链交互
-            Map<String,Object> blockchain = new HashMap<>();
-            JSONObject jsonObject = new JSONObject();
-
+//            Map<String,Object> blockchain = new HashMap<>();
+//            JSONObject jsonObject = new JSONObject();
+//
             // 通过transactionId找到数据库中的那一行
             TransactionEntity tran1 =null;
             tran1 = transactionService.selectByTransactionId(transactionId);
+//
+//            // transaction表
+//            jsonObject.put("transactionId",transactionId);
+//            jsonObject.put("userRemains",tran1.getUserRemains());
+//            jsonObject.put("transactionMoney",tran1.getTransactionMoney());
+//            jsonObject.put("transactionPeople",tran1.getTransactionPeople());
+//            jsonObject.put("transactionType",tran1.getTransactionType());
+//            jsonObject.put("transactionTime",tran1.getTransactionTime());
+//            jsonObject.put("transactionStatus",tran1.getTransactionStatus());
+//
+//
+//            blockchain.put("key",transactionId);
+//            blockchain.put("value",jsonObject);
 
-            // transaction表
-            jsonObject.put("transactionId",transactionId);
-            jsonObject.put("userRemains",tran1.getUserRemains());
-            jsonObject.put("transactionMoney",tran1.getTransactionMoney());
-            jsonObject.put("transactionPeople",tran1.getTransactionPeople());
-            jsonObject.put("transactionType",tran1.getTransactionType());
-            jsonObject.put("transactionTime",tran1.getTransactionTime());
-            jsonObject.put("transactionStatus",tran1.getTransactionStatus());
-
-
-            blockchain.put("key",transactionId);
-            blockchain.put("value",jsonObject);
-
-            String str= HttpUtils.doPost(blockchainHost+"/writeCharge",blockchain);
-            System.out.println("充值区块链Id为：" + str);
-
-            Date t = new Date(System.currentTimeMillis());
-            SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String blockchainTime = s.format(t);
-            transactionService.updateTranTime(blockchainTime,transactionId);
+//            String str= HttpUtils.doPost(blockchainHost+"/writeCharge",blockchain);
+//            System.out.println("充值区块链Id为：" + str);
+//
+//            Date t = new Date(System.currentTimeMillis());
+//            SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            String blockchainTime = s.format(t);
+//            transactionService.updateTranTime(blockchainTime,transactionId);
 
 
             // 返回
@@ -1659,8 +1659,8 @@ public class UserController {
                 int flag5 = transactionService.updateTranPeople(stransactionPeople,transactionId);
 
                 // 与区块链交互
-                Map<String,Object> blockchain = new HashMap<>();
-                JSONObject jsonObject = new JSONObject();
+//                Map<String,Object> blockchain = new HashMap<>();
+//                JSONObject jsonObject = new JSONObject();
 
 
                 // 通过transactionId找到数据库中的那一行
@@ -1669,25 +1669,25 @@ public class UserController {
 
 
                 // transaction表
-                jsonObject.put("transactionId",transactionId);
-                jsonObject.put("userRemains",tran1.getUserRemains());
-                jsonObject.put("transactionMoney",tran1.getTransactionMoney());
-                jsonObject.put("transactionPeople",tran1.getTransactionPeople());
-                jsonObject.put("transactionType",tran1.getTransactionType());
-                jsonObject.put("transactionTime",tran1.getTransactionTime());
-                jsonObject.put("transactionStatus",tran1.getTransactionStatus());
-
-
-                blockchain.put("key",transactionId);
-                blockchain.put("value",jsonObject);
-
-                String str= HttpUtils.doPost(blockchainHost+"/writeGive",blockchain);
-                System.out.println("转账区块链Id为：" + str);
-
-                Date t = new Date(System.currentTimeMillis());
-                SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String blockchainTime = s.format(t);
-                transactionService.updateTranTime(blockchainTime,transactionId);
+//                jsonObject.put("transactionId",transactionId);
+//                jsonObject.put("userRemains",tran1.getUserRemains());
+//                jsonObject.put("transactionMoney",tran1.getTransactionMoney());
+//                jsonObject.put("transactionPeople",tran1.getTransactionPeople());
+//                jsonObject.put("transactionType",tran1.getTransactionType());
+//                jsonObject.put("transactionTime",tran1.getTransactionTime());
+//                jsonObject.put("transactionStatus",tran1.getTransactionStatus());
+//
+//
+//                blockchain.put("key",transactionId);
+//                blockchain.put("value",jsonObject);
+//
+//                String str= HttpUtils.doPost(blockchainHost+"/writeGive",blockchain);
+//                System.out.println("转账区块链Id为：" + str);
+//
+//                Date t = new Date(System.currentTimeMillis());
+//                SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                String blockchainTime = s.format(t);
+//                transactionService.updateTranTime(blockchainTime,transactionId);
 
 
                 // 返回
@@ -1820,8 +1820,8 @@ public class UserController {
 
 
                 // 与区块链交互
-                Map<String,Object> blockchain = new HashMap<>();
-                JSONObject jsonObject = new JSONObject();
+//                Map<String,Object> blockchain = new HashMap<>();
+//                JSONObject jsonObject = new JSONObject();
 
 
                 // 通过transactionId找到数据库中的那一行
@@ -1829,25 +1829,25 @@ public class UserController {
                 tran1 = transactionService.selectByTransactionId(transactionId);
 
                 // transaction表
-                jsonObject.put("transactionId",transactionId);
-                jsonObject.put("userRemains",tran1.getUserRemains());
-                jsonObject.put("transactionMoney",tran1.getTransactionMoney());
-                jsonObject.put("transactionPeople",tran1.getTransactionPeople());
-                jsonObject.put("transactionType",tran1.getTransactionType());
-                jsonObject.put("transactionTime",tran1.getTransactionTime());
-                jsonObject.put("transactionStatus",tran1.getTransactionStatus());
-
-
-                blockchain.put("key",transactionId);
-                blockchain.put("value",jsonObject);
-
-                String str= HttpUtils.doPost(blockchainHost+"/writeWithdraw",blockchain);
-                System.out.println("提现区块链Id为：" + str);
-
-                Date t = new Date(System.currentTimeMillis());
-                SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String blockchainTime = s.format(t);
-                transactionService.updateTranTime(blockchainTime,transactionId);
+//                jsonObject.put("transactionId",transactionId);
+//                jsonObject.put("userRemains",tran1.getUserRemains());
+//                jsonObject.put("transactionMoney",tran1.getTransactionMoney());
+//                jsonObject.put("transactionPeople",tran1.getTransactionPeople());
+//                jsonObject.put("transactionType",tran1.getTransactionType());
+//                jsonObject.put("transactionTime",tran1.getTransactionTime());
+//                jsonObject.put("transactionStatus",tran1.getTransactionStatus());
+//
+//
+//                blockchain.put("key",transactionId);
+//                blockchain.put("value",jsonObject);
+//
+//                String str= HttpUtils.doPost(blockchainHost+"/writeWithdraw",blockchain);
+//                System.out.println("提现区块链Id为：" + str);
+//
+//                Date t = new Date(System.currentTimeMillis());
+//                SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                String blockchainTime = s.format(t);
+//                transactionService.updateTranTime(blockchainTime,transactionId);
 
 
                 // 返回
@@ -2012,33 +2012,33 @@ public class UserController {
 
 
                 // 与区块链交互
-                Map<String,Object> blockchain = new HashMap<>();
-                JSONObject jsonObject = new JSONObject();
+//                Map<String,Object> blockchain = new HashMap<>();
+//                JSONObject jsonObject = new JSONObject();
 
                 // 通过transactionId找到数据库中的那一行
                 TransactionEntity tran1 =null;
                 tran1 = transactionService.selectByTransactionId(transactionId);
 
                 // transaction表
-                jsonObject.put("transactionId",transactionId);
-                jsonObject.put("userRemains",tran1.getUserRemains());
-                jsonObject.put("transactionMoney",tran1.getTransactionMoney());
-                jsonObject.put("transactionPeople",tran1.getTransactionPeople());
-                jsonObject.put("transactionType",tran1.getTransactionType());
-                jsonObject.put("transactionTime",tran1.getTransactionTime());
-                jsonObject.put("transactionStatus",tran1.getTransactionStatus());
-
-
-                blockchain.put("key",transactionId);
-                blockchain.put("value",jsonObject);
-
-                String str= HttpUtils.doPost(blockchainHost+"/writeMemPay",blockchain);
-                System.out.println("购买存储空间区块链Id为：" + str);
-
-                Date t = new Date(System.currentTimeMillis());
-                SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String blockchainTime = s.format(t);
-                transactionService.updateTranTime(blockchainTime,transactionId);
+//                jsonObject.put("transactionId",transactionId);
+//                jsonObject.put("userRemains",tran1.getUserRemains());
+//                jsonObject.put("transactionMoney",tran1.getTransactionMoney());
+//                jsonObject.put("transactionPeople",tran1.getTransactionPeople());
+//                jsonObject.put("transactionType",tran1.getTransactionType());
+//                jsonObject.put("transactionTime",tran1.getTransactionTime());
+//                jsonObject.put("transactionStatus",tran1.getTransactionStatus());
+//
+//
+//                blockchain.put("key",transactionId);
+//                blockchain.put("value",jsonObject);
+//
+//                String str= HttpUtils.doPost(blockchainHost+"/writeMemPay",blockchain);
+//                System.out.println("购买存储空间区块链Id为：" + str);
+//
+//                Date t = new Date(System.currentTimeMillis());
+//                SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                String blockchainTime = s.format(t);
+//                transactionService.updateTranTime(blockchainTime,transactionId);
 
 
                 // 返回
