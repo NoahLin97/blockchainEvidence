@@ -18,9 +18,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -171,12 +169,22 @@ public class HttpUtils {
             // 以form形式封装参数
             MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
 
+            //临时文件数组
+            List<File> tmpfiles = new ArrayList<>();
+
             for (int i = 0; i < files.size(); i++) {
                 String filename = files.get(i).getOriginalFilename();
                 //把MultipartFile转为File形式
-                File sendfile = new File("D:\\tmp\\tmp-" + filename);
+//                File sendfile = new File("D:\\tmp\\tmp-" + filename);
+                File directory = new File("");//参数为空
+                String curPath = directory.getCanonicalPath() ;
+
+                File sendfile = new File(curPath + "/" +filename);
                 files.get(i).transferTo(sendfile);
                 builder.addFormDataPart("file", filename, RequestBody.create(MediaType.parse("application/octet-stream"), sendfile));
+
+                // 会在本地产生临时文件，用完后需要删除
+                tmpfiles.add(sendfile);
             }
 
             RequestBody requestBody = builder.build();
@@ -193,6 +201,13 @@ public class HttpUtils {
             JSONObject responseData = JSON.parseObject(response.body().string());
             if((Boolean) responseData.get("status") == true)
                 context = true;
+
+            //删除本地缓存
+            for (int i = 0; i < tmpfiles.size(); i++) {
+                if (tmpfiles.get(i).exists()) {
+                    tmpfiles.get(i).delete();
+                }
+            }
 
             // 4 异步回调
 //            client.newCall(request).enqueue(new Callback() {

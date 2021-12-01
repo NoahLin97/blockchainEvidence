@@ -1334,7 +1334,7 @@ public class UserController {
             Date time = new Date(System.currentTimeMillis());
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String blockchainTime = sdf.format(time);
-            transactionService.updateTranTime(blockchainTime,transactionId);
+            transactionService.updateBlockchainTime(blockchainTime,transactionId);
 
 
             // 返回
@@ -2233,7 +2233,7 @@ public class UserController {
             // 5. 返回成功信息给前端
             result.put("status",true);
             result.put("message","success");
-            result.put("evidenceBlockchainId",evidenceBlockchainId);
+//            result.put("evidenceBlockchainId",evidenceBlockchainId);
 
         }catch (Exception e){
             e.printStackTrace();
