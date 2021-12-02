@@ -45,7 +45,7 @@ public class NotaryController {
 
     //区块链服务端地址
     @Value("${spring.blockchain.url}")
-    public static String blockchain_url;
+    public String blockchain_url;
 
     /**
      * 查询申请公证的记录
@@ -673,7 +673,7 @@ public class NotaryController {
             request.put("key",evidenceId);
             request.put("value",value);
 
-            String str= HttpUtils.doPost(blockchain_url+"writeNotarizationAudit",request);
+            String str= HttpUtils.doPost(blockchain_url+"/writeNotarizationAudit",request);
             System.out.println(str);
 
             result.put("message","公证审核完成");
