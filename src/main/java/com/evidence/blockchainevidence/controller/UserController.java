@@ -384,7 +384,7 @@ public class UserController {
             if(params.containsKey("transactionPeopleCipher    ")){
                 params.remove("transactionPeopleCipher ");
             }
-            return transSelect(params,autmanMapper,organizationService);
+            return transSelect(params,autmanMapper,organizationService,userService);
 
         }catch (Exception e){
             e.printStackTrace();
@@ -1624,6 +1624,7 @@ public class UserController {
 //                String stransactionPeople = paillier.Encryption(BigInteger.valueOf(Integer.parseInt(transactionPeople)),pk).toString();
                 // transactionPeople加密
                 System.out.println("transactionPeople为：" + transactionPeople);
+                transactionPeople = u2.getUserId();
                 K2C8 SK0 = new K2C8(transactionPeople,pk,paillier);
                 System.out.println("K2C8转换后的大整数为：" + SK0.getB());
                 SK0.StepOne();

@@ -1432,7 +1432,7 @@ public class AutmanController {
     }
 
 
-    public static Map<String,Object> transSelect (JSONObject params, AutmanMapper autmanMapper,OrganizationService organizationService){
+    public static Map<String,Object> transSelect (JSONObject params, AutmanMapper autmanMapper,OrganizationService organizationService,UserService userService){
         Map<String,Object> result=new HashMap<>();
         PaillierT paillier = new PaillierT(PaillierT.param);
         try{
@@ -1625,6 +1625,10 @@ public class AutmanController {
                             // 公证交易
                             // 将id转为名字
                             s.setTransactionPeople(organizationService.selectByOrganizationId(s.getTransactionPeople()).getOrganizationName());
+                        }
+                        if (s.getTransactionType()=="转账"){
+                            // 将id转为名字
+                            s.setTransactionPeople(userService.selectByUserId(s.getTransactionPeople()).getUsername());
                         }
                     }
 
@@ -1868,7 +1872,7 @@ public class AutmanController {
 
         try{
             JSONObject params= ParseRequest.parse(req);
-            return transSelect(params,autmanMapper,organizationService);
+            return transSelect(params,autmanMapper,organizationService,userService);
 
         }catch (Exception e){
             e.printStackTrace();
